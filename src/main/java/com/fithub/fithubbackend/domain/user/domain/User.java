@@ -49,7 +49,9 @@ public class User extends BaseTimeEntity {
 
     private String bio;
 
-    private String profileImgId;
+    @OneToOne(optional = false, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "document_id")
+    private Document profileImgId;
 
     @ElementCollection
     private List<String> roles = new ArrayList<>();
