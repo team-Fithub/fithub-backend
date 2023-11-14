@@ -12,6 +12,6 @@ public class CustomExceptionHandler {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponseDto> handleCustomException(CustomException exception) {
         log.info(exception.toString());
-        return ErrorResponseDto.toResponseEntity(exception.getErrorCode());
+        return ErrorResponseDto.toResponseEntity(exception.getErrorCode(), exception.getMessage());
     }
 }
