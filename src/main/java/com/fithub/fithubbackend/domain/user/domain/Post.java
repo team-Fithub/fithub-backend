@@ -34,18 +34,12 @@ public class Post extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post", cascade = CascadeType.PERSIST)
-    private List<Document> documents = new ArrayList<Document>();
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
-    private List<com.fithub.fithubbackend.domain.user.domain.Comment> comments = new ArrayList<com.fithub.fithubbackend.domain.user.domain.Comment>();
-
     public void setUser(User user) {
         this.user = user;
     }
 
     @Builder
-    public Post(String title, String content, User user, Integer views){
+    public Post(String title, String content, User user){
         this.title = title;
         this.content = content;
         this.user = user;

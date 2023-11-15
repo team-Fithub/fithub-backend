@@ -42,7 +42,7 @@ public class Comment extends BaseTimeEntity {
     private Comment parent;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-    private List<Comment> children = new ArrayList<Comment>();
+    private List<Comment> children = new ArrayList<>();
 
     public void setUser(User user) {
         this.user = user;
