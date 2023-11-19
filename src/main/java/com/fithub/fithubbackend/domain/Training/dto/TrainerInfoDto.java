@@ -15,10 +15,12 @@ public class TrainerInfoDto {
     private String location;
 
     public static TrainerInfoDto toDto(Trainer trainer) {
+        String profile = (trainer.getUser().getProfileImgId() != null ? trainer.getUser().getProfileImgId().getUrl() : null);
+
         return TrainerInfoDto.builder()
                 .trainerId(trainer.getId())
                 .name(trainer.getUser().getName())
-                .trainerProfileImg(trainer.getUser().getProfileImgId())
+                .trainerProfileImg(profile)
                 .location(trainer.getLocation())
                 .build();
     }
