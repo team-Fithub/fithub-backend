@@ -54,6 +54,6 @@ public class SecurityConfig {
     public WebSecurityCustomizer configure() {
         return (web) -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers("/swagger-ui/**");
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**");
     }
 }
