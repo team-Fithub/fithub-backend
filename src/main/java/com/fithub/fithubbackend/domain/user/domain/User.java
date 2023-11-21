@@ -1,11 +1,10 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
+import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,4 +54,17 @@ public class User extends BaseTimeEntity {
 
     @ElementCollection
     private List<String> roles = new ArrayList<>();
+
+    @Builder
+    public User(SignUpDto signUpDto, String encodedPassword) {
+        this.userId = signUpDto.getUserId();
+        this.password = encodedPassword;
+        this.name = signUpDto.getName();
+        this.nickname = signUpDto.getNickname();
+        this.email = signUpDto.getEmail();
+        this.phone = signUpDto.getPhone();
+        this.gender = signUpDto.getGender();
+        this.grade = Grade.NORMAL;
+        this.status = Status.NORMAL;
+    }
 }
