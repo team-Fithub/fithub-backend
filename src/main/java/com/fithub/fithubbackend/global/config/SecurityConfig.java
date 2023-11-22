@@ -31,7 +31,7 @@ public class SecurityConfig {
         "/users/training/**"
     };
     private static final String[] PERMIT_ALL_POST_PATTERNS = new String[] {
-            "/signup"
+            "/signup", "/email/**"
     };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
