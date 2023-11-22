@@ -56,7 +56,7 @@ public class User extends BaseTimeEntity {
     private List<String> roles = new ArrayList<>();
 
     @Builder
-    public User(SignUpDto signUpDto, String encodedPassword) {
+    public User(SignUpDto signUpDto, String encodedPassword, Document document) {
         this.userId = signUpDto.getUserId();
         this.password = encodedPassword;
         this.name = signUpDto.getName();
@@ -66,5 +66,6 @@ public class User extends BaseTimeEntity {
         this.gender = signUpDto.getGender();
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
+        this.profileImgId = document;
     }
 }
