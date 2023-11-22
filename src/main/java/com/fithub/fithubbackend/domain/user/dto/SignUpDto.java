@@ -15,13 +15,13 @@ public class SignUpDto {
     private final String PASSWORD_REGEXP = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@!%*#?&])[A-Za-z\\d@!%*#?&]{8,}$";
     private final String PHONE_NUMBER_REGEXP = "^\\d{3}-\\d{3,4}-\\d{4}$";
     private final String EMAIL_REGEXP = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
-    private final String NAME_REGEXP = "^[a-zA-Z0-9가-힣]$";
+    private final String NAME_REGEXP = "^[a-zA-Z가-힣]*$";
 
     @NotBlank(message = "아이디 입력은 필수입니다.")
     private String userId;
 
     @NotBlank(message = "이름 입력은 필수입니다.")
-    @Pattern(regexp = NAME_REGEXP, message = "특수문자는 포함될 수 없습니다.")
+    @Pattern(regexp = NAME_REGEXP, message = "특수문자 및 숫자는 포함될 수 없습니다.")
     private String name;
 
     @NotBlank(message = "닉네임 입력은 필수입니다.")
