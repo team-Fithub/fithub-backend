@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -29,7 +30,9 @@ public class SecurityConfig {
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
         "/users/training/**"
     };
-
+    private static final String[] PERMIT_ALL_POST_PATTERNS = new String[] {
+            "/signup"
+    };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
@@ -44,6 +47,8 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 HttpMethod.GET, PERMIT_ALL_GET_PATTERNS).permitAll()
+                        .requestMatchers(
+                                HttpMethod.POST, PERMIT_ALL_POST_PATTERNS).permitAll()
                         .anyRequest().authenticated()
                 )
                 // TODO: exceptionHandling, oauth2 설정 추가
@@ -55,5 +60,11 @@ public class SecurityConfig {
         return (web) -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**");
+    }
+
+    //passwordEncoder
+    @Bean
+    public BCryptPasswordEncoder encodePassword() {
+        return new BCryptPasswordEncoder();
     }
 }
