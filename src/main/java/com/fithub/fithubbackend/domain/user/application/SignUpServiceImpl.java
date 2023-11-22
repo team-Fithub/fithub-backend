@@ -69,7 +69,7 @@ public class SignUpServiceImpl implements SignUpService{
     }
     private void formValidate(BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
-            throw new CustomException(ErrorCode.INVALID_FORM_DATA,bindingResult.getAllErrors().toString());
+            throw new CustomException(ErrorCode.INVALID_FORM_DATA,ErrorCode.INVALID_FORM_DATA.getMessage());
         }
     }
 }
