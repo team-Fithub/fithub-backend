@@ -5,9 +5,11 @@ import com.fithub.fithubbackend.domain.user.domain.Grade;
 import com.fithub.fithubbackend.domain.user.domain.Status;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+@Getter
 public class SignUpResponseDto {
     private String userId;
     private String name;
