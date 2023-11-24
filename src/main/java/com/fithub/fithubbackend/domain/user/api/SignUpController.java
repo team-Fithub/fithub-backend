@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/signup")
+@RequestMapping("/auth")
 public class SignUpController {
     private final SignUpServiceImpl signUpService;
 
-    @PostMapping
+    @PostMapping("/signup")
     public ResponseEntity<SignUpResponseDto> signUp(@RequestBody @Valid SignUpDto signUpDto, BindingResult bindingResult){
         return signUpService.signUp(signUpDto,bindingResult);
     }

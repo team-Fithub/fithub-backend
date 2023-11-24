@@ -30,9 +30,6 @@ public class SecurityConfig {
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
         "/users/training/**"
     };
-    private static final String[] PERMIT_ALL_POST_PATTERNS = new String[] {
-            "/signup", "/email/**"
-    };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
@@ -47,8 +44,6 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 HttpMethod.GET, PERMIT_ALL_GET_PATTERNS).permitAll()
-                        .requestMatchers(
-                                HttpMethod.POST, PERMIT_ALL_POST_PATTERNS).permitAll()
                         .anyRequest().authenticated()
                 )
                 // TODO: exceptionHandling, oauth2 설정 추가

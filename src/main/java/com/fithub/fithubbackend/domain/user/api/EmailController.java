@@ -13,16 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/email")
+@RequestMapping("/auth")
 public class EmailController {
     private final EmailServiceImpl emailService;
 
-    @PostMapping("/send")
+    @PostMapping("/email/send")
     public void sendEmail(@RequestBody EmailDto emailDto) throws MessagingException {
         emailService.sendEmail(emailDto);
     }
 
-    @PostMapping("/check")
+    @PostMapping("/email/check")
     public ResponseEntity<String> checkCertificationNumber(@RequestBody EmailNumberDto emailNumberDto){
         return emailService.checkCertificationNumber(emailNumberDto);
     }
