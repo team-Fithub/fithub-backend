@@ -8,12 +8,12 @@ import java.time.LocalDateTime;
 
 @Getter
 public class SignUpResponseDto {
-    private String userId;
     private String name;
     private String nickname;
     private String email;
     private String phone;
     private Document profileImgId;
+    private String bio;
     private Gender gender;
     private Grade grade;
     private Status status;
@@ -21,12 +21,12 @@ public class SignUpResponseDto {
 
     @Builder
     public SignUpResponseDto(User user){
-        this.userId = user.getUserId();
         this.name = user.getName();
         this.nickname = user.getNickname();
         this.email = user.getEmail();
         this.phone = user.getPhone();
         this.profileImgId = user.getProfileImgId();
+        this.bio = user.getBio();
         this.gender = user.getGender();
         this.grade = user.getGrade();
         this.status = user.getStatus();

@@ -18,8 +18,6 @@ public class User extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String userId;
     private String password;
 
     @NotNull
@@ -57,7 +55,6 @@ public class User extends BaseTimeEntity {
 
     @Builder
     public User(SignUpDto signUpDto, String encodedPassword, Document document) {
-        this.userId = signUpDto.getUserId();
         this.password = encodedPassword;
         this.name = signUpDto.getName();
         this.nickname = signUpDto.getNickname();
@@ -67,5 +64,6 @@ public class User extends BaseTimeEntity {
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
         this.profileImgId = document;
+        this.bio = signUpDto.getBio();
     }
 }
