@@ -21,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -47,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
         // refreshToken, accessToken 쿠키에 저장
         cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
-        cookieUtil.addAccessTokenCookie(response, tokenInfoDto);
+        cookieUtil.addAccessTokenCookie(response, tokenInfoDto.getAccessToken());
 
         // Redis에 Key(이메일):Value(refreshToken) 저장
         redisUtil.setData(authentication.getName(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
@@ -86,7 +88,6 @@ public class UserServiceImpl implements UserService {
             redisUtil.setData(signOutDto.getAccessToken(), "logout", expiration);
         }
 
-        cookieUtil.deleteRefreshTokenCookie(request, response);
         cookieUtil.deleteAccessTokenCookie(request, response);
 
     }
@@ -96,7 +97,7 @@ public class UserServiceImpl implements UserService {
     public TokenInfoDto reissue(String cookieRefreshToken, HttpServletRequest request, HttpServletResponse response) {
 
         // 1. Request Header 에서 Access Token 추출
-        String accessToken = headerUtil.resolveToken(request);
+        String accessToken = headerUtil.resolveAccessToken(request);
 
         // 2. Refresh Token 검증
         if (!jwtTokenProvider.validateToken(cookieRefreshToken)) {
@@ -119,6 +120,7 @@ public class UserServiceImpl implements UserService {
 
         // 5. 새로운 토큰 생성
         TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(authentication);
+
 
         // 6. RefreshToken Redis 업데이트
         redisUtil.setData(authentication.getName(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());

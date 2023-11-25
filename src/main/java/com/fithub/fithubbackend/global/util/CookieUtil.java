@@ -48,11 +48,10 @@ public class CookieUtil {
     }
 
     @Description("access Token 쿠키 생성")
-    public HttpServletResponse addAccessTokenCookie(HttpServletResponse response, TokenInfoDto tokenInfoDto) {
+    public HttpServletResponse addAccessTokenCookie(HttpServletResponse response, String accessToken) {
 
-
-        ResponseCookie cookie = ResponseCookie.from("accessToken", tokenInfoDto.getAccessToken())
-                .maxAge(1800)
+        ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
+//                .maxAge(1800)
                 .path("/")
                 .sameSite("None")
                 .httpOnly(true)
@@ -70,10 +69,8 @@ public class CookieUtil {
 
         if (refreshTokenCookie.isPresent()) {
             refreshTokenCookie.get().setMaxAge(0);
-            refreshTokenCookie.get().setValue("");
             response.addCookie(refreshTokenCookie.get());
         }
-
     }
 
     @Description("access token 쿠키 삭제")
@@ -109,7 +106,7 @@ public class CookieUtil {
         }
 
         if (accessTokenCookie.isPresent()) {
-            accessTokenCookie.get().setMaxAge(1800);
+//            accessTokenCookie.get().setMaxAge(1800);
             accessTokenCookie.get().setValue(tokenInfoDto.getAccessToken());
             accessTokenCookie.get().setPath("/");
             accessTokenCookie.get().setHttpOnly(true);
