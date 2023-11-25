@@ -31,7 +31,6 @@ public class SignUpServiceImpl implements SignUpService{
     public ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, BindingResult bindingResult){
         formValidate(bindingResult); // 입력 형식 검증
         duplicateEmail(signUpDto.getEmail()); // 이메일 중복 확인
-        duplicateUserId(signUpDto.getUserId()); // 아이디 중복 확인
         duplicateNickname(signUpDto.getNickname()); // 닉네임 중복 확인
 
         Document document = Document.builder()
@@ -50,22 +49,12 @@ public class SignUpServiceImpl implements SignUpService{
     }
 
     private void duplicateNickname(String nickname){
-        User user = signUpRepository.findByNickname(nickname);
-        if(user != null){
+        if(signUpRepository.findByNickname(nickname).isPresent())
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 닉네임 입니다.");
-        }
-    }
-    private void duplicateUserId(String userId){
-        User user = signUpRepository.findByUserId(userId);
-        if(user != null){
-            throw new CustomException(ErrorCode.DUPLICATE,"중복된 아이디 입니다.");
-        }
     }
     private void duplicateEmail(String email){
-        User user = signUpRepository.findByEmail(email);
-        if(user != null){
+        if(signUpRepository.findByEmail(email).isPresent())
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 이메일 입니다.");
-        }
     }
     private void formValidate(BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
