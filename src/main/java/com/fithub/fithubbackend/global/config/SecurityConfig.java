@@ -1,13 +1,15 @@
 package com.fithub.fithubbackend.global.config;
 
 import com.fithub.fithubbackend.global.auth.JwtAuthenticationFilter;
+import com.fithub.fithubbackend.global.auth.JwtExceptionFilter;
 import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
+import com.fithub.fithubbackend.global.util.CookieUtil;
+import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,6 +32,8 @@ public class SecurityConfig {
     // 토큰 프로바이더 추가
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtil redisUtil;
+    private final HeaderUtil headerUtil;
+    private final CookieUtil cookieUtil;
 
     // TODO: 로그인, 회원가입 패턴으로 수정
     private static final String[] PERMIT_ALL_PATTERNS = new String[] {
@@ -48,6 +52,7 @@ public class SecurityConfig {
 
                 // jwtFilter 추가
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisUtil), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(jwtTokenProvider, headerUtil, cookieUtil),JwtAuthenticationFilter.class)
 
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
