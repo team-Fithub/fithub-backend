@@ -1,9 +1,6 @@
 package com.fithub.fithubbackend.domain.user.dto;
 
-import com.fithub.fithubbackend.domain.user.domain.Gender;
-import com.fithub.fithubbackend.domain.user.domain.Grade;
-import com.fithub.fithubbackend.domain.user.domain.Status;
-import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.user.domain.*;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,6 +13,7 @@ public class SignUpResponseDto {
     private String nickname;
     private String email;
     private String phone;
+    private Document profileImgId;
     private Gender gender;
     private Grade grade;
     private Status status;
@@ -28,6 +26,7 @@ public class SignUpResponseDto {
         this.nickname = user.getNickname();
         this.email = user.getEmail();
         this.phone = user.getPhone();
+        this.profileImgId = user.getProfileImgId();
         this.gender = user.getGender();
         this.grade = user.getGrade();
         this.status = user.getStatus();
