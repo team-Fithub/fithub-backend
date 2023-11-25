@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.global.config;
 
 import com.fithub.fithubbackend.global.auth.JwtAuthenticationFilter;
 import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
+import com.fithub.fithubbackend.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 
     // 토큰 프로바이더 추가
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisUtil redisUtil;
 
     // TODO: 로그인, 회원가입 패턴으로 수정
     private static final String[] PERMIT_ALL_PATTERNS = new String[] {
@@ -45,7 +47,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // jwtFilter 추가
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisUtil), UsernamePasswordAuthenticationFilter.class)
 
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests

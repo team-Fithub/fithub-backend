@@ -1,12 +1,17 @@
 package com.fithub.fithubbackend.domain.user.application;
 
-import com.fithub.fithubbackend.domain.user.dto.UserDto;
+import com.fithub.fithubbackend.domain.user.dto.SignInDto;
+import com.fithub.fithubbackend.domain.user.dto.SignOutDto;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
-import org.springframework.security.core.Authentication;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface UserService {
 
-    TokenInfoDto signIn(UserDto.SignInDto signInDto);
+    TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response);
 
-    void signOut(UserDto.SignOutDto signOutDto);
+    void signOut(SignOutDto signOutDto, UserDetails userDetails, HttpServletResponse response, HttpServletRequest request);
+
+    TokenInfoDto reissue(String cookieRefreshToken, HttpServletRequest request, HttpServletResponse response);
 }

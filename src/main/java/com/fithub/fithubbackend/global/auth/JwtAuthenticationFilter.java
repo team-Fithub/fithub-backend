@@ -1,16 +1,16 @@
 package com.fithub.fithubbackend.global.auth;
 
+import com.fithub.fithubbackend.global.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
@@ -18,12 +18,12 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
 
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_TYPE = "Bearer";
+    public static final String ACCESS_TOKEN_COOKIE = "accessToken";
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private RedisTemplate redisTemplate;
+    private final RedisUtil redisUtil;
+
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -31,22 +31,24 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         String token = resolveToken((HttpServletRequest) request);
 
         if (token != null && jwtTokenProvider.validateToken(token)) {
-
-            String isLogout = (String)redisTemplate.opsForValue().get(token);
+            String isLogout = redisUtil.getData(token);
             if (ObjectUtils.isEmpty(isLogout)) {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 
-        chain.doFilter(request, response);
+        chain.doFilter(request,response);
     }
 
     private String resolveToken(HttpServletRequest request) {
-
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_TYPE)) {
-            return bearerToken.substring(7);
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (ACCESS_TOKEN_COOKIE.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }
