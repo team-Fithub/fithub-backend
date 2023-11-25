@@ -7,16 +7,16 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.NAME_REGEXP;
+import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.EMAIL_REGEXP;
+import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.PASSWORD_REGEXP;
+import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.PHONE_NUMBER_REGEXP;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class SignUpDto {
-    private final String PASSWORD_REGEXP = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@!%*#?&])[A-Za-z\\d@!%*#?&]{8,}$";
-    private final String PHONE_NUMBER_REGEXP = "^\\d{3}-\\d{3,4}-\\d{4}$";
-    private final String EMAIL_REGEXP = "^[a-zA-Z0-9+-\\_.]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
-    private final String NAME_REGEXP = "^[a-zA-Z가-힣]*$";
-
     @NotBlank(message = "아이디 입력은 필수입니다.")
     private String userId;
 
