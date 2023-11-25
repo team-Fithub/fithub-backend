@@ -71,10 +71,10 @@ public class UserServiceImpl implements UserService {
         try {
             validateToken = jwtTokenProvider.validateToken(signOutDto.getAccessToken());
             if (!validateToken) {
-                throw new CustomException(ErrorCode.FAIL_AUTHENTICATION);
+                throw new CustomException(ErrorCode.INVALID_TOKEN);
             }
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.TOKEN_EXPIRED);
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         }
 
         Authentication authentication = jwtTokenProvider.getAuthentication(signOutDto.getAccessToken());
@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
         String refreshToken = redisUtil.getData(authentication.getName());
 
         if(ObjectUtils.isEmpty(refreshToken)) {
-            throw new CustomException(ErrorCode.TOKEN_NULL);
+            throw new CustomException(ErrorCode.UNKNOWN_ERROR);
         }
 
         if(!refreshToken.equals(cookieRefreshToken)) {
