@@ -43,7 +43,6 @@ public class SecurityConfig {
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
         "/users/training/**"
     };
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
@@ -78,5 +77,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }

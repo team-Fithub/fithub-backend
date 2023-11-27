@@ -1,5 +1,10 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
+import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
+import com.fithub.fithubbackend.global.common.BaseTimeEntity;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -11,7 +16,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,9 +30,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true)
-    private String userId;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
@@ -66,6 +67,20 @@ public class User extends BaseTimeEntity implements UserDetails {
     @ElementCollection
     private List<String> roles = new ArrayList<>();
 
+    @Builder
+    public User(SignUpDto signUpDto, String encodedPassword, Document document) {
+        this.password = encodedPassword;
+        this.name = signUpDto.getName();
+        this.nickname = signUpDto.getNickname();
+        this.email = signUpDto.getEmail();
+        this.phone = signUpDto.getPhone();
+        this.gender = signUpDto.getGender();
+        this.grade = Grade.NORMAL;
+        this.status = Status.NORMAL;
+        this.profileImgId = document;
+        this.bio = signUpDto.getBio();
+    }
+  
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
