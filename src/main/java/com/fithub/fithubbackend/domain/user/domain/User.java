@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,6 +79,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.status = Status.NORMAL;
         this.profileImgId = document;
         this.bio = signUpDto.getBio();
+        this.roles = Collections.singletonList("USER");
     }
   
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
