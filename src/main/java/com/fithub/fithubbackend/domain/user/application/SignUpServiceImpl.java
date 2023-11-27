@@ -4,6 +4,7 @@ import com.fithub.fithubbackend.domain.user.domain.Document;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
+import com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.SignUpRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -11,6 +12,7 @@ import com.fithub.fithubbackend.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,8 +59,12 @@ public class SignUpServiceImpl implements SignUpService{
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 이메일 입니다.");
     }
     private void formValidate(BindingResult bindingResult){
+        String message = String.valueOf(bindingResult.getFieldErrors().stream()
+                .findFirst().map(DefaultMessageSourceResolvable::getDefaultMessage))
+                .replaceAll(SignUpDtoConstants.FORM_DATA_ERROR_REGEXP,"");
+
         if (bindingResult.hasErrors()) {
-            throw new CustomException(ErrorCode.INVALID_FORM_DATA,ErrorCode.INVALID_FORM_DATA.getMessage());
+            throw new CustomException(ErrorCode.INVALID_FORM_DATA,message);
         }
     }
 }
