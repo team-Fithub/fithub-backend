@@ -1,14 +1,14 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
+import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.domain.user.enums.Grade;
+import com.fithub.fithubbackend.domain.user.enums.Status;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
+import com.fithub.fithubbackend.global.domain.Document;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fithub.fithubbackend.global.common.BaseTimeEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +18,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 

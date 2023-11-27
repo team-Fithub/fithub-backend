@@ -1,6 +1,10 @@
 package com.fithub.fithubbackend.domain.user.dto;
 
 import com.fithub.fithubbackend.domain.user.domain.*;
+import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.domain.user.enums.Grade;
+import com.fithub.fithubbackend.domain.user.enums.Status;
+import com.fithub.fithubbackend.global.domain.Document;
 import lombok.Builder;
 import lombok.Getter;
 
