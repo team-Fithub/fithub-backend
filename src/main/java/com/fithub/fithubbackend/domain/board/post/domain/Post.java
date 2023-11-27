@@ -1,5 +1,6 @@
-package com.fithub.fithubbackend.domain.user.domain;
+package com.fithub.fithubbackend.domain.board.post.domain;
 
+import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

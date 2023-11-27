@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.user.domain;
+package com.fithub.fithubbackend.domain.board.post.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
