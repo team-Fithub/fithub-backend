@@ -1,14 +1,14 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
+import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.domain.user.enums.Grade;
+import com.fithub.fithubbackend.domain.user.enums.Status;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
+import com.fithub.fithubbackend.global.domain.Document;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fithub.fithubbackend.global.common.BaseTimeEntity;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -79,6 +79,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.status = Status.NORMAL;
         this.profileImgId = document;
         this.bio = signUpDto.getBio();
+        this.roles = Collections.singletonList("USER");
     }
   
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

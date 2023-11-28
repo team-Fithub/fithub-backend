@@ -1,16 +1,15 @@
 package com.fithub.fithubbackend.domain.user.dto;
 
-import com.fithub.fithubbackend.domain.user.domain.Gender;
-import jakarta.validation.constraints.*;
+import com.fithub.fithubbackend.domain.user.enums.Gender;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.NAME_REGEXP;
-import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.EMAIL_REGEXP;
-import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.PASSWORD_REGEXP;
-import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.PHONE_NUMBER_REGEXP;
+import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.*;
 
 @Getter
 @AllArgsConstructor

@@ -46,6 +46,9 @@ dependencies {
 	// json
 	implementation 'org.json:json:20160810'
 
+	// oauth2
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'

@@ -1,6 +1,7 @@
-package com.fithub.fithubbackend.domain.user.domain;
+package com.fithub.fithubbackend.domain.board.post.domain;
 
 
+import com.fithub.fithubbackend.global.domain.Hashtag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
