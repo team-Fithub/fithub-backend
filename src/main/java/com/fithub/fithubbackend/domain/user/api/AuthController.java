@@ -52,24 +52,15 @@ public class AuthController {
 
     @Operation(summary = "로그아웃", responses = {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
-            @ApiResponse(responseCode = "401", description = "검증되지 않는 토큰이거나 만료된 토큰"),
+            @ApiResponse(responseCode = "401", description = "검증되지 않는 토큰이거나 만료된 access Token"),
             @ApiResponse(responseCode = "403", description = "로그아웃 실패")
     })
     @DeleteMapping("/sign-out")
-    public ResponseEntity signOut(@CookieValue(name = "refreshToken") String cookieRefreshToken,
-                                  @CookieValue(name = "accessToken") String cookieAccessToken,
+    public ResponseEntity signOut(@CookieValue(name = "accessToken") String cookieAccessToken,
                                   @AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response, HttpServletRequest request){
-        SignOutDto signOutDto = SignOutDto.builder()
-                .accessToken(cookieAccessToken)
-                .refreshToken(cookieRefreshToken).build();
+        SignOutDto signOutDto = SignOutDto.builder().accessToken(cookieAccessToken).build();
         authService.signOut(signOutDto, userDetails, response, request);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Operation(summary = "로그인 테스트 용")
-    @GetMapping("/test")
-    public String test(@AuthenticationPrincipal UserDetails user) {
-        return "인증 후 진입 가능";
     }
 
     @Operation(summary = "토큰 재발급", responses = {
