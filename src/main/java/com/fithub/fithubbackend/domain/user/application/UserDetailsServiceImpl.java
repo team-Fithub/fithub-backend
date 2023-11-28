@@ -2,6 +2,8 @@ package com.fithub.fithubbackend.domain.user.application;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.exception.CustomException;
+import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
                 .map(this::createUserDetails)
-                .orElseThrow(() -> new UsernameNotFoundException("해당하는 유저가 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
     }
 
     private UserDetails createUserDetails(User user) {
