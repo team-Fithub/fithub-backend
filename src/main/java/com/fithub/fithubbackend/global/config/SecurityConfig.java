@@ -1,8 +1,6 @@
 package com.fithub.fithubbackend.global.config;
 
-import com.fithub.fithubbackend.global.auth.JwtAuthenticationFilter;
-import com.fithub.fithubbackend.global.auth.JwtExceptionFilter;
-import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
+import com.fithub.fithubbackend.global.auth.*;
 import com.fithub.fithubbackend.global.util.CookieUtil;
 import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
@@ -35,9 +33,11 @@ public class SecurityConfig {
     private final HeaderUtil headerUtil;
     private final CookieUtil cookieUtil;
 
-    // TODO: 로그인, 회원가입 패턴으로 수정
+    private final OAuthService oAuthService;
+    private final OAuthSuccessHandler oAuthSuccessHandler;
+
     private static final String[] PERMIT_ALL_PATTERNS = new String[] {
-            "/", "/auth/**", "/user/auth/sign-in", "/user/auth/sign-out"
+            "/", "/auth/**", "/oauth2/**"
     };
 
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
@@ -51,7 +51,7 @@ public class SecurityConfig {
 
                 // jwtFilter 추가
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtExceptionFilter(jwtTokenProvider, headerUtil, cookieUtil),JwtAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(jwtTokenProvider, headerUtil, cookieUtil), JwtAuthenticationFilter.class)
 
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
@@ -62,7 +62,10 @@ public class SecurityConfig {
                                 HttpMethod.GET, PERMIT_ALL_GET_PATTERNS).permitAll()
                         .anyRequest().authenticated()
                 )
-                // TODO: exceptionHandling, oauth2 설정 추가
+                .oauth2Login(oauth2Login -> {
+                    oauth2Login.userInfoEndpoint(userInfoEndPoint -> userInfoEndPoint.userService(oAuthService));
+                    oauth2Login.successHandler(oAuthSuccessHandler);
+                })
                 .build();
     }
 
