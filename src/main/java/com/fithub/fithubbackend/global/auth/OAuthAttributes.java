@@ -7,14 +7,12 @@ import java.util.Map;
 import java.util.function.Function;
 
 public enum OAuthAttributes {
-    GOOGLE("google", (attributes) -> {
-        return User.oAuthBuilder()
-                .nickname((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
-                .provider("google")
-                .providerId("google_" + attributes.get("sub"))
-                .oAuthBuild();
-    });
+    GOOGLE("google", (attributes) -> User.oAuthBuilder()
+            .nickname((String) attributes.get("name"))
+            .email((String) attributes.get("email"))
+            .provider("google")
+            .providerId("google_" + attributes.get("sub"))
+            .oAuthBuild());
 
     private final String registrationId;
     private final Function<Map<String, Object>, User> attributes;

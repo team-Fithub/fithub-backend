@@ -26,7 +26,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+//        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         TokenInfoDto token = jwtTokenProvider.createToken(authentication);
         String targetUrl = UriComponentsBuilder.fromUriString(url)
