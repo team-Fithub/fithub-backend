@@ -69,8 +69,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response) {
-        if (userRepository.findByEmail(signInDto.getEmail()).isEmpty())
-            throw new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원");
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(signInDto.getEmail(), signInDto.getPassword());
 
@@ -92,8 +90,6 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void signOut(SignOutDto signOutDto, UserDetails userDetails, HttpServletResponse response, HttpServletRequest request) {
         signOutDto.setEmail(userDetails.getUsername());
-        String refreshToken = redisUtil.getData(signOutDto.getEmail());
-        signOutDto.setRefreshToken(refreshToken);
 
         boolean validateToken = false;
 
