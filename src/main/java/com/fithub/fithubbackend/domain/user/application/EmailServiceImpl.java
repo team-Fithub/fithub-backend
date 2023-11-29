@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.user.dto.EmailNumberDto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,11 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmail(EmailDto emailDto) throws MessagingException {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
-        String certificationNumber = UUID.randomUUID().toString();
+        /* 랜덤한 6자리 영문,숫자 조합 생성*/
+        boolean useLetters = true;
+        boolean useNumbers = true;
+        String certificationNumber = RandomStringUtils.random(6,useLetters,useNumbers);
+
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
         mimeMessageHelper.setFrom(from);
         mimeMessageHelper.setTo(emailDto.getTo()); // 메일 수신자
