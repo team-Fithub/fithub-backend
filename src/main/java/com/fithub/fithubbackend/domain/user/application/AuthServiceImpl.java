@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.user.dto.SignInDto;
 import com.fithub.fithubbackend.domain.user.dto.SignOutDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
+import com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
@@ -17,6 +18,7 @@ import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,8 +71,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response) {
-        if (userRepository.findByEmail(signInDto.getEmail()).isEmpty())
-            throw new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원");
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(signInDto.getEmail(), signInDto.getPassword());
 
@@ -92,8 +92,6 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public void signOut(SignOutDto signOutDto, UserDetails userDetails, HttpServletResponse response, HttpServletRequest request) {
         signOutDto.setEmail(userDetails.getUsername());
-        String refreshToken = redisUtil.getData(signOutDto.getEmail());
-        signOutDto.setRefreshToken(refreshToken);
 
         boolean validateToken = false;
 
@@ -162,8 +160,11 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 이메일 입니다.");
     }
     private void formValidate(BindingResult bindingResult){
+        String message = String.valueOf(bindingResult.getFieldErrors().stream()
+                        .findFirst().map(DefaultMessageSourceResolvable::getDefaultMessage))
+                .replaceAll(SignUpDtoConstants.FORM_DATA_ERROR_REGEXP,"");
         if (bindingResult.hasErrors()) {
-            throw new CustomException(ErrorCode.INVALID_FORM_DATA,ErrorCode.INVALID_FORM_DATA.getMessage());
+            throw new CustomException(ErrorCode.INVALID_FORM_DATA,message);
         }
     }
 }

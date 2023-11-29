@@ -75,14 +75,14 @@ public class CookieUtil {
 
     @Description("access token 쿠키 삭제")
     public void deleteAccessTokenCookie(HttpServletRequest request, HttpServletResponse response) {
-        Optional<Cookie> refreshTokenCookie = Arrays
+        Optional<Cookie> accessTokenCookie = Arrays
                 .stream(request.getCookies())
                 .filter(cookie -> cookie.getName().equals("accessToken")).findFirst();
 
-        if (refreshTokenCookie.isPresent()) {
-            refreshTokenCookie.get().setMaxAge(0);
-            refreshTokenCookie.get().setValue("");
-            response.addCookie(refreshTokenCookie.get());
+        if (accessTokenCookie.isPresent()) {
+            accessTokenCookie.get().setMaxAge(0);
+            accessTokenCookie.get().setValue("");
+            response.addCookie(accessTokenCookie.get());
         }
 
     }
