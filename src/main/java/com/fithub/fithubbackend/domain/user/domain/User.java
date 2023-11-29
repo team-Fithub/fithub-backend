@@ -60,12 +60,16 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private String bio;
 
-    @OneToOne(optional = false, cascade = CascadeType.PERSIST)
+    @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "document_id")
     private Document profileImgId;
 
     @ElementCollection
     private List<String> roles = new ArrayList<>();
+
+    // oauth2
+    private String provider;
+    private String providerId;
 
     @Builder
     public User(SignUpDto signUpDto, String encodedPassword, Document document) {
@@ -81,7 +85,27 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.bio = signUpDto.getBio();
         this.roles = Collections.singletonList("USER");
     }
-  
+    @Builder(builderMethodName = "oAuthBuilder", buildMethodName = "oAuthBuild")
+    public User (String nickname, String email, String provider, String providerId) {
+        this.name = nickname;
+        this.nickname = nickname;
+        this.email = email;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.roles = Collections.singletonList("USER");
+        this.grade = Grade.NORMAL;
+        this.status = Status.NORMAL;
+        this.gender = Gender.UNDEFINED;
+        this.phone = "";
+    }
+
+    public User updateNicknameAndEmail(String nickname, String email) {
+        this.name = nickname;
+        this.nickname = nickname;
+        this.email = email;
+        return this;
+    }
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
