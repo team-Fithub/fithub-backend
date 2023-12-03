@@ -12,7 +12,20 @@ public enum OAuthAttributes {
             .email((String) attributes.get("email"))
             .provider("google")
             .providerId("google_" + attributes.get("sub"))
-            .oAuthBuild());
+            .oAuthBuild()),
+
+
+    NAVER("naver", (attributes) -> {
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+
+        return User.oAuthBuilder()
+                .nickname((String) response.get("nickname"))
+                .email((String) response.get("email"))
+                .provider("naver")
+                .providerId("naver_" + response.get("id"))
+                .oAuthBuild();
+    });
+
 
     private final String registrationId;
     private final Function<Map<String, Object>, User> attributes;
