@@ -36,5 +36,9 @@ public class Document {
         this.path = path;
     }
 
-
+    public Document(String defaultImg){
+        this.url = defaultImg;
+        this.inputName = "default";
+        this.path = "default";
+    }
 }
