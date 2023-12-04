@@ -12,10 +12,11 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +25,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
@@ -39,7 +41,8 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
 
         Map<String, Object> customAttribute = customAttribute(attributes, userNameAttributeName, user);
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("USER")),
+                user.getRoles().stream()
+                        .map(SimpleGrantedAuthority::new).collect(Collectors.toList()),
                 customAttribute,
                 userNameAttributeName
         );
@@ -48,6 +51,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     private Map<String, Object> customAttribute(Map<String, Object> attributes, String userNameAttributeName, User user) {
         Map<String, Object> customAttribute = new LinkedHashMap<>();
         customAttribute.put(userNameAttributeName, attributes.get(userNameAttributeName));
+        customAttribute.put("id", user.getId());
         customAttribute.put("email", user.getEmail());
         customAttribute.put("provider", user.getProvider());
         customAttribute.put("nickname", user.getNickname());
@@ -55,9 +59,10 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     }
 
     private User saveOrUpdate(User user) {
+        // 회원가입에서는 GUEST 권한 부여, 추가 정보 입력 후 GUEST 권한 삭제, USER 권한 부여
         User newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
                 .map(m -> m.updateNicknameAndEmail(user.getNickname(), user.getEmail()))
-                .orElse(User.oAuthBuilder()
+                .orElseGet(() -> User.oAuthBuilder()
                         .nickname(user.getNickname())
                         .email(user.getEmail())
                         .provider(user.getProvider())
