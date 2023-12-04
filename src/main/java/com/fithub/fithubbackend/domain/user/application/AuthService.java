@@ -11,9 +11,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 public interface AuthService {
-    ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, BindingResult bindingResult);
+    ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile multipartFile, BindingResult bindingResult) throws IOException;
     
     TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response);
 

@@ -20,8 +20,8 @@ public enum ErrorCode {
     WRONG_TYPE_TOKEN(HttpStatus.valueOf(401), "잘못된 타입의 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.valueOf(402), "만료된 토큰입니다."),
     UNSUPPORTED_TOKEN(HttpStatus.valueOf(403), "지원되지 않는 토큰입니다."),
-    EXPIRED_REFRESH_TOKEN(HttpStatus.valueOf(405), "재로그인 필요");
-
+    EXPIRED_REFRESH_TOKEN(HttpStatus.valueOf(405), "재로그인 필요"),
+    S3_FILE_SWITCH_FAIL(HttpStatus.CONFLICT,"MultipartFile -> File 전환 실패");
     private final HttpStatus httpStatus;
     private final String message;
 }

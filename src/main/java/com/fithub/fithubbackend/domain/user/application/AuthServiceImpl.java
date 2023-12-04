@@ -10,6 +10,7 @@ import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
+import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -31,6 +32,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -46,18 +50,27 @@ public class AuthServiceImpl implements AuthService {
     private final CookieUtil cookieUtil;
     private final HeaderUtil headerUtil;
 
+    private final AwsS3Uploader awsS3Uploader;
     @Override
     @Transactional
-    public ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, BindingResult bindingResult){
+    public ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile image, BindingResult bindingResult) throws IOException {
         formValidate(bindingResult); // 입력 형식 검증
         duplicateEmail(signUpDto.getEmail()); // 이메일 중복 확인
         duplicateNickname(signUpDto.getNickname()); // 닉네임 중복 확인
 
-        Document document = Document.builder()
-                .url("test")
-                .inputName("test")
-                .path("test")
-                .build();
+        // TODO document 객체들이 NOT NULL 이라서 기본이미지가 있어야 할 것 같습니다.
+        Document document = new Document("defaultImgS3Url");
+
+        if(!image.isEmpty()){
+            String imgPath = awsS3Uploader.imgPath(image,"images");
+            String storedFileName = awsS3Uploader.putS3(image,imgPath);
+            document = Document.builder()
+                    .url(storedFileName)
+                    .inputName(image.getOriginalFilename())
+                    .path(imgPath)
+                    .build();
+        }
+
         documentRepository.save(document);
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword()); // 비밀번호 인코딩
 
