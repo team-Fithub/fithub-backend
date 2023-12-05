@@ -54,6 +54,9 @@ public class UserTrainingServiceImpl implements UserTrainingService {
         checkClosed(training.isClosed());
 
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+        if (user.getId().equals(training.getTrainer().getUser().getId())) {
+            throw new CustomException(ErrorCode.UNKNOWN_ERROR, "트레이너는 자신의 트레이닝을 찜할 수 없습니다.");
+        }
         if (likes) {
             TrainingLikes trainingLikes = TrainingLikes.builder().training(training).user(user).build();
             trainingLikesRepository.save(trainingLikes);
