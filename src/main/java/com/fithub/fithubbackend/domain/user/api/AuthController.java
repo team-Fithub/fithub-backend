@@ -40,9 +40,9 @@ public class AuthController {
     })
     @PostMapping("/sign-up")
     public ResponseEntity<SignUpResponseDto> signUp(@RequestPart @Valid SignUpDto signUpDto,
-                                                    @RequestPart("image") MultipartFile multipartFile,
+                                                    @RequestPart("profileImg") MultipartFile profileImg,
                                                     BindingResult bindingResult) throws IOException {
-        return authService.signUp(signUpDto, multipartFile, bindingResult);
+        return authService.signUp(signUpDto, profileImg, bindingResult);
     }
 
     @Operation(summary = "로그인", responses = {

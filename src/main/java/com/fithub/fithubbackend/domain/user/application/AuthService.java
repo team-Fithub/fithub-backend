@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 public interface AuthService {
-    ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile multipartFile, BindingResult bindingResult) throws IOException;
+    ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile profileImg, BindingResult bindingResult) throws IOException;
     
     TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response);
 

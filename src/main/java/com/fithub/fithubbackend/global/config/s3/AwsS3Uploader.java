@@ -30,12 +30,15 @@ public class AwsS3Uploader {
     private String bucket;
 
 
-    public String imgPath(MultipartFile multipartFile, String dirName) {
+    public String imgPath(String dirName) {
         return dirName + "/" + UUID.randomUUID(); // 파일 경로 반환
     }
 
     public String putS3(MultipartFile multipartFile, String fileName) throws IOException {
         ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentType(multipartFile.getContentType());
+        metadata.setContentLength(multipartFile.getSize());
+
         amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
         return amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 S3 URL 주소 반환
     }
