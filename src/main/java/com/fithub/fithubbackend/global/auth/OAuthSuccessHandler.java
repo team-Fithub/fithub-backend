@@ -44,7 +44,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(authentication);
             cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
             cookieUtil.addAccessTokenCookie(response, tokenInfoDto.getAccessToken());
-            redisUtil.setData(authentication.getName(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+            redisUtil.setData((String) oAuth2User.getAttribute("email"), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
 
             targetUrl = UriComponentsBuilder.fromUriString(url)
                     .queryParam("accessToken", tokenInfoDto.getAccessToken())
