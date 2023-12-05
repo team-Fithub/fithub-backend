@@ -92,7 +92,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
-        this.roles = Collections.singletonList("USER");
+        this.roles = Collections.singletonList("GUEST");
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
         this.gender = Gender.UNDEFINED;
