@@ -35,6 +35,4 @@ public class Document {
         this.inputName = inputName;
         this.path = path;
     }
-
-
 }

@@ -21,6 +21,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,8 +39,10 @@ public class AuthController {
             @ApiResponse(responseCode = "409", description = "형식 에러 (이메일 형식 , 비밀번호 형식(8자이상 특수문자 포함), 닉네임 형식(특수문자 제외 한글, 영어, 숫자), 전화번호 형식 (xxx-xxx(xxxx)-xxxx)", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/sign-up")
-    public ResponseEntity<SignUpResponseDto> signUp(@RequestBody @Valid SignUpDto signUpDto, BindingResult bindingResult){
-        return authService.signUp(signUpDto,bindingResult);
+    public ResponseEntity<SignUpResponseDto> signUp(@RequestPart @Valid SignUpDto signUpDto,
+                                                    @RequestPart("profileImg") MultipartFile profileImg,
+                                                    BindingResult bindingResult) throws IOException {
+        return authService.signUp(signUpDto, profileImg, bindingResult);
     }
 
     @Operation(summary = "로그인", responses = {

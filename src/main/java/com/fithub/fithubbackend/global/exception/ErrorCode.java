@@ -21,7 +21,6 @@ public enum ErrorCode {
     EXPIRED_TOKEN(HttpStatus.valueOf(402), "만료된 토큰입니다."),
     UNSUPPORTED_TOKEN(HttpStatus.valueOf(403), "지원되지 않는 토큰입니다."),
     EXPIRED_REFRESH_TOKEN(HttpStatus.valueOf(405), "재로그인 필요");
-
     private final HttpStatus httpStatus;
     private final String message;
 }
