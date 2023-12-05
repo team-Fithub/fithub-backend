@@ -19,6 +19,7 @@ import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,25 +52,30 @@ public class AuthServiceImpl implements AuthService {
     private final HeaderUtil headerUtil;
 
     private final AwsS3Uploader awsS3Uploader;
+
+    @Value("${default.image.address}")
+    private String profileImgUrl;
     @Override
     @Transactional
-    public ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile image, BindingResult bindingResult) throws IOException {
+    public ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile profileImg, BindingResult bindingResult) throws IOException {
         formValidate(bindingResult); // 입력 형식 검증
         duplicateEmail(signUpDto.getEmail()); // 이메일 중복 확인
         duplicateNickname(signUpDto.getNickname()); // 닉네임 중복 확인
 
-        // TODO document 객체들이 NOT NULL 이라서 기본이미지가 있어야 할 것 같습니다.
-        Document document = new Document("defaultImgS3Url");
+        String profileImgInputName = "default";
+        String profileImgPath = "default";
 
-        if(!image.isEmpty()){
-            String imgPath = awsS3Uploader.imgPath(image,"images");
-            String storedFileName = awsS3Uploader.putS3(image,imgPath);
-            document = Document.builder()
-                    .url(storedFileName)
-                    .inputName(image.getOriginalFilename())
-                    .path(imgPath)
-                    .build();
+        if(!profileImg.isEmpty()){
+            profileImgPath = awsS3Uploader.imgPath("images");
+            profileImgUrl = awsS3Uploader.putS3(profileImg,profileImgPath);
+            profileImgInputName = profileImg.getOriginalFilename();
         }
+
+        Document document = Document.builder()
+                        .url(profileImgUrl)
+                        .inputName(profileImgInputName)
+                        .path(profileImgPath)
+                        .build();
 
         documentRepository.save(document);
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword()); // 비밀번호 인코딩
