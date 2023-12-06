@@ -66,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
         String profileImgPath = "default";
 
         if(!profileImg.isEmpty()){
-            profileImgPath = awsS3Uploader.imgPath("images");
+            profileImgPath = awsS3Uploader.imgPath("profiles");
             profileImgUrl = awsS3Uploader.putS3(profileImg,profileImgPath);
             profileImgInputName = profileImg.getOriginalFilename();
         }
