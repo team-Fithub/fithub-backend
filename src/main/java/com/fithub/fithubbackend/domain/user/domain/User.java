@@ -98,6 +98,19 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.gender = Gender.UNDEFINED;
         this.phone = "";
     }
+    @Builder(builderMethodName = "oAuthKakaoBuilder", buildMethodName = "oAuthKakaoBuild")
+    public User (String name, String nickname, String email, String provider, String providerId) {
+        this.name = name;
+        this.nickname = nickname;
+        this.email = email;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.roles = Collections.singletonList("GUEST");
+        this.grade = Grade.NORMAL;
+        this.status = Status.NORMAL;
+        this.gender = Gender.UNDEFINED;
+        this.phone = "";
+    }
 
     public User updateNicknameAndEmail(String nickname, String email) {
         this.name = nickname;
