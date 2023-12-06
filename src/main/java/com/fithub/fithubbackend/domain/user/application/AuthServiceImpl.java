@@ -10,6 +10,7 @@ import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
+import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -18,6 +19,7 @@ import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,6 +33,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -46,18 +51,32 @@ public class AuthServiceImpl implements AuthService {
     private final CookieUtil cookieUtil;
     private final HeaderUtil headerUtil;
 
+    private final AwsS3Uploader awsS3Uploader;
+
+    @Value("${default.image.address}")
+    private String profileImgUrl;
     @Override
     @Transactional
-    public ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, BindingResult bindingResult){
+    public ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile profileImg, BindingResult bindingResult) throws IOException {
         formValidate(bindingResult); // 입력 형식 검증
         duplicateEmail(signUpDto.getEmail()); // 이메일 중복 확인
         duplicateNickname(signUpDto.getNickname()); // 닉네임 중복 확인
 
+        String profileImgInputName = "default";
+        String profileImgPath = "default";
+
+        if(!profileImg.isEmpty()){
+            profileImgPath = awsS3Uploader.imgPath("profiles");
+            profileImgUrl = awsS3Uploader.putS3(profileImg,profileImgPath);
+            profileImgInputName = profileImg.getOriginalFilename();
+        }
+
         Document document = Document.builder()
-                .url("test")
-                .inputName("test")
-                .path("test")
-                .build();
+                        .url(profileImgUrl)
+                        .inputName(profileImgInputName)
+                        .path(profileImgPath)
+                        .build();
+
         documentRepository.save(document);
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword()); // 비밀번호 인코딩
 

@@ -2,7 +2,9 @@ package com.fithub.fithubbackend.global.auth;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.domain.Document;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
+    private final DocumentRepository documentRepository;
 
     @Override
     @Transactional
@@ -38,7 +41,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         User user = OAuthAttributes.extract(registrationId, attributes);
-        user = saveOrUpdate(user, registrationId);
+        user = saveOrUpdate(user,registrationId);
 
         Map<String, Object> customAttribute = customAttribute(attributes, userNameAttributeName, user);
         return new DefaultOAuth2User(
@@ -64,26 +67,48 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         User newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
                 .map(m -> m.updateNicknameAndEmail(user.getNickname(), user.getEmail()))
                 .orElseGet(() -> {
-                    if (registrationId.equals("naver")) {
-                        return User.oAuthNaverBuilder()
-                                .nickname(user.getNickname())
-                                .email(user.getEmail())
-                                .phone(user.getPhone())
-                                .name(user.getName())
-                                .gender(user.getGender())
-                                .provider(user.getProvider())
-                                .providerId(user.getProviderId())
-                                .oAuthNaverBuild();
+                    if(registrationId.equals("google")) {
+                        return ofGoogle(user);
                     }
-                    else {
-                        return User.oAuthBuilder()
-                                .nickname(user.getNickname())
-                                .email(user.getEmail())
-                                .provider(user.getProvider())
-                                .providerId(user.getProviderId())
-                                .oAuthBuild();
+                    else if(registrationId.equals("kakao")){
+                        Document profileImg = Document.builder()
+                                .url(user.getProfileImgId().getUrl())
+                                .inputName(user.getProfileImgId().getInputName())
+                                .path(user.getProfileImgId().getPath())
+                                .build();
+                        documentRepository.save(profileImg);
+                        return ofKakao(user, profileImg);
                     }
+                    else
+                        return ofNaver(user);
                 });
         return userRepository.save(newUser);
+    }
+    private User ofGoogle(User user) {
+        return User.oAuthBuilder()
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .provider(user.getProvider())
+                .providerId(user.getProviderId())
+                .oAuthBuild();
+    }
+    private User ofKakao(User user, Document profileImg) {
+        return User.oAuthKakaoBuilder()
+                .nickname(user.getNickname())
+                .profileImgId(profileImg)
+                .provider(user.getProvider())
+                .providerId(user.getProviderId())
+                .oAuthKakaoBuild();
+    }
+    private User ofNaver(User user) {
+        return User.oAuthNaverBuilder()
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .name(user.getName())
+                .gender(user.getGender())
+                .provider(user.getProvider())
+                .providerId(user.getProviderId())
+                .oAuthNaverBuild();
     }
 }
