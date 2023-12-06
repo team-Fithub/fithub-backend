@@ -37,7 +37,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         User user = OAuthAttributes.extract(registrationId, attributes);
-        user = saveOrUpdate(user);
+        user = saveOrUpdate(user,registrationId);
 
         Map<String, Object> customAttribute = customAttribute(attributes, userNameAttributeName, user);
         return new DefaultOAuth2User(
@@ -58,16 +58,40 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         return customAttribute;
     }
 
-    private User saveOrUpdate(User user) {
+    private User saveOrUpdate(User user, String registrationId) {
         // 회원가입에서는 GUEST 권한 부여, 추가 정보 입력 후 GUEST 권한 삭제, USER 권한 부여
         User newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
                 .map(m -> m.updateNicknameAndEmail(user.getNickname(), user.getEmail()))
-                .orElseGet(() -> User.oAuthBuilder()
-                        .nickname(user.getNickname())
-                        .email(user.getEmail())
-                        .provider(user.getProvider())
-                        .providerId(user.getProviderId())
-                        .oAuthBuild());
+                .orElseGet(() -> {
+                    if(registrationId.equals("google")) {
+                        return ofGoogle(user);
+                    }
+                    else if(registrationId.equals("kakao")){
+                        return ofKakao(user);
+                    }
+                    else
+                        return ofNaver(user);
+                });
         return userRepository.save(newUser);
+    }
+    private User ofGoogle(User user) {
+        return User.oAuthBuilder()
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .provider(user.getProvider())
+                .providerId(user.getProviderId())
+                .oAuthBuild();
+    }
+    private User ofKakao(User user) {
+        return User.oAuthKakaoBuilder()
+                .name(user.getName())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .provider(user.getProvider())
+                .providerId(user.getProviderId())
+                .oAuthKakaoBuild();
+    }
+    private User ofNaver(User user) {
+        return user;
     }
 }
