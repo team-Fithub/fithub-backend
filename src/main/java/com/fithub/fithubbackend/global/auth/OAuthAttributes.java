@@ -1,6 +1,8 @@
 package com.fithub.fithubbackend.global.auth;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.global.domain.Document;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -21,19 +23,29 @@ public enum OAuthAttributes {
         Map<String, Object> kakaoProfile = (Map<String, Object>)kakaoAccount.get("profile");
 
         return User.oAuthKakaoBuilder()
-            /* TODO developers권한이 없어 name 동의항목 설정 수정 시 변경예정
-            .name((String)attributes.get("name")) */
-
-            .name("name")
             .nickname((String) kakaoProfile.get("nickname"))
-
-            /* TODO developers권한이 없어 email 동의항목 설정 수정 시 변경예정
-            .email((String) kakaoAccount.get("email")) */
-
-            .email("email")
+            .profileImgId(Document.builder()
+                    .url((String)kakaoProfile.get("profile_image"))
+                    .inputName("kakao")
+                    .path("kakao")
+                    .build())
             .provider("kakao")
             .providerId("kakao_" + attributes.get("id"))
             .oAuthKakaoBuild();
+    }),
+
+    NAVER("naver", (attributes) -> {
+        Map<String, Object> response = (Map<String, Object>) attributes.get("response");
+
+        return User.oAuthNaverBuilder()
+                .nickname((String) response.get("nickname"))
+                .email((String) response.get("email"))
+                .phone(response.get("mobile") != null ? ((String) response.get("mobile")).replaceAll("-", "") : "")
+                .name(response.get("name") != null ? (String) response.get("name") : (String) response.get("nickname"))
+                .gender(Gender.toGender((String) response.get("gender")))
+                .provider("naver")
+                .providerId("naver_" + response.get("id"))
+                .oAuthNaverBuild();
     });
 
     private final String registrationId;

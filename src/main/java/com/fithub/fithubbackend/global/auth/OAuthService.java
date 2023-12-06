@@ -1,6 +1,8 @@
 package com.fithub.fithubbackend.global.auth;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,14 +86,20 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     }
     private User ofKakao(User user) {
         return User.oAuthKakaoBuilder()
-                .name(user.getName())
                 .nickname(user.getNickname())
-                .email(user.getEmail())
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
                 .oAuthKakaoBuild();
     }
     private User ofNaver(User user) {
-        return user;
+        return User.oAuthNaverBuilder()
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .name(user.getName())
+                .gender(user.getGender())
+                .provider(user.getProvider())
+                .providerId(user.getProviderId())
+                .oAuthNaverBuild();
     }
 }

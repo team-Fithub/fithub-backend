@@ -112,6 +112,20 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.phone = "";
     }
 
+    @Builder(builderMethodName = "oAuthNaverBuilder", buildMethodName = "oAuthNaverBuild")
+    public User (String nickname, String email, String provider, String providerId, String name, Gender gender, String phone) {
+        this.name = name;
+        this.nickname = nickname;
+        this.email = email;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.roles = Collections.singletonList("GUEST");
+        this.grade = Grade.NORMAL;
+        this.status = Status.NORMAL;
+        this.gender = gender;
+        this.phone = phone;
+    }
+
     public User updateNicknameAndEmail(String nickname, String email) {
         this.name = nickname;
         this.nickname = nickname;
