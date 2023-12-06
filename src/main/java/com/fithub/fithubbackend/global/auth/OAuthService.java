@@ -4,6 +4,7 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.domain.Document;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
     private final UserRepository userRepository;
+    private final DocumentRepository documentRepository;
 
     @Override
     @Transactional
@@ -69,7 +71,13 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                         return ofGoogle(user);
                     }
                     else if(registrationId.equals("kakao")){
-                        return ofKakao(user);
+                        Document profileImg = Document.builder()
+                                .url(user.getProfileImgId().getUrl())
+                                .inputName(user.getProfileImgId().getInputName())
+                                .path(user.getProfileImgId().getPath())
+                                .build();
+                        documentRepository.save(profileImg);
+                        return ofKakao(user, profileImg);
                     }
                     else
                         return ofNaver(user);
@@ -84,9 +92,10 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                 .providerId(user.getProviderId())
                 .oAuthBuild();
     }
-    private User ofKakao(User user) {
+    private User ofKakao(User user, Document profileImg) {
         return User.oAuthKakaoBuilder()
                 .nickname(user.getNickname())
+                .profileImgId(profileImg)
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
                 .oAuthKakaoBuild();
