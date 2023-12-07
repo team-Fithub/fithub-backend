@@ -7,7 +7,6 @@ import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
@@ -16,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 public interface AuthService {
-    ResponseEntity<SignUpResponseDto> signUp(@Valid SignUpDto signUpDto, MultipartFile profileImg, BindingResult bindingResult) throws IOException;
+    ResponseEntity<SignUpResponseDto> signUp(SignUpDto signUpDto, MultipartFile profileImg, BindingResult bindingResult) throws IOException;
     
     TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response);
 
