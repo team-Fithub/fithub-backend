@@ -55,10 +55,8 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Map<String, Object> customAttribute = new LinkedHashMap<>();
         customAttribute.put(userNameAttributeName, attributes.get(userNameAttributeName));
         customAttribute.put("id", user.getId());
-        customAttribute.put("email", user.getEmail());
         customAttribute.put("provider", user.getProvider());
         customAttribute.put("name", user.getName());
-        customAttribute.put("nickname", user.getNickname());
         customAttribute.put("profileImg", user.getProfileImg());
         customAttribute.put("phone", user.getPhone());
         customAttribute.put("gender", user.getGender().toString());
