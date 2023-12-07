@@ -1,10 +1,7 @@
 package com.fithub.fithubbackend.domain.user.application;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
-import com.fithub.fithubbackend.domain.user.dto.SignInDto;
-import com.fithub.fithubbackend.domain.user.dto.SignOutDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
+import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
@@ -27,6 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -167,6 +165,14 @@ public class AuthServiceImpl implements AuthService {
         cookieUtil.updateCookie(request, response, tokenInfoDto);
 
         return tokenInfoDto;
+    }
+
+    @Override
+    @Transactional
+    public void oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("소셜 회원가입을 다시 진행해주십시오."));
+        user.updateNameAndPhoneAndBioAndGender(oAuthSignUpDto);
+        user.updateGuestToUser();
     }
 
     private void duplicateNickname(String nickname){

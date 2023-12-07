@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
+import com.fithub.fithubbackend.domain.user.dto.OAuthSignUpDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.enums.Grade;
@@ -132,6 +133,17 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.nickname = nickname;
         this.email = email;
         return this;
+    }
+
+    public void updateNameAndPhoneAndBioAndGender(OAuthSignUpDto oAuthSignUpDto) {
+        this.name = oAuthSignUpDto.getName();
+        this.phone = oAuthSignUpDto.getPhone();
+        this.bio = oAuthSignUpDto.getBio();
+        this.gender = oAuthSignUpDto.getGender();
+    }
+
+    public void updateGuestToUser() {
+        this.roles.set(this.roles.indexOf("GUEST"), "USER");
     }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

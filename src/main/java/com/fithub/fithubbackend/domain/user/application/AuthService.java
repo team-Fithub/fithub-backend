@@ -1,9 +1,6 @@
 package com.fithub.fithubbackend.domain.user.application;
 
-import com.fithub.fithubbackend.domain.user.dto.SignInDto;
-import com.fithub.fithubbackend.domain.user.dto.SignOutDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
+import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,4 +19,6 @@ public interface AuthService {
     void signOut(SignOutDto signOutDto, UserDetails userDetails, HttpServletResponse response, HttpServletRequest request);
 
     TokenInfoDto reissue(String cookieRefreshToken, HttpServletRequest request, HttpServletResponse response);
+
+    void oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, Long userId);
 }
