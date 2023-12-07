@@ -62,7 +62,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "document_id")
-    private Document profileImgId;
+    private Document profileImg;
 
     @ElementCollection
     private List<String> roles = new ArrayList<>();
@@ -81,13 +81,13 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.gender = signUpDto.getGender();
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
-        this.profileImgId = document;
+        this.profileImg = document;
         this.bio = signUpDto.getBio();
         this.roles = Collections.singletonList("USER");
     }
     @Builder(builderMethodName = "oAuthBuilder", buildMethodName = "oAuthBuild")
     public User (String nickname, String email, String provider, String providerId) {
-        this.name = nickname;
+        this.name = "";
         this.nickname = nickname;
         this.email = email;
         this.provider = provider;
@@ -99,14 +99,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.phone = "";
     }
     @Builder(builderMethodName = "oAuthKakaoBuilder", buildMethodName = "oAuthKakaoBuild")
-    public User (String nickname, String provider, String providerId, Document profileImgId) {
-        this.name = nickname;
+    public User (String nickname, String provider, String providerId, Document profileImg) {
+        this.name = "";
         this.nickname = nickname;
         this.email = "";
         this.provider = provider;
         this.providerId = providerId;
         this.roles = Collections.singletonList("GUEST");
-        this.profileImgId = profileImgId;
+        this.profileImg = profileImg;
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
         this.gender = Gender.UNDEFINED;
