@@ -20,7 +20,9 @@ public enum ErrorCode {
     WRONG_TYPE_TOKEN(HttpStatus.valueOf(401), "잘못된 타입의 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.valueOf(402), "만료된 토큰입니다."),
     UNSUPPORTED_TOKEN(HttpStatus.valueOf(403), "지원되지 않는 토큰입니다."),
-    EXPIRED_REFRESH_TOKEN(HttpStatus.valueOf(405), "재로그인 필요");
+    EXPIRED_REFRESH_TOKEN(HttpStatus.valueOf(405), "재로그인 필요"),
+    INVALID_PWD(HttpStatus.FORBIDDEN, "이메일이나 비밀번호가 틀렸습니다");
+
     private final HttpStatus httpStatus;
     private final String message;
 }
