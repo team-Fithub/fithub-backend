@@ -43,13 +43,20 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
                 try {
                     String refreshToken = headerUtil.resolveRefreshToken(request);
 
-                    if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken) && jwtTokenProvider.existsRefreshToken(refreshToken)) {
+                    if (refreshToken != null && jwtTokenProvider.validateToken(refreshToken)) {
                         Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
-                        String accessToken = jwtTokenProvider.createAccessToken(authentication);
 
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                        cookieUtil.addAccessTokenCookie(response, accessToken);
-                        log.info("액세스 토큰 재발급 성공");
+                        if (jwtTokenProvider.existsRefreshToken(authentication.getName())) {
+                            String accessToken = jwtTokenProvider.createAccessToken(authentication);
+
+                            SecurityContextHolder.getContext().setAuthentication(authentication);
+                            setResponseWithAccessToken(response, accessToken);
+
+                            log.info("액세스 토큰 재발급 성공");
+                        }
+                        else
+                            setResponse(response, ErrorCode.EXPIRED_REFRESH_TOKEN);
+
                     } else {
                         setResponse(response, ErrorCode.EXPIRED_REFRESH_TOKEN);
                     }
@@ -73,5 +80,15 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         responseJson.put("httpStatus", code.getHttpStatus());
 
         response.getWriter().print(responseJson);
+    }
+
+    private void setResponseWithAccessToken(HttpServletResponse response, String accessToken) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpStatus.CREATED.value());     // 201 성공적으로 access Token 재발급
+
+        JSONObject responseJson = new JSONObject();
+        responseJson.put("message", "30분 유효 기간 지나 access Token 재발급 성공");
+        responseJson.put("accessToken", accessToken);
+        response.getWriter().print(responseJson.toString());
     }
 }
