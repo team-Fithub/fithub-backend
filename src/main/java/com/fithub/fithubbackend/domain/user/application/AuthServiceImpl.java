@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -88,20 +89,24 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response) {
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(signInDto.getEmail(), signInDto.getPassword());
+        try {
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(signInDto.getEmail(), signInDto.getPassword());
 
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(authentication);
+            TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(authentication);
 
-        // refreshToken, accessToken 쿠키에 저장
-        cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
-        cookieUtil.addAccessTokenCookie(response, tokenInfoDto.getAccessToken());
+            // refreshToken 쿠키에 저장
+            cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
 
-        // Redis에 Key(이메일):Value(refreshToken) 저장
-        redisUtil.setData(authentication.getName(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+            // Redis에 Key(이메일):Value(refreshToken) 저장
+            redisUtil.setData(authentication.getName(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
 
-        return tokenInfoDto;
+            return tokenInfoDto;
+        } catch (BadCredentialsException e) {
+            throw new CustomException(ErrorCode.INVALID_PWD);
+        }
+
     }
 
     @Override

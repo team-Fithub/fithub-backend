@@ -44,8 +44,8 @@ public class AuthController {
 
     @Operation(summary = "로그인", responses = {
             @ApiResponse(responseCode = "200", description = "로그인 성공"),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원"),
-            @ApiResponse(responseCode = "403", description = "로그인 실패 - 비밀번호 불일치")
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "로그인 실패 - 비밀번호 불일치", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/sign-in")
     public ResponseEntity<TokenInfoDto> signIn(@RequestBody SignInDto signInDto, HttpServletResponse response) {
@@ -54,26 +54,22 @@ public class AuthController {
 
     @Operation(summary = "로그아웃", responses = {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
-            @ApiResponse(responseCode = "401", description = "검증되지 않는 토큰이거나 만료된 access Token"),
-            @ApiResponse(responseCode = "403", description = "로그아웃 실패")
+            @ApiResponse(responseCode = "405", description = "만료되거나 redis에 저장되지 않는 refresh Token", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @DeleteMapping("/sign-out")
     public ResponseEntity signOut(@CookieValue(name = "accessToken") String cookieAccessToken,
                                   @AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response, HttpServletRequest request){
         SignOutDto signOutDto = SignOutDto.builder().accessToken(cookieAccessToken).build();
         authService.signOut(signOutDto, userDetails, response, request);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>("로그아웃 성공", HttpStatus.OK);
     }
 
     @Operation(summary = "토큰 재발급", responses = {
             @ApiResponse(responseCode = "200", description = "토큰 재발급 성공"),
-            @ApiResponse(responseCode = "400", description = "검증되지 않는 토큰"),
-            @ApiResponse(responseCode = "403", description = "토큰 재발급 실패")
+            @ApiResponse(responseCode = "405", description = "만료되거나 redis에 저장되지 않는 refresh Token", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PatchMapping("/reissue")
-    public  ResponseEntity<TokenInfoDto> reissue(@CookieValue(name = "refreshToken") String cookieRefreshToken,
-                                                 @AuthenticationPrincipal UserDetails userDetails,
-                                                 HttpServletRequest request,HttpServletResponse response) {
+    public  ResponseEntity<TokenInfoDto> reissue(@CookieValue(name = "refreshToken") String cookieRefreshToken, HttpServletRequest request,HttpServletResponse response) {
         return ResponseEntity.ok(authService.reissue(cookieRefreshToken, request, response));
     }
 

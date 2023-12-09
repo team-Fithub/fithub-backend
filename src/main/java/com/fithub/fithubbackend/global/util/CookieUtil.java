@@ -41,7 +41,7 @@ public class CookieUtil {
                 .path("/")
                 .sameSite("None")
                 .httpOnly(true)
-//                .secure(true)  //    HTTPS 프로토콜에서만 쿠키 전송 가능
+                .secure(true)  //    HTTPS 프로토콜에서만 쿠키 전송 가능
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
         return response;
@@ -55,7 +55,7 @@ public class CookieUtil {
                 .path("/")
                 .sameSite("None")
                 .httpOnly(true)
-//                .secure(true)  //    HTTPS 프로토콜에서만 쿠키 전송 가능
+                .secure(true)  //    HTTPS 프로토콜에서만 쿠키 전송 가능
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
         return response;
@@ -93,26 +93,14 @@ public class CookieUtil {
                 .stream(request.getCookies())
                 .filter(cookie -> cookie.getName().equals("refreshToken")).findFirst();
 
-        Optional<Cookie> accessTokenCookie = Arrays
-                .stream(request.getCookies())
-                .filter(cookie -> cookie.getName().equals("accessToken")).findFirst();
-
         if (refreshTokenCookie.isPresent()) {
             refreshTokenCookie.get().setMaxAge(Math.toIntExact(tokenInfoDto.getRefreshTokenExpirationTime()));
             refreshTokenCookie.get().setValue(tokenInfoDto.getRefreshToken());
             refreshTokenCookie.get().setPath("/");
             refreshTokenCookie.get().setHttpOnly(true);
+            refreshTokenCookie.get().setSecure(true);
             response.addCookie(refreshTokenCookie.get());
         }
-
-        if (accessTokenCookie.isPresent()) {
-//            accessTokenCookie.get().setMaxAge(1800);
-            accessTokenCookie.get().setValue(tokenInfoDto.getAccessToken());
-            accessTokenCookie.get().setPath("/");
-            accessTokenCookie.get().setHttpOnly(true);
-            response.addCookie(accessTokenCookie.get());
-        }
-
     }
 
     public CookieUtil addCookie(String key, String value) {
