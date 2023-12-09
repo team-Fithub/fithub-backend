@@ -77,6 +77,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.reissue(cookieRefreshToken, request, response));
     }
 
+
+    @Operation(summary = "소셜 회원가입 추가 정보 저장", responses = {
+            @ApiResponse(responseCode = "200", description = "소셜 회원가입 완료. 로그인으로 이동 필요"),
+            @ApiResponse(responseCode = "500", description = "소셜 회원가입이 제대로 성공하지 못 해 db에 user 정보가 저장된게 없음. 다시 회원가입부터 진행 필요")
+    })
     @PostMapping("/oauth/regist")
     public ResponseEntity<String> oAuthSignUp(@RequestBody OAuthSignUpDto oAuthSignUpDto, Long userId) {
         authService.oAuthSignUp(oAuthSignUpDto, userId);
