@@ -129,7 +129,6 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     public User updateNicknameAndEmail(String nickname, String email) {
-        this.name = nickname;
         this.nickname = nickname;
         this.email = email;
         return this;
