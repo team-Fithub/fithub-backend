@@ -15,7 +15,7 @@ public class TrainerInfoDto {
     private String location;
 
     public static TrainerInfoDto toDto(Trainer trainer) {
-        String profile = (trainer.getUser().getProfileImgId() != null ? trainer.getUser().getProfileImgId().getUrl() : null);
+        String profile = (trainer.getUser().getProfileImg() != null ? trainer.getUser().getProfileImg().getUrl() : null);
 
         return TrainerInfoDto.builder()
                 .trainerId(trainer.getId())
