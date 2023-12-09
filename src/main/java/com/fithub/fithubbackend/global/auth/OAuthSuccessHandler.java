@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -35,24 +36,43 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        boolean isGuest = oAuth2User.getAuthorities().contains(new SimpleGrantedAuthority("GUEST"));
 
-        String targetUrl = "";
-        if (oAuth2User.getAuthorities().contains(new SimpleGrantedAuthority("GUEST"))) {
-            targetUrl = UriComponentsBuilder.fromUriString(firstRedirect)
-                    .build().toString();
-        } else {
-            TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(authentication);
-            cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
-            cookieUtil.addAccessTokenCookie(response, tokenInfoDto.getAccessToken());
-            redisUtil.setData((String) oAuth2User.getAttribute("email"), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
-
-            targetUrl = UriComponentsBuilder.fromUriString(url)
-                    .queryParam("accessToken", tokenInfoDto.getAccessToken())
-                    .queryParam("refreshToken", tokenInfoDto.getRefreshToken())
-                    .build().toString();
+        String targetUrl = getTargetUrl(isGuest, oAuth2User);
+        if (!isGuest) {
+            setCookieAndRedis(response, authentication, oAuth2User.getAttribute("email"));
         }
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
+    private void setCookieAndRedis(HttpServletResponse response, Authentication authentication, String email) {
+        TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(authentication);
+        cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
+        cookieUtil.addAccessTokenCookie(response, tokenInfoDto.getAccessToken());
+        redisUtil.setData(email, tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+    }
+
+    private String getTargetUrl(boolean isGuest, OAuth2User oAuth2User) {
+        if (isGuest) {
+            return getGuestTargetUrl(oAuth2User.getAttributes());
+        }
+        return getUserTargetUrl();
+    }
+
+    private String getGuestTargetUrl(Map<String, Object> attributes) {
+        return UriComponentsBuilder.fromUriString(firstRedirect)
+                .queryParam("provider", attributes.get("provider"))
+                .queryParam("id", attributes.get("id"))
+                .queryParam("name", attributes.get("name"))
+                .queryParam("profileImg", attributes.get("profileImg"))
+                .queryParam("phone", attributes.get("phone"))
+                .queryParam("gender", attributes.get("gender"))
+                .build().toString();
+    }
+
+    private String getUserTargetUrl() {
+        return UriComponentsBuilder.fromUriString(url)
+                .build().toString();
+    }
 }

@@ -1,7 +1,6 @@
 package com.fithub.fithubbackend.global.auth;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
-import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.domain.Document;
@@ -56,9 +55,11 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Map<String, Object> customAttribute = new LinkedHashMap<>();
         customAttribute.put(userNameAttributeName, attributes.get(userNameAttributeName));
         customAttribute.put("id", user.getId());
-        customAttribute.put("email", user.getEmail());
         customAttribute.put("provider", user.getProvider());
-        customAttribute.put("nickname", user.getNickname());
+        customAttribute.put("name", user.getName());
+        customAttribute.put("profileImg", user.getProfileImg());
+        customAttribute.put("phone", user.getPhone());
+        customAttribute.put("gender", user.getGender().toString());
         return customAttribute;
     }
 
@@ -67,14 +68,15 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         User newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
                 .map(m -> m.updateNicknameAndEmail(user.getNickname(), user.getEmail()))
                 .orElseGet(() -> {
+                    // REFACTOR: factory나 그런 걸로 리팩토링 가능
                     if(registrationId.equals("google")) {
                         return ofGoogle(user);
                     }
                     else if(registrationId.equals("kakao")){
                         Document profileImg = Document.builder()
-                                .url(user.getProfileImgId().getUrl())
-                                .inputName(user.getProfileImgId().getInputName())
-                                .path(user.getProfileImgId().getPath())
+                                .url(user.getProfileImg().getUrl())
+                                .inputName(user.getProfileImg().getInputName())
+                                .path(user.getProfileImg().getPath())
                                 .build();
                         documentRepository.save(profileImg);
                         return ofKakao(user, profileImg);
@@ -95,7 +97,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     private User ofKakao(User user, Document profileImg) {
         return User.oAuthKakaoBuilder()
                 .nickname(user.getNickname())
-                .profileImgId(profileImg)
+                .profileImg(profileImg)
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
                 .oAuthKakaoBuild();

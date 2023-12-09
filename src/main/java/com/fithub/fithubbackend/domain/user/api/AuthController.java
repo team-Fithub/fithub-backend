@@ -1,10 +1,7 @@
 package com.fithub.fithubbackend.domain.user.api;
 
 import com.fithub.fithubbackend.domain.user.application.AuthService;
-import com.fithub.fithubbackend.domain.user.dto.SignInDto;
-import com.fithub.fithubbackend.domain.user.dto.SignOutDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
+import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,5 +75,11 @@ public class AuthController {
                                                  @AuthenticationPrincipal UserDetails userDetails,
                                                  HttpServletRequest request,HttpServletResponse response) {
         return ResponseEntity.ok(authService.reissue(cookieRefreshToken, request, response));
+    }
+
+    @PostMapping("/oauth/regist")
+    public ResponseEntity<String> oAuthSignUp(@RequestBody OAuthSignUpDto oAuthSignUpDto, Long userId) {
+        authService.oAuthSignUp(oAuthSignUpDto, userId);
+        return ResponseEntity.ok().body("완료");
     }
 }
