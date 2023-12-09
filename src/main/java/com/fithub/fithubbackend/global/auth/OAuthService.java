@@ -3,7 +3,6 @@ package com.fithub.fithubbackend.global.auth;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
-import com.fithub.fithubbackend.global.domain.Document;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -57,7 +56,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         customAttribute.put("id", user.getId());
         customAttribute.put("provider", user.getProvider());
         customAttribute.put("name", user.getName());
-        customAttribute.put("profileImg", user.getProfileImg());
+//        customAttribute.put("profileImg", user.getProfileImg());
         customAttribute.put("phone", user.getPhone());
         customAttribute.put("gender", user.getGender().toString());
         return customAttribute;
@@ -73,13 +72,14 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                         return ofGoogle(user);
                     }
                     else if(registrationId.equals("kakao")){
-                        Document profileImg = Document.builder()
-                                .url(user.getProfileImg().getUrl())
-                                .inputName(user.getProfileImg().getInputName())
-                                .path(user.getProfileImg().getPath())
-                                .build();
-                        documentRepository.save(profileImg);
-                        return ofKakao(user, profileImg);
+//                        Document profileImg = Document.builder()
+//                                .url(user.getProfileImg().getUrl())
+//                                .inputName(user.getProfileImg().getInputName())
+//                                .path(user.getProfileImg().getPath())
+//                                .build();
+//                        documentRepository.save(profileImg);
+//                        return ofKakao(user, profileImg);
+                        return ofKakao(user);
                     }
                     else
                         return ofNaver(user);
@@ -94,14 +94,23 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                 .providerId(user.getProviderId())
                 .oAuthBuild();
     }
-    private User ofKakao(User user, Document profileImg) {
+//    private User ofKakao(User user, Document profileImg) {
+//        return User.oAuthKakaoBuilder()
+//                .nickname(user.getNickname())
+//                .profileImg(profileImg)
+//                .provider(user.getProvider())
+//                .providerId(user.getProviderId())
+//                .oAuthKakaoBuild();
+//    }
+
+    private User ofKakao(User user) {
         return User.oAuthKakaoBuilder()
                 .nickname(user.getNickname())
-                .profileImg(profileImg)
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
                 .oAuthKakaoBuild();
     }
+
     private User ofNaver(User user) {
         return User.oAuthNaverBuilder()
                 .nickname(user.getNickname())

@@ -65,7 +65,6 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                 .queryParam("provider", attributes.get("provider"))
                 .queryParam("id", attributes.get("id"))
                 .queryParam("name", attributes.get("name"))
-                .queryParam("profileImg", attributes.get("profileImg"))
                 .queryParam("phone", attributes.get("phone"))
                 .queryParam("gender", attributes.get("gender"))
                 .build().toString();
