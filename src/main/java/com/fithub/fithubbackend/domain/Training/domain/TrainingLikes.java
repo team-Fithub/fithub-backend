@@ -1,10 +1,8 @@
-package com.fithub.fithubbackend.domain.trainer.domain;
-
+package com.fithub.fithubbackend.domain.Training.domain;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,21 +11,21 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Trainer extends BaseTimeEntity {
+public class TrainingLikes extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Training training;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private User user;
 
-    @NotNull
-    private String location;
-
     @Builder
-    public Trainer(User user, String location) {
+    public TrainingLikes(Training training, User user) {
+        this.training = training;
         this.user = user;
-        this.location = location;
     }
 }

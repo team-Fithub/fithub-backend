@@ -28,7 +28,7 @@ public class Training extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Trainer trainer;
 
     @NotNull
@@ -66,7 +66,7 @@ public class Training extends BaseTimeEntity {
     @NotNull
     private LocalTime endHour;
 
-    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"training"})
     private List<AvailableDate> availableDates;
 
