@@ -24,7 +24,7 @@ public enum OAuthAttributes {
 
         return User.oAuthKakaoBuilder()
             .nickname((String) kakaoProfile.get("nickname"))
-            .profileImgId(Document.builder()
+            .profileImg(Document.builder()
                     .url((String)kakaoProfile.get("profile_image_url"))
                     .inputName("kakao")
                     .path("kakao")

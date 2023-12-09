@@ -16,7 +16,7 @@ public class SignUpResponseDto {
     private String nickname;
     private String email;
     private String phone;
-    private Document profileImgId;
+    private Document profileImg;
     private String bio;
     private Gender gender;
     private Grade grade;
@@ -29,7 +29,7 @@ public class SignUpResponseDto {
         this.nickname = user.getNickname();
         this.email = user.getEmail();
         this.phone = user.getPhone();
-        this.profileImgId = user.getProfileImgId();
+        this.profileImg = user.getProfileImg();
         this.bio = user.getBio();
         this.gender = user.getGender();
         this.grade = user.getGrade();

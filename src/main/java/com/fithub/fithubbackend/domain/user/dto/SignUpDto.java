@@ -38,7 +38,7 @@ public class SignUpDto {
 
     @NotBlank(message = "전화번호 입력은 필수입니다.")
     @Pattern(regexp = PHONE_NUMBER_REGEXP, message = "전화번호 형식에 맞지 않습니다.")
-    @Schema(example = "010-1234-5678")
+    @Schema(example = "01012345678")
     private String phone;
 
     @Schema(example = "introduceMyself")
