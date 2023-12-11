@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/**").hasRole("USER")
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(e -> e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .oauth2Login(oauth2Login -> {
                     oauth2Login.userInfoEndpoint(userInfoEndPoint -> userInfoEndPoint.userService(oAuthService));
                     oauth2Login.successHandler(oAuthSuccessHandler);
