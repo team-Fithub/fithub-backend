@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 HttpMethod.GET, PERMIT_ALL_GET_PATTERNS).permitAll()
                         .requestMatchers("/**").hasRole("USER")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(e -> e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
