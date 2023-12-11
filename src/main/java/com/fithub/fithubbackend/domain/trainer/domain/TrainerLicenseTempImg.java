@@ -19,7 +19,7 @@ public class TrainerLicenseTempImg {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private TrainerCertificationRequest trainerCertificationRequest;
 
-    @OneToOne(optional = false)
+    @OneToOne(optional = false, cascade = CascadeType.PERSIST)
     private Document document;
 
     @Builder
