@@ -66,7 +66,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(
                                 HttpMethod.GET, PERMIT_ALL_GET_PATTERNS).permitAll()
-                        .requestMatchers("/**").hasRole("USER")
+//                        .requestMatchers("/**").hasRole("USER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
