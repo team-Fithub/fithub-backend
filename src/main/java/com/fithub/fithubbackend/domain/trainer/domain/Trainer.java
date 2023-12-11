@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,11 +24,16 @@ public class Trainer extends BaseTimeEntity {
     private User user;
 
     @NotNull
+    @Size(min = 2)
+    private String name;
+
+    @NotNull
     private String location;
 
     @Builder
     public Trainer(User user, String location) {
         this.user = user;
+        this.name = user.getName();
         this.location = location;
     }
 }
