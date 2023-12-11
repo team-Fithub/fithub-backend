@@ -79,8 +79,8 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "소셜 회원가입이 제대로 성공하지 못 해 db에 user 정보가 저장된게 없음. 다시 회원가입부터 진행 필요")
     })
     @PostMapping("/oauth/regist")
-    public ResponseEntity<String> oAuthSignUp(@RequestBody OAuthSignUpDto oAuthSignUpDto, Long userId) {
-        authService.oAuthSignUp(oAuthSignUpDto, userId);
+    public ResponseEntity<String> oAuthSignUp(@RequestBody OAuthSignUpDto oAuthSignUpDto, @RequestParam String email, HttpServletResponse response) {
+        authService.oAuthSignUp(oAuthSignUpDto, email, response);
         return ResponseEntity.ok().body("완료");
     }
 }
