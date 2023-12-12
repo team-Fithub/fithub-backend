@@ -6,5 +6,5 @@ import lombok.Getter;
 @Getter
 public class EmailNumberDto {
     private String certificationNumber;
-    private String userNumber;
+    private String email;
 }
