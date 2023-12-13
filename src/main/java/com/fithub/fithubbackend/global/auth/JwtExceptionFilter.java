@@ -60,7 +60,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
                     } else {
                         setResponse(response, ErrorCode.EXPIRED_REFRESH_TOKEN);
                     }
-                } catch (ExpiredJwtException expiredJwtException) {     // Refresh Token 만료 시
+                } catch (JwtException jwtException) {     // Refresh Token 만료 시
                     setResponse(response, ErrorCode.EXPIRED_REFRESH_TOKEN);
                 }
             } else if (errorMsg.equals(ErrorCode.WRONG_TYPE_TOKEN.getMessage())) {
@@ -89,6 +89,6 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         JSONObject responseJson = new JSONObject();
         responseJson.put("message", "30분 유효 기간 지나 access Token 재발급 성공");
         responseJson.put("accessToken", accessToken);
-        response.getWriter().print(responseJson.toString());
+        response.getWriter().print(responseJson);
     }
 }
