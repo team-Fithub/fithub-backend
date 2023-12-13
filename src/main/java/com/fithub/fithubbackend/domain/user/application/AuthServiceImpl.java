@@ -174,7 +174,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, String email, HttpServletResponse response) {
+    public String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, String email, HttpServletResponse response) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("소셜 회원가입을 다시 진행해주십시오."));
         user.updateNameAndPhoneAndBioAndGender(oAuthSignUpDto);
         user.updateGuestToUser();
@@ -183,9 +183,9 @@ public class AuthServiceImpl implements AuthService {
 
         // refreshToken 쿠키에 저장
         cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
-        cookieUtil.addAccessTokenCookie(response, tokenInfoDto.getAccessToken());
         // Redis에 Key(이메일):Value(refreshToken) 저장
         redisUtil.setData(email, tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+        return tokenInfoDto.getAccessToken();
     }
 
     private void duplicateNickname(String nickname){
