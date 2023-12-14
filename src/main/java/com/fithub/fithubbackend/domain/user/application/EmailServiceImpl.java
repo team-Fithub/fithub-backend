@@ -40,6 +40,8 @@ public class EmailServiceImpl implements EmailService {
         mimeMessageHelper.setSubject(SUBJECT); // 메일 제목
         mimeMessageHelper.setText(emailDto.certificationNumberFormat(MESSAGE,certificationNumber), true); // 메일 본문 내용, HTML 여부
         javaMailSender.send(mimeMessage);
+        if(sentMail.containsKey(emailDto.getTo()))
+            sentMail.remove(emailDto.getTo());
         sentMail.put(emailDto.getTo(),certificationNumber);
     }
 
