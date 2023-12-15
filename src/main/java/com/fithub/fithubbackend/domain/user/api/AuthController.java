@@ -59,8 +59,8 @@ public class AuthController {
     @DeleteMapping("/sign-out")
     public ResponseEntity signOut(@CookieValue(name = "accessToken") String cookieAccessToken,
                                   @AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response, HttpServletRequest request){
-        SignOutDto signOutDto = SignOutDto.builder().accessToken(cookieAccessToken).build();
-        authService.signOut(signOutDto, userDetails, response, request);
+        SignOutDto signOutDto = SignOutDto.builder().accessToken(cookieAccessToken).email(userDetails.getUsername()).build();
+        authService.signOut(signOutDto, response, request);
         return new ResponseEntity<>("로그아웃 성공", HttpStatus.OK);
     }
 
