@@ -14,6 +14,7 @@ import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.util.CookieUtil;
 import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -111,18 +112,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void signOut(SignOutDto signOutDto, UserDetails userDetails, HttpServletResponse response, HttpServletRequest request) {
-        signOutDto.setEmail(userDetails.getUsername());
-
-        boolean validateToken = false;
+    public void signOut(SignOutDto signOutDto, HttpServletResponse response, HttpServletRequest request) {
 
         try {
-            validateToken = jwtTokenProvider.validateToken(signOutDto.getAccessToken());
-            if (!validateToken) {
-                throw new CustomException(ErrorCode.INVALID_TOKEN);
-            }
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
+            jwtTokenProvider.validateToken(signOutDto.getAccessToken());
+        } catch (JwtException e) {
+            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN, "검증되지 않는 토큰이므로 로그아웃 실패");
         }
 
         Authentication authentication = jwtTokenProvider.getAuthentication(signOutDto.getAccessToken());
@@ -130,13 +125,13 @@ public class AuthServiceImpl implements AuthService {
         if (redisUtil.getData(authentication.getName()) != null) {
             redisUtil.deleteData(signOutDto.getEmail());
         }
-
-        if (validateToken) {
-            Long expiration = jwtTokenProvider.getExpiration(signOutDto.getAccessToken());
-            redisUtil.setData(signOutDto.getAccessToken(), "logout", expiration);
+        else {
+            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN, "redis에 토큰이 존재하지 않습니다.");
         }
 
-        cookieUtil.deleteAccessTokenCookie(request, response);
+        Long expiration = jwtTokenProvider.getExpiration(signOutDto.getAccessToken());
+        redisUtil.setData(signOutDto.getAccessToken(), "logout", expiration);
+
     }
 
     @Override
@@ -146,8 +141,10 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = headerUtil.resolveAccessToken(request);
 
         // 2. Refresh Token 검증
-        if (!jwtTokenProvider.validateToken(cookieRefreshToken)) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN, "Refresh Token 정보가 유효하지 않습니다.");
+        try{
+            jwtTokenProvider.validateToken(cookieRefreshToken);
+        } catch (JwtException e){
+            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN, "검증되지 않는 토큰이므로 토큰 재발급 실패");
         }
 
         // 3. Access Token 에서 User email 추출
@@ -155,11 +152,11 @@ public class AuthServiceImpl implements AuthService {
         // 4. Redis 에서 User email 을 기반으로 저장된 Refresh Token 추출
         String refreshToken = redisUtil.getData(authentication.getName());
 
-        if(ObjectUtils.isEmpty(refreshToken)) {
-            throw new CustomException(ErrorCode.UNKNOWN_ERROR);
+        if(refreshToken == null) {
+            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN, "redis에 토큰이 존재하지 않습니다.");
         }
         if(!refreshToken.equals(cookieRefreshToken)) {
-            throw  new CustomException(ErrorCode.TOKEN_NOT_EQUALS);
+            throw  new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN, "쿠키의 refresh Token과 redis의 refresh Token이 일치하지 않습니다.");
         }
 
         // 5. 새로운 토큰 생성
