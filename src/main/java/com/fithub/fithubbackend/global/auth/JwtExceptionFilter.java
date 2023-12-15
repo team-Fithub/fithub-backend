@@ -76,6 +76,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         response.setStatus(code.getHttpStatus().value());
 
         JSONObject responseJson = new JSONObject();
+        responseJson.put("code", code.getHttpStatus().value());
         responseJson.put("message", code.getMessage());
         responseJson.put("httpStatus", code.getHttpStatus());
 
@@ -87,6 +88,8 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         response.setStatus(HttpStatus.CREATED.value());     // 201 성공적으로 access Token 재발급
 
         JSONObject responseJson = new JSONObject();
+        responseJson.put("httpStatus", HttpStatus.CREATED);
+        responseJson.put("code", HttpStatus.CREATED.value());
         responseJson.put("message", "30분 유효 기간 지나 access Token 재발급 성공");
         responseJson.put("accessToken", accessToken);
         response.getWriter().print(responseJson);
