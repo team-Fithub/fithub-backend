@@ -24,9 +24,6 @@ public class Post extends BaseTimeEntity {
     private Long id;
 
     @NotNull
-    private String title;
-
-    @NotNull
     private String content;
 
     private Integer views;
@@ -40,11 +37,14 @@ public class Post extends BaseTimeEntity {
     }
 
     @Builder
-    public Post(String title, String content, User user){
-        this.title = title;
+    public Post(String content, User user){
         this.content = content;
         this.user = user;
         this.views = 0;
+    }
+
+    public void updatePost(String content) {
+        this.content = content;
     }
 
 }
