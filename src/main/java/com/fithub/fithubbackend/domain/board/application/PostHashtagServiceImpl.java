@@ -47,10 +47,6 @@ public class PostHashtagServiceImpl implements PostHashtagService {
         });
     }
 
-    @Override
-    public void updateHashTag(String hashTags, Post post) {
-
-    }
 
     @Transactional
     public void saveHashtag(String hashTagContent, Post post){
