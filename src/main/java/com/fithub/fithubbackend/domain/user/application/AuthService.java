@@ -16,7 +16,7 @@ public interface AuthService {
     
     TokenInfoDto signIn(SignInDto signInDto, HttpServletResponse response);
 
-    void signOut(SignOutDto signOutDto, UserDetails userDetails, HttpServletResponse response, HttpServletRequest request);
+    void signOut(SignOutDto signOutDto, HttpServletResponse response, HttpServletRequest request);
 
     TokenInfoDto reissue(String cookieRefreshToken, HttpServletRequest request, HttpServletResponse response);
 

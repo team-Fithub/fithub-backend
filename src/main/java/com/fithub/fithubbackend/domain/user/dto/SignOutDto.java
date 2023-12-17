@@ -16,7 +16,8 @@ public class SignOutDto {
     private String refreshToken;
 
     @Builder
-    public SignOutDto (String accessToken) {
+    public SignOutDto (String accessToken, String email) {
         this.accessToken = accessToken;
+        this.email = email;
     }
 }
