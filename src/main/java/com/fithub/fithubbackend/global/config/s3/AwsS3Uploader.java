@@ -1,7 +1,9 @@
 package com.fithub.fithubbackend.global.config.s3;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -41,5 +43,9 @@ public class AwsS3Uploader {
 
         amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
         return amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 S3 URL 주소 반환
+    }
+
+    public void deleteS3(String fileName) {
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }
 }
