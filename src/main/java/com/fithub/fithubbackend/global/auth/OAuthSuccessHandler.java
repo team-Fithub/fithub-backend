@@ -36,7 +36,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        boolean isGuest = oAuth2User.getAuthorities().contains(new SimpleGrantedAuthority("GUEST"));
+        boolean isGuest = oAuth2User.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_GUEST"));
         String accessToken = "";
 
         if (!isGuest) {
