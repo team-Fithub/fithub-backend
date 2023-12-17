@@ -43,20 +43,35 @@ public class PostDocumentServiceImpl implements PostDocumentService {
     @Override
     @Transactional
     public void updateDocument(List<MultipartFile> images, Post post) {
-        deletePostDocuments(post);
 
-        images.forEach(image -> {
-            try {
-                createDocument(image, post);
-            } catch (IOException e) {
-                throw new CustomException(ErrorCode.UPLODE_FAIL);
-            }
-        });
+        List<PostDocument> oldPostDocuments = getAllPostDocuments(post);
+        oldPostDocuments.forEach(o -> System.out.print(o.getInputName() + ", "));
+
+        if (oldPostDocuments != null && !oldPostDocuments.isEmpty()) {
+            oldPostDocuments.forEach(oldPostDocument -> awsS3Uploader.deleteS3(oldPostDocument.getPath()));
+            deletePostDocuments(post);
+        }
+
+        if (images != null && !images.isEmpty()) {
+            images.forEach(image -> {
+                try {
+                    createDocument(image, post);
+                } catch (IOException e) {
+                    throw new CustomException(ErrorCode.UPLODE_FAIL);
+                }
+            });
+        }
 
     }
 
     @Transactional
     public void deletePostDocuments(Post post) {
         postDocumentRepository.deleteByPost(post);
+    }
+
+
+    @Transactional
+    public List<PostDocument> getAllPostDocuments(Post post) {
+        return postDocumentRepository.findByPost(post);
     }
 }
