@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,16 +30,19 @@ import java.io.IOException;
 public class AuthController {
     private final AuthService authService;
 
-    @Operation(summary = "회원가입", responses = {
+    @Operation(summary = "회원가입 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
             @ApiResponse(responseCode = "200", description = "회원 생성"),
             @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "형식 에러 (이메일 형식 , 비밀번호 형식(8자이상 특수문자 포함), 닉네임 형식(특수문자 제외 한글, 영어, 숫자), 전화번호 형식 (xxx-xxx(xxxx)-xxxx)", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    }, parameters = {
+            @Parameter(name="signUpDto", description = "회원가입 정보로 application/json 타입 지정 필요"),
+            @Parameter(name="profileImg", description = "프로필 이미지. 없을 경우 기보 이미지로 저장됨")
     })
-    @PostMapping("/sign-up")
-    public ResponseEntity<SignUpResponseDto> signUp(@RequestPart @Valid SignUpDto signUpDto,
-                                                    @RequestPart("profileImg") MultipartFile profileImg,
+    @PostMapping(value = "/sign-up", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<SignUpResponseDto> signUp(@RequestPart(value = "signUpDto") @Valid SignUpDto signUpDto,
+                                                    @RequestPart(value ="profileImg", required = false) MultipartFile profileImg,
                                                     BindingResult bindingResult) throws IOException {
         return authService.signUp(signUpDto, profileImg, bindingResult);
     }

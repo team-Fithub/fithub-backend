@@ -64,7 +64,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private String getGuestTargetUrl(Map<String, Object> attributes) {
         return UriComponentsBuilder.fromUriString(firstRedirect)
                 .queryParam("provider", attributes.get("provider"))
-                .queryParam("id", attributes.get("id"))
+                .queryParam("email", attributes.get("email"))
                 .queryParam("name", attributes.get("name"))
                 .queryParam("phone", attributes.get("phone"))
                 .queryParam("gender", attributes.get("gender"))
