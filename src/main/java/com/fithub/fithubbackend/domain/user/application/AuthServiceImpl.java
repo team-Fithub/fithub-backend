@@ -62,9 +62,9 @@ public class AuthServiceImpl implements AuthService {
         duplicateNickname(signUpDto.getNickname()); // 닉네임 중복 확인
 
         String profileImgInputName = "default";
-        String profileImgPath = "default";
+        String profileImgPath = "profiles/default";
 
-        if(!profileImg.isEmpty()){
+        if(profileImg != null && !profileImg.isEmpty()){
             profileImgPath = awsS3Uploader.imgPath("profiles");
             profileImgUrl = awsS3Uploader.putS3(profileImg,profileImgPath);
             profileImgInputName = profileImg.getOriginalFilename();

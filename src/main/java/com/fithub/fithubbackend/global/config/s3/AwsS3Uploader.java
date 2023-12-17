@@ -1,11 +1,8 @@
 package com.fithub.fithubbackend.global.config.s3;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -15,10 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -36,12 +30,15 @@ public class AwsS3Uploader {
         return dirName + "/" + UUID.randomUUID(); // 파일 경로 반환
     }
 
-    public String putS3(MultipartFile multipartFile, String fileName) throws IOException {
+    public String putS3(MultipartFile multipartFile, String fileName) {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(multipartFile.getContentType());
         metadata.setContentLength(multipartFile.getSize());
-
-        amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
+        try {
+            amazonS3Client.putObject(bucket, fileName, multipartFile.getInputStream(), metadata);
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
+        }
         return amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 S3 URL 주소 반환
     }
 

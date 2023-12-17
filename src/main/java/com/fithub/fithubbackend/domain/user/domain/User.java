@@ -84,7 +84,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.status = Status.NORMAL;
         this.profileImg = document;
         this.bio = signUpDto.getBio();
-        this.roles = Collections.singletonList("USER");
+        this.roles = Collections.singletonList("ROLE_USER");
     }
     @Builder(builderMethodName = "oAuthBuilder", buildMethodName = "oAuthBuild")
     public User (String nickname, String email, String provider, String providerId) {
@@ -93,7 +93,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
-        this.roles = Collections.singletonList("GUEST");
+        this.roles = Collections.singletonList("ROLE_GUEST");
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
         this.gender = Gender.UNDEFINED;
@@ -106,7 +106,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.email = "";
         this.provider = provider;
         this.providerId = providerId;
-        this.roles = Collections.singletonList("GUEST");
+        this.roles = Collections.singletonList("ROLE_GUEST");
         this.profileImg = profileImg;
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
@@ -121,7 +121,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.email = email;
         this.provider = provider;
         this.providerId = providerId;
-        this.roles = Collections.singletonList("GUEST");
+        this.roles = Collections.singletonList("ROLE_GUEST");
         this.grade = Grade.NORMAL;
         this.status = Status.NORMAL;
         this.gender = gender;
@@ -142,7 +142,7 @@ public class User extends BaseTimeEntity implements UserDetails {
     }
 
     public void updateGuestToUser() {
-        this.roles.set(this.roles.indexOf("GUEST"), "USER");
+        this.roles.set(this.roles.indexOf("ROLE_GUEST"), "ROLE_USER");
     }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
