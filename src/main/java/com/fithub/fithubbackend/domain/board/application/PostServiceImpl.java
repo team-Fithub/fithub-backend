@@ -1,7 +1,7 @@
 package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
-import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
+import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.repository.PostRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -28,7 +28,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void createPost(List<MultipartFile> images, PostCreateDto postCreateDto, UserDetails userDetails) {
+    public void createPost(PostCreateDto postCreateDto, UserDetails userDetails) {
 
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new CustomException(ErrorCode.NOT_FOUND));
 
@@ -38,9 +38,9 @@ public class PostServiceImpl implements PostService {
         if (postCreateDto.getHashTags() != null)
             postHashtagService.createOrUpdateHashtag(postCreateDto.getHashTags(), post);
 
-        if (!images.isEmpty()) {
+        if (!postCreateDto.getImages().isEmpty()) {
 
-            images.forEach(image -> {
+            postCreateDto.getImages().forEach(image -> {
                 try {
                     postDocumentService.createDocument(image, post);
                 } catch (IOException e) {
@@ -51,15 +51,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void updatePost(List<MultipartFile> images, PostInfoDto postInfoDto, UserDetails userDetails) {
+    public void updatePost(PostUpdateDto postUpdateDto, UserDetails userDetails) {
 
-        Post post = postRepository.findById(postInfoDto.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));
+        Post post = postRepository.findById(postUpdateDto.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(()-> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
 
         if (isWriter(user, post)) {
-            post.updatePost(postInfoDto.getContent());
-            postDocumentService.updateDocument(images, post);
-            postHashtagService.createOrUpdateHashtag(postInfoDto.getHashTags(), post);
+            post.updatePost(postUpdateDto.getContent());
+            postDocumentService.updateDocument(postUpdateDto.getImages(), post);
+            postHashtagService.createOrUpdateHashtag(postUpdateDto.getHashTags(), post);
         }
         else {
             // TODO 게시글 수정 시, 반환값 수정 필요
