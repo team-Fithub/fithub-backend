@@ -70,7 +70,10 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-//                .exceptionHandling(e -> e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .exceptionHandling(e -> {
+                    e.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
+                    e.accessDeniedHandler(((request, response, accessDeniedException) -> response.sendRedirect("/login")));
+                })
                 .oauth2Login(oauth2Login -> {
                     oauth2Login.userInfoEndpoint(userInfoEndPoint -> userInfoEndPoint.userService(oAuthService));
                     oauth2Login.successHandler(oAuthSuccessHandler);
