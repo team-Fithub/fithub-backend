@@ -19,10 +19,7 @@ public class PostUpdateDto {
     @Schema(description = "게시글 내용")
     private String content;
 
-    @Schema(description = "게시글 작성자")
-    private String userId;
-
-    @Schema(description = "게시글 헤시태그")
+    @Schema(description = "게시글 해시태그")
     private String hashTags;
 
     @Schema(description = "게시글 이미지")

@@ -44,7 +44,7 @@ public class PostServiceImpl implements PostService {
                 try {
                     postDocumentService.createDocument(image, post);
                 } catch (IOException e) {
-                    throw new CustomException(ErrorCode.UPLODE_FAIL);
+                    throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
                 }
             });
         }
