@@ -80,7 +80,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.email = signUpDto.getEmail();
         this.phone = signUpDto.getPhone();
         this.gender = signUpDto.getGender();
-        this.grade = Grade.NORMAL;
+        this.grade = Grade.INTRODUCTORY;
         this.status = Status.NORMAL;
         this.profileImg = document;
         this.bio = signUpDto.getBio();
@@ -94,7 +94,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.provider = provider;
         this.providerId = providerId;
         this.roles = Collections.singletonList("ROLE_GUEST");
-        this.grade = Grade.NORMAL;
+        this.grade = Grade.INTRODUCTORY;
         this.status = Status.NORMAL;
         this.gender = Gender.UNDEFINED;
         this.phone = "";
@@ -108,7 +108,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.providerId = providerId;
         this.roles = Collections.singletonList("ROLE_GUEST");
         this.profileImg = profileImg;
-        this.grade = Grade.NORMAL;
+        this.grade = Grade.INTRODUCTORY;
         this.status = Status.NORMAL;
         this.gender = Gender.UNDEFINED;
         this.phone = "";
@@ -122,7 +122,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.provider = provider;
         this.providerId = providerId;
         this.roles = Collections.singletonList("ROLE_GUEST");
-        this.grade = Grade.NORMAL;
+        this.grade = Grade.INTRODUCTORY;
         this.status = Status.NORMAL;
         this.gender = gender;
         this.phone = phone;
