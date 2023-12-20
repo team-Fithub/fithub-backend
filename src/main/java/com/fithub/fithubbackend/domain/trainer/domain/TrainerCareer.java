@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
@@ -36,4 +37,14 @@ public class TrainerCareer {
     @ColumnDefault("false")
     @NotNull
     private boolean working;
+
+    @Builder
+    public TrainerCareer(Trainer trainer, TrainerCareerTemp trainerCareerTemp) {
+        this.trainer = trainer;
+        this.company = trainerCareerTemp.getCompany();
+        this.work = trainerCareerTemp.getWork();
+        this.startDate = trainerCareerTemp.getStartDate();
+        this.endDate = trainerCareerTemp.getEndDate();
+        this.working = trainerCareerTemp.isWorking();
+    }
 }

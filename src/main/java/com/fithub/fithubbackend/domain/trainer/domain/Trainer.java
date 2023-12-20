@@ -10,6 +10,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Comment;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,13 +30,30 @@ public class Trainer extends BaseTimeEntity {
     @Size(min = 2)
     private String name;
 
-    @NotNull
+    @Comment("현재 일하는 장소")
     private String location;
 
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TrainerCareer> trainerCareerList;
+
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TrainerLicenseImg> trainerLicenseImgList;
+
     @Builder
-    public Trainer(User user, String location) {
+    public Trainer(User user) {
         this.user = user;
         this.name = user.getName();
+    }
+
+    public void updateLocation(String location) {
         this.location = location;
+    }
+    
+    public void updateCareerList(List<TrainerCareer> trainerCareerList) {
+        this.trainerCareerList = trainerCareerList;
+    }
+
+    public void updateTrainerLicenseImg(List<TrainerLicenseImg> trainerLicenseImgList) {
+        this.trainerLicenseImgList = trainerLicenseImgList;
     }
 }
