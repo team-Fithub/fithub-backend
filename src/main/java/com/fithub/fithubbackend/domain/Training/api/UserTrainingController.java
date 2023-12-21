@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.UserTrainingService;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingLikesInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -16,6 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users/training")
@@ -59,5 +62,10 @@ public class UserTrainingController {
         }
         userTrainingService.likesTraining(trainingId, likes, userDetails.getUsername());
         return ResponseEntity.ok().body("완료");
+    }
+
+    @GetMapping("/likes")
+    public ResponseEntity<List<TrainingLikesInfoDto>> getUserTrainingLikesList(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(userTrainingService.getTrainingLikesList(userDetails.getUsername()));
     }
 }
