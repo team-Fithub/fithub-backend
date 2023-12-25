@@ -49,6 +49,10 @@ dependencies {
 	// oauth2
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+	// image
+	implementation 'org.apache.tika:tika-core:1.4'
+
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
