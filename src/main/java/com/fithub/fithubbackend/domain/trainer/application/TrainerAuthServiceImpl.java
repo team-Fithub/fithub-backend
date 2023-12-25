@@ -37,8 +37,8 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
             throw new CustomException(ErrorCode.DUPLICATE, "트레이너 인증이 완료된 회원입니다.");
         }
 
-        if (trainerCertificationRequestRepository.existsByUserId(user.getId())) {
-            throw new CustomException(ErrorCode.DUPLICATE, "완료되지 않은 트레이너 인증 요청이 존재하는 회원입니다.");
+        if (trainerCertificationRequestRepository.existsByRejectedFalseAndUserId(user.getId())) {
+            throw new CustomException(ErrorCode.DUPLICATE, "반려되지 않은 트레이너 인증 요청이 존재하는 회원입니다.");
         }
 
         TrainerCertificationRequest trainerCertificationRequest = TrainerCertificationRequest.builder()
