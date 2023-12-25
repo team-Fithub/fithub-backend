@@ -26,15 +26,20 @@ public class PostDocument {
     @Comment("파일 경로")
     private String path;
 
+    @NotNull
+    @Comment("파일 사이즈")
+    private long size;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
 
     @Builder
-    public PostDocument(String url, String inputName, String path, Post post) {
+    public PostDocument(String url, String inputName, String path, Post post, long size) {
         this.url = url;
         this.inputName = inputName;
         this.path = path;
         this.post = post;
+        this.size = size;
     }
 }

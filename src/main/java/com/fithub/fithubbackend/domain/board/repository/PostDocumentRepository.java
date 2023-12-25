@@ -10,5 +10,6 @@ public interface PostDocumentRepository extends JpaRepository<PostDocument, Long
 
     List<PostDocument> findByPost(Post post);
 
-    void deleteByPost(Post post);
+    List<PostDocument> findBySizeAndInputNameAndPost(long size, String inputName, Post post);
+
 }
