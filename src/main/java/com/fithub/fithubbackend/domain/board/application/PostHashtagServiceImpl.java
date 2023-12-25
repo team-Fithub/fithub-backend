@@ -8,10 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,25 +21,48 @@ public class PostHashtagServiceImpl implements PostHashtagService {
 
     @Override
     @Transactional
-    public void createOrUpdateHashtag(String hashTagContentStr, Post post){
+    public void createPostHashtag(String hashTagContentStr, Post post) {
+        List<String> hashTagContents = extractHashTags(hashTagContentStr);
+        hashTagContents.forEach(hashTagContent -> savePostHashtag(hashTagContent, post));
+    }
+
+    @Transactional
+    public void savePostHashtag(String hashTagContent, Post post){
+        Hashtag hashtag = hashtagService.save(hashTagContent);
+        postHashtagRepository.save(new PostHashtag(post, hashtag));
+    }
+
+    @Override
+    @Transactional
+    public void updateHashtag(String hashTagContentStr, Post post) {
+
+        // 1. post 해시태그 내용 리스트 가져오기
+        List<String> oldHashTags = postHashtagRepository.findHashtagByPostId(post.getId());
+
+        // 2. 업데이트된 해시태그 추출
+        List<String> newHashTags = extractHashTags(hashTagContentStr);
+
+        // 3. 해시태그 내용 리스트와 업데이트 해시태크 sort
+        Collections.sort(oldHashTags);
+        Collections.sort(newHashTags);
+
+        // 4. 변경 사항이 없다면 return
+        if (oldHashTags.equals(newHashTags))
+            return;
 
         List<PostHashtag> oldPostHashtags = getPostHashTags(post);
         List<PostHashtag> needToDelete = new ArrayList<>();
 
-        List<String> hashTagContents = Arrays.stream(hashTagContentStr.split("#"))
-                .map(String::trim)
-                .filter(hashTag -> hashTag.length() > 0)
-                .collect(Collectors.toList());
-
         for (PostHashtag oldPostHashtag : oldPostHashtags) {
-            boolean contains = hashTagContents.stream().anyMatch(hashTagContent -> hashTagContent.equals(oldPostHashtag.getHashtag().getContent()));
-
+            boolean contains = newHashTags.stream().anyMatch(hashTagContent -> hashTagContent.equals(oldPostHashtag.getHashtag().getContent()));
             if (!contains)
                 needToDelete.add(oldPostHashtag);
-
         }
 
-        hashTagContents.forEach(hashTagContent -> saveHashtag(hashTagContent, post));
+        List<String> needToAdd = newHashTags.stream().filter(newHT -> oldHashTags.stream().noneMatch(Predicate.isEqual(newHT)))
+                .collect(Collectors.toList());
+
+        needToAdd.forEach(hashTagContent -> saveHashtag(hashTagContent, post));
         needToDelete.forEach(hashTag -> {
             postHashtagRepository.delete(hashTag);
         });
@@ -61,8 +82,16 @@ public class PostHashtagServiceImpl implements PostHashtagService {
         postHashtagRepository.save(new PostHashtag(post, hashtag));
     }
 
+    @Transactional
     public List<PostHashtag> getPostHashTags(Post post){
         return postHashtagRepository.findByPost(post);
+    }
+
+    public List<String> extractHashTags(String hashTagContentStr) {
+        return Arrays.stream(hashTagContentStr.split("#"))
+                .map(String::trim)
+                .filter(hashTag -> hashTag.length() > 0)
+                .collect(Collectors.toList());
     }
 
 }
