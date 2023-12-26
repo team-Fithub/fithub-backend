@@ -7,6 +7,8 @@ import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
+import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -28,15 +30,15 @@ public class TrainingServiceImpl implements TrainingService {
 
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
-    public Long createTraining(TrainingCreateDto dto, Long trainerId) {
-        Trainer trainer = trainerRepository.findById(trainerId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이너"));
+    public Long createTraining(TrainingCreateDto dto, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이너"));
 
-        if (dto.isDateInvalid(dto.getStartDate(), dto.getEndDate())) {
-            throw new CustomException(ErrorCode.INVALID_DATE, "선택할 수 없는 날짜입니다.");
-        }
+        dateValidate(dto.getStartDate(), dto.getEndDate());
 
         Training training = Training.builder().dto(dto).trainer(trainer).build();
 
@@ -58,15 +60,16 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public Long updateTraining(TrainingCreateDto dto, Long trainingId) {
-        // TODO: 접근한 유저(토큰)와 트레이닝에 들어가있는 트레이너가 같은 유저인지 확인하는 과정 필요, SecurityContextHolder에서 꺼내 비교
+    public Long updateTraining(TrainingCreateDto dto, Long trainingId, String email) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
+
+        // TODO: 트레이너 엔티티에 트레이너 이메일 추가
+        permissionValidate(training.getTrainer(), email);
+
         if (training.isClosed()) {
             throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "마감된 트레이닝은 수정할 수 없습니다.");
         }
-        if (dto.isDateInvalid(dto.getStartDate(), dto.getEndDate())) {
-            throw new CustomException(ErrorCode.INVALID_DATE, "선택할 수 없는 날짜입니다.");
-        }
+        dateValidate(dto.getStartDate(), dto.getEndDate());
 
         List<AvailableDate> originAvailableDates = new ArrayList<>();
         if (training.getStartDate() != dto.getStartDate() || training.getEndDate() != dto.getEndDate()
@@ -92,9 +95,9 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public void updateClosed(Long id, boolean closed) {
-        // TODO: 접근한 유저(토큰)와 트레이닝에 들어가있는 트레이너가 같은 유저인지 확인하는 과정 필요, SecurityContextHolder에서 꺼내 비교
+    public void updateClosed(Long id, boolean closed, String email) {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
+        permissionValidate(training.getTrainer(), email);
         training.updateClosed(closed);
     }
 
@@ -125,4 +128,16 @@ public class TrainingServiceImpl implements TrainingService {
         return timeList;
     }
 
+    public void dateValidate(LocalDate startDate, LocalDate endDate) {
+        LocalDate now = LocalDate.now();
+        if (startDate.isBefore(now) || endDate.isBefore(now) || endDate.isBefore(startDate)) {
+            throw new CustomException(ErrorCode.INVALID_DATE, "선택할 수 없는 날짜입니다.");
+        }
+    }
+
+    public void permissionValidate(Trainer trainer, String email) {
+        if (!trainer.getUser().getEmail().equals(email)) {
+            throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "해당 트레이닝을 수정할 권한이 없습니다.");
+        }
+    }
 }
