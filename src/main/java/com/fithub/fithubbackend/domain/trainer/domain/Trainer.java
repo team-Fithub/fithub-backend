@@ -30,6 +30,9 @@ public class Trainer extends BaseTimeEntity {
     @Size(min = 2)
     private String name;
 
+    @NotNull
+    private String email;
+
     @Comment("현재 일하는 장소")
     private String location;
 
@@ -43,6 +46,7 @@ public class Trainer extends BaseTimeEntity {
     public Trainer(User user) {
         this.user = user;
         this.name = user.getName();
+        this.email = user.getEmail();
     }
 
     public void updateLocation(String location) {

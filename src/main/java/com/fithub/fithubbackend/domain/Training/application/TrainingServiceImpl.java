@@ -62,8 +62,6 @@ public class TrainingServiceImpl implements TrainingService {
     @Transactional
     public Long updateTraining(TrainingCreateDto dto, Long trainingId, String email) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
-
-        // TODO: 트레이너 엔티티에 트레이너 이메일 추가
         permissionValidate(training.getTrainer(), email);
 
         if (training.isClosed()) {
@@ -136,7 +134,7 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     public void permissionValidate(Trainer trainer, String email) {
-        if (!trainer.getUser().getEmail().equals(email)) {
+        if (!trainer.getEmail().equals(email)) {
             throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "해당 트레이닝을 수정할 권한이 없습니다.");
         }
     }
