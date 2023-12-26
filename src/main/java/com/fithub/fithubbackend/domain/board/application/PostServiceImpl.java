@@ -28,7 +28,7 @@ public class PostServiceImpl implements PostService {
     private final PostHashtagService postHashtagService;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = {Exception.class})
     public void createPost(PostCreateDto postCreateDto, UserDetails userDetails) throws IOException {
 
         // 이미지 확장자 검사
@@ -46,13 +46,13 @@ public class PostServiceImpl implements PostService {
             try {
                 postDocumentService.createDocument(image, post);
             } catch (IOException e) {
-                postRepository.delete(post);
                 throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
             }
         });
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public void updatePost(PostUpdateDto postUpdateDto, UserDetails userDetails) throws IOException {
 
         Post post = postRepository.findById(postUpdateDto.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));

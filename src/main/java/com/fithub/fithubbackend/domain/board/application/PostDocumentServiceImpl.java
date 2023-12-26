@@ -50,7 +50,7 @@ public class PostDocumentServiceImpl implements PostDocumentService {
         IntStream.range(0, postDocumentUpdateDto.size())
                 .forEach(index -> {
                     PostDocumentUpdateDto editedImage = postDocumentUpdateDto.get(index);
-                    System.out.println(index);
+
                     if (editedImage.isAdded()) {
                             try {
                                 createDocument(editedImage.getImage(), post);
