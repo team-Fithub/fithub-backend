@@ -60,4 +60,8 @@ public class Trainer extends BaseTimeEntity {
     public void updateTrainerLicenseImg(List<TrainerLicenseImg> trainerLicenseImgList) {
         this.trainerLicenseImgList = trainerLicenseImgList;
     }
+
+    public void grantPermission() {
+        this.user.getRoles().add("ROLE_TRAINER");
+    }
 }
