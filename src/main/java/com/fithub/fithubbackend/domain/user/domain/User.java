@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
 import com.fithub.fithubbackend.domain.user.dto.OAuthSignUpDto;
+import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.enums.Grade;
@@ -17,6 +18,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -139,6 +142,15 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.phone = oAuthSignUpDto.getPhone();
         this.bio = oAuthSignUpDto.getBio();
         this.gender = oAuthSignUpDto.getGender();
+    }
+    public void updateProfile(ProfileDto dto) {
+        if(dto.getNickname() != null) this.nickname = dto.getNickname();
+        if(dto.getEmail() != null) this.email = dto.getEmail();
+        if(dto.getPhone() != null) this.phone = dto.getPhone();
+        if(dto.getBio() != null) this.nickname = dto.getBio();
+    }
+    public void updateProfileImg(Document profileImg) {
+        this.profileImg = profileImg;
     }
 
     public void updateGuestToUser() {
