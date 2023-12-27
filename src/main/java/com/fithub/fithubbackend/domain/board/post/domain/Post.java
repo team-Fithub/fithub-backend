@@ -26,7 +26,7 @@ public class Post extends BaseTimeEntity {
     private Integer views;
 
     @Comment("게시글 작성자")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     public void setUser(User user) {

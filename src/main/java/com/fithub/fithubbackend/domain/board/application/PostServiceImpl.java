@@ -13,10 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +24,13 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final PostDocumentService postDocumentService;
     private final PostHashtagService postHashtagService;
+    private final LikesService likesService;
+    private final BookmarkService bookmarkService;
+    private final CommentService commentService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void createPost(PostCreateDto postCreateDto, UserDetails userDetails) throws IOException {
+    public void createPost(PostCreateDto postCreateDto, UserDetails userDetails) {
 
         // 이미지 확장자 검사
         postDocumentService.isValidDocument(postCreateDto.getImages());
@@ -53,18 +54,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void updatePost(PostUpdateDto postUpdateDto, UserDetails userDetails) throws IOException {
+    public void updatePost(PostUpdateDto postUpdateDto, UserDetails userDetails) {
 
-        Post post = postRepository.findById(postUpdateDto.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
+        Post post = getPost(postUpdateDto.getId());
+        User user = getUser(userDetails);
 
         if (isWriter(user, post)) {
-            if (postUpdateDto.isImageChanged()) {
-                List<MultipartFile> multipartFileList = postUpdateDto.getEditedImages().stream().map(PostDocumentUpdateDto::getImage).toList();
-
-                postDocumentService.isValidDocument(multipartFileList);
+            if (postUpdateDto.isImageChanged())
                 postDocumentService.updateDocument(postUpdateDto.getEditedImages(), post);
-            }
+
             post.updatePost(postUpdateDto.getContent());
             postHashtagService.updateHashtag(postUpdateDto.getHashTags(), post);
         } else {
@@ -72,6 +70,58 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    @Override
+    @Transactional
+    public void likesPost(long postId, UserDetails userDetails) {
+        User user = getUser(userDetails);
+        Post post = getPost(postId);
+
+        likesService.addLikes(user, post);
+
+    }
+
+    @Override
+    @Transactional
+    public void createBookmark(long postId, UserDetails userDetails) {
+        User user = getUser(userDetails);
+        Post post = getPost(postId);
+
+        bookmarkService.addBookmark(user, post);
+    }
+
+    @Override
+    @Transactional
+    public void notLikesPost(long postId, UserDetails userDetails) {
+        User user = getUser(userDetails);
+        Post post = getPost(postId);
+
+        likesService.deleteLikes(user, post);
+    }
+
+    @Override
+    @Transactional
+    public void deleteBookmark(long postId, UserDetails userDetails) {
+        User user = getUser(userDetails);
+        Post post = getPost(postId);
+
+        bookmarkService.deleteBookmark(user, post);
+    }
+
+    @Override
+    @Transactional
+    public void deletePost(long postId, UserDetails userDetails) {
+
+        Post post = getPost(postId);
+        User user = getUser(userDetails);
+
+        if (isWriter(user, post)) {
+            if (commentService.countComment(post) > 1)
+                throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "댓글이 있어 게시글 삭제 불가");
+            postRepository.delete(post);
+        } else {
+            throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 게시글 작성자가 아님");
+        }
+    }
 
     @Transactional
     public boolean isWriter(User user, Post post) {
@@ -80,5 +130,14 @@ public class PostServiceImpl implements PostService {
         return false;
     }
 
+    @Transactional
+    public User getUser(UserDetails userDetails) {
+        return userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
+    }
+
+    @Transactional
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));
+    }
 
 }

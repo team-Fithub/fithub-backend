@@ -7,6 +7,7 @@ import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -56,4 +57,65 @@ public class PostController {
         postService.updatePost(postUpdateDto, userDetails);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "게시글 삭제", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 삭제 완료"),
+            @ApiResponse(responseCode = "404", description = "해당 회원은 게시글 작성자가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "409", description = "댓글이 있어 게시글 삭제 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    }, parameters = {
+            @Parameter(name = "postId", description = "삭제할 게시글 id")
+    })
+    @DeleteMapping
+    public ResponseEntity<Void> deletePost(@RequestParam(value = "postId") long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        postService.deletePost(postId, userDetails);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "게시글 좋아요", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 좋아요 성공"),
+            @ApiResponse(responseCode = "409", description = "이미 좋아요한 게시글"),
+    }, parameters = {
+            @Parameter(name = "postId", description = "좋아요한 게시글 id")
+    })
+    @PostMapping("/likes")
+    public ResponseEntity<Void> likesPost(@RequestParam(value = "postId") long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        postService.likesPost(postId, userDetails);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "게시글 좋아요 취소", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 좋아요 취소 성공"),
+    }, parameters = {
+            @Parameter(name = "postId", description = "좋아요 취소할 게시글 id")
+    })
+    @DeleteMapping("/likes")
+    public ResponseEntity<Void> notLikesPost(@RequestParam(value = "postId") long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        postService.notLikesPost(postId, userDetails);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @Operation(summary = "게시글 북마크", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 북마크 성공"),
+            @ApiResponse(responseCode = "409", description = "이미 북마크한 게시글"),
+    }, parameters = {
+            @Parameter(name = "postId", description = "북마크한 게시글 id")
+    })
+    @PostMapping("/bookmark")
+    public ResponseEntity<Void> createBookMark(@RequestParam(value = "postId") long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        postService.createBookmark(postId, userDetails);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "게시글 북마크 삭제", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 북마크 삭제 성공"),
+    }, parameters = {
+            @Parameter(name = "postId", description = "북마크 삭제할 게시글 id")
+    })
+    @DeleteMapping("/bookmark")
+    public ResponseEntity<Void> deleteBookMark(@RequestParam(value = "postId") long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        postService.deleteBookmark(postId, userDetails);
+        return ResponseEntity.ok().build();
+    }
+
 }
