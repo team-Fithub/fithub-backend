@@ -32,7 +32,7 @@ public class PostDocument {
     @Comment("파일 사이즈")
     private long size;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
     @OnDelete(action= OnDeleteAction.CASCADE)
     private Post post;
