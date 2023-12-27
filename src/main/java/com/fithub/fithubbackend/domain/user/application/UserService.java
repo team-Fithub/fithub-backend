@@ -11,5 +11,5 @@ public interface UserService {
     ProfileDto myProfile(User user);
     User updateProfile(MultipartFile multipartFile, ProfileDto profileDto, User user);
 
-    List<TrainingCancelOrRefundDto> cancelOrRefundHistory(User user);
+    List<TrainingCancelOrRefundDto> trainingCancelOrRefundHistory(User user);
 }

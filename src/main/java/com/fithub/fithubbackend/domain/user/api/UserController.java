@@ -45,7 +45,7 @@ public class UserController {
             @Parameter(name="profileDto", description = "변경하고 싶은 프로필내역")
     })
     @PatchMapping("/profile/update")
-    public ResponseEntity<User> updateProfile(@RequestPart(value = "image",required = false) MultipartFile multipartFile, @RequestPart ProfileDto profileDto, @AuthUser User user){
+    public ResponseEntity<User> updateProfile(@RequestPart(value = "image",required = false) MultipartFile multipartFile, @RequestPart(value = "profileDto", required = false) ProfileDto profileDto, @AuthUser User user){
         if(user == null) throw new CustomException(ErrorCode.UNKNOWN_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userService.updateProfile(multipartFile, profileDto, user));
     }
@@ -56,7 +56,7 @@ public class UserController {
     @GetMapping("/profile/cancelOrRefund")
     public ResponseEntity<List<TrainingCancelOrRefundDto>> cancelOrRefund(@AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.UNKNOWN_ERROR, "로그인한 사용자만 가능합니다.");
-        return ResponseEntity.ok(userService.cancelOrRefundHistory(user));
+        return ResponseEntity.ok(userService.trainingCancelOrRefundHistory(user));
     }
 
 }

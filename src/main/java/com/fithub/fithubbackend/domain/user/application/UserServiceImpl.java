@@ -11,6 +11,7 @@ import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,8 @@ public class UserServiceImpl implements UserService {
     private final AwsS3Uploader awsS3Uploader;
     private final TrainingCancelOrRefundRepository trainingCancelOrRefundRepository;
 
+    private final RedisUtil redisUtil;
+
     @Override
     @Transactional(readOnly = true)
     public ProfileDto myProfile(User user) {
@@ -46,10 +49,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public User updateProfile(MultipartFile profileImg, ProfileDto profileDto, User user) {
-        if(!user.getEmail().equals(profileDto.getEmail()) || !user.getNickname().equals(profileDto.getNickname())) {
-            duplicateEmailOrNickname(profileDto.getEmail(), profileDto.getNickname());
-        }
-        user.updateProfile(profileDto);
+        if(profileDto != null)
+            user.updateProfile(profileDto);
+
         if(profileImg != null) {
             awsS3Uploader.deleteFile("profiles",user.getProfileImg().getPath());
             documentRepository.deleteById(user.getProfileImg().getId());
@@ -67,10 +69,9 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    // TODO : 유저 취소 및 환불
     @Override
     @Transactional(readOnly = true)
-    public List<TrainingCancelOrRefundDto> cancelOrRefundHistory(User user) {
+    public List<TrainingCancelOrRefundDto> trainingCancelOrRefundHistory(User user) {
         List<TrainingCancelOrRefund> userCancelOrRefund = trainingCancelOrRefundRepository.findByUser(user);
         List<TrainingCancelOrRefundDto> userCancelOrRefundResponse = new ArrayList<>();
         userCancelOrRefund
@@ -88,4 +89,6 @@ public class UserServiceImpl implements UserService {
             || userRepository.findByNickname(nickname).isPresent())
             throw new CustomException(ErrorCode.DUPLICATE,ErrorCode.DUPLICATE.getMessage());
     }
+
+
 }
