@@ -4,13 +4,11 @@ import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -30,28 +28,31 @@ public class Comment extends BaseTimeEntity {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @NotNull
-    private String title;
-
-    @NotNull
     private String content;
 
     @org.hibernate.annotations.Comment("삭제 여부 확인")
-    private Boolean isDeleted;
+    private Boolean deleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_comment_id")
     private Comment parent;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
-    private List<Comment> children = new ArrayList<>();
-
-    public void setUser(User user) {
+    @Builder
+    public Comment(Post post, User user, String content, Comment parent) {
+        this.post = post;
         this.user = user;
+        this.content = content;
+        this.parent = parent;
     }
 
-    public void setPost(Post post) {
-        this.post = post;
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void deleteComment(User user, String content, Boolean deleted) {
+        this.user = user;
+        this.content = content;
+        this.deleted = deleted;
     }
 
 }
