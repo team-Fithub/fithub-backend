@@ -4,5 +4,5 @@ import com.fithub.fithubbackend.domain.trainer.domain.TrainerCertificationReques
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TrainerCertificationRequestRepository extends JpaRepository<TrainerCertificationRequest, Long> {
-    boolean existsByUserId(Long userId);
+    boolean existsByRejectedFalseAndUserId(Long userId);
 }

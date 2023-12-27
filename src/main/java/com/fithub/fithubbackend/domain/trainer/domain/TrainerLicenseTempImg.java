@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.trainer.domain;
 
+import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import com.fithub.fithubbackend.global.domain.Document;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TrainerLicenseTempImg {
+public class TrainerLicenseTempImg extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

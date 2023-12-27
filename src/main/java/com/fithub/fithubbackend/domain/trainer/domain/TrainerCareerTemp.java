@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.trainer.domain;
 
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerCareerRequestDto;
+import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TrainerCareerTemp {
+public class TrainerCareerTemp extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

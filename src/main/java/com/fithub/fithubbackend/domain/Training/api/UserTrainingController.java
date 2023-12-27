@@ -2,11 +2,16 @@ package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.UserTrainingService;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingLikesInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users/training")
@@ -59,5 +66,14 @@ public class UserTrainingController {
         }
         userTrainingService.likesTraining(trainingId, likes, userDetails.getUsername());
         return ResponseEntity.ok().body("완료");
+    }
+
+    @Operation(summary = "트레이닝 찜 리스트 조회", responses = {
+            @ApiResponse(responseCode = "200", description = "리스트 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @GetMapping("/likes")
+    public ResponseEntity<List<TrainingLikesInfoDto>> getUserTrainingLikesList(@AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(userTrainingService.getTrainingLikesList(userDetails.getUsername()));
     }
 }

@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.Training.application;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingLikes;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingLikesInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
@@ -15,6 +16,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +67,16 @@ public class UserTrainingServiceImpl implements UserTrainingService {
             TrainingLikes trainingLikes = trainingLikesRepository.findByTrainingIdAndUserId(trainingId, user.getId()).orElseThrow(() -> new CustomException(ErrorCode.UNCORRECTABLE_DATA, "트레이닝을 찜하지 않았습니다."));
             trainingLikesRepository.delete(trainingLikes);
         }
+    }
+
+    @Override
+    public List<TrainingLikesInfoDto> getTrainingLikesList(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+        List<TrainingLikes> trainingLikes = trainingLikesRepository.findByUserId(user.getId());
+        return trainingLikes.stream().map(t -> TrainingLikesInfoDto.builder()
+                .id(t.getId())
+                .trainingOutlineDto(TrainingOutlineDto.toDto(t.getTraining()))
+                .build()).toList();
     }
 
     private void checkClosed(boolean closed) {
