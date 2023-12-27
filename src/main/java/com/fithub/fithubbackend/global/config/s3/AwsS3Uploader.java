@@ -7,6 +7,7 @@ import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,5 +40,20 @@ public class AwsS3Uploader {
             throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
         }
         return amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 S3 URL 주소 반환
+    }
+
+    public void deleteFile(String uploadFilePath, String fileName) {
+        try {
+            String keyName = uploadFilePath + "/" + fileName;
+            boolean isObjectExist = amazonS3Client.doesObjectExist(bucket, keyName);
+            if (isObjectExist) {
+                amazonS3Client.deleteObject(bucket, keyName);
+            } else {
+                throw new CustomException(ErrorCode.FILE_DELETE_ERROR,ErrorCode.FILE_DELETE_ERROR.getMessage());
+            }
+        } catch (Exception e) {
+            log.debug("Delete File failed", e);
+        }
+        log.info("Delete File Success");
     }
 }
