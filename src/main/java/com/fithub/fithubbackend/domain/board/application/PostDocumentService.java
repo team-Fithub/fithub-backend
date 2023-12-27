@@ -10,8 +10,7 @@ import java.util.List;
 public interface PostDocumentService {
     void createDocument(MultipartFile image, Post post) throws IOException;
 
-
     void updateDocument(List<PostDocumentUpdateDto> postDocumentUpdateDto, Post post);
 
-    void isValidDocument(List<MultipartFile> images) throws IOException;
+    void isValidDocument(List<MultipartFile> images);
 }

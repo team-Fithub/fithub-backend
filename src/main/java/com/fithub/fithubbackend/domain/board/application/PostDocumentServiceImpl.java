@@ -15,7 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -45,36 +48,45 @@ public class PostDocumentServiceImpl implements PostDocumentService {
     @Transactional
     public void updateDocument(List<PostDocumentUpdateDto> postDocumentUpdateDto, Post post) {
 
-        List<PostDocument> oldPostDocuments = findPostDocumentsByPost(post);
+        List<String> awsS3Urls = postDocumentRepository.findUrlsByPost(post);
 
-        IntStream.range(0, postDocumentUpdateDto.size())
-                .forEach(index -> {
-                    PostDocumentUpdateDto editedImage = postDocumentUpdateDto.get(index);
+        List<String> newAws3Urls = postDocumentUpdateDto.stream()
+                .filter(image -> image.getAwsS3Url() != null)
+                .map(image -> image.getAwsS3Url())
+                .collect(Collectors.toList());
 
-                    if (editedImage.isAdded()) {
-                            try {
-                                createDocument(editedImage.getImage(), post);
-                            } catch (IOException e) {
-                                throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
-                            }
-                        }
+        List<String> needToDelete = awsS3Urls.stream().filter(url -> !newAws3Urls.contains(url)).collect(Collectors.toList());
 
-                    if (editedImage.isDeleted()) {
-                        List<PostDocument> postDocument = postDocumentRepository.findBySizeAndInputNameAndPost(editedImage.getImage().getSize(), editedImage.getImage().getOriginalFilename(), post);
+        if (needToDelete != null && !needToDelete.isEmpty()) {
+            needToDelete.forEach(imageUrl -> {
+                awsS3Uploader.deleteS3(postDocumentRepository.findByUrl(imageUrl).getPath());
+                postDocumentRepository.deleteByUrl(imageUrl);
+            });
+        }
 
-                        if (postDocument.size() > 1 && index < oldPostDocuments.size()) {
-                            awsS3Uploader.deleteS3(oldPostDocuments.get(index).getPath());
-                            postDocumentRepository.delete(postDocument.get(index));
-                        } else {
-                            awsS3Uploader.deleteS3(postDocument.get(0).getPath());
-                            postDocumentRepository.delete(postDocument.get(0));
-                        }
+        List<MultipartFile> extractMultipartFile = postDocumentUpdateDto.stream()
+                .filter(image -> image.getImage() != null)
+                .map(PostDocumentUpdateDto::getImage)
+                .collect(Collectors.toList());
+
+        isValidDocument(extractMultipartFile);
+
+        extractMultipartFile.forEach(
+                image -> {
+                    try {
+                        System.out.println(image.getOriginalFilename());
+                        createDocument(image, post);
+                    } catch (IOException e) {
+                        throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
                     }
-                });
+                }
+        );
+
     }
 
     @Override
-    public void isValidDocument(List<MultipartFile> images) throws IOException {
+    @Transactional
+    public void isValidDocument(List<MultipartFile> images) {
 
         for (MultipartFile image : images) {
             try (InputStream inputStream = image.getInputStream()) {
@@ -89,8 +101,4 @@ public class PostDocumentServiceImpl implements PostDocumentService {
         }
     }
 
-    @Transactional
-    public List<PostDocument> findPostDocumentsByPost(Post post) {
-        return postDocumentRepository.findByPost(post);
-    }
 }
