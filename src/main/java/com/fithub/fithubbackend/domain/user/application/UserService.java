@@ -1,11 +1,15 @@
 package com.fithub.fithubbackend.domain.user.application;
 
+import com.fithub.fithubbackend.domain.Training.dto.TrainingCancelOrRefundDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 
 public interface UserService {
     ProfileDto myProfile(User user);
     User updateProfile(MultipartFile multipartFile, ProfileDto profileDto, User user);
+
+    List<TrainingCancelOrRefundDto> cancelOrRefundHistory(User user);
 }

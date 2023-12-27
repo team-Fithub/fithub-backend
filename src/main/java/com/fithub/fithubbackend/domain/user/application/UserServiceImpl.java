@@ -1,5 +1,7 @@
 package com.fithub.fithubbackend.domain.user.application;
 
+import com.fithub.fithubbackend.domain.Training.domain.TrainingCancelOrRefund;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingCancelOrRefundDto;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingCancelOrRefundRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
@@ -14,6 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +65,22 @@ public class UserServiceImpl implements UserService {
         // TODO : 트랜잭션이 동작을 안함.. 수정예정
         userRepository.save(user);
         return user;
+    }
+
+    // TODO : 유저 취소 및 환불
+    @Override
+    @Transactional(readOnly = true)
+    public List<TrainingCancelOrRefundDto> cancelOrRefundHistory(User user) {
+        List<TrainingCancelOrRefund> userCancelOrRefund = trainingCancelOrRefundRepository.findByUser(user);
+        List<TrainingCancelOrRefundDto> userCancelOrRefundResponse = new ArrayList<>();
+        userCancelOrRefund
+            .forEach(u -> userCancelOrRefundResponse.add(TrainingCancelOrRefundDto.builder()
+                    .id(u.getId())
+                    .title(u.getTraining().getTitle())
+                    .price(u.getTraining().getPrice())
+                    .createdDate(u.getCreatedDate())
+                    .build()));
+        return userCancelOrRefundResponse;
     }
 
     private void duplicateEmailOrNickname(String email, String nickname) {

@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.user.api;
 
+import com.fithub.fithubbackend.domain.Training.dto.TrainingCancelOrRefundDto;
 import com.fithub.fithubbackend.domain.user.application.UserService;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
@@ -48,4 +49,14 @@ public class UserController {
         if(user == null) throw new CustomException(ErrorCode.UNKNOWN_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userService.updateProfile(multipartFile, profileDto, user));
     }
+
+    @Operation(summary = "취소/환불 내역 조회", responses = {
+            @ApiResponse(responseCode = "200", description = "취소/환불 내역 조회"),
+    })
+    @GetMapping("/profile/cancelOrRefund")
+    public ResponseEntity<List<TrainingCancelOrRefundDto>> cancelOrRefund(@AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.UNKNOWN_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userService.cancelOrRefundHistory(user));
+    }
+
 }
