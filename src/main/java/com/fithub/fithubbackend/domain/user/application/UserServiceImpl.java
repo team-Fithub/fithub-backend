@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
             user.updateProfile(profileDto);
 
         if(profileImg != null) {
-            awsS3Uploader.deleteFile("profiles",user.getProfileImg().getPath());
+            awsS3Uploader.deleteS3(user.getProfileImg().getPath());
             documentRepository.deleteById(user.getProfileImg().getId());
             String profileImgPath = awsS3Uploader.imgPath("profiles");
             Document document = Document.builder()
