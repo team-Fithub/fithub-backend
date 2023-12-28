@@ -1,8 +1,5 @@
 package com.fithub.fithubbackend.domain.user.application;
 
-import com.fithub.fithubbackend.domain.Training.domain.TrainingCancelOrRefund;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingCancelOrRefundDto;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingCancelOrRefundRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
@@ -28,7 +25,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
     private final AwsS3Uploader awsS3Uploader;
-    private final TrainingCancelOrRefundRepository trainingCancelOrRefundRepository;
 
     private final RedisUtil redisUtil;
 
@@ -67,21 +63,6 @@ public class UserServiceImpl implements UserService {
         // TODO : 트랜잭션이 동작을 안함.. 수정예정
         userRepository.save(user);
         return user;
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<TrainingCancelOrRefundDto> trainingCancelOrRefundHistory(User user) {
-        List<TrainingCancelOrRefund> userCancelOrRefund = trainingCancelOrRefundRepository.findByUser(user);
-        List<TrainingCancelOrRefundDto> userCancelOrRefundResponse = new ArrayList<>();
-        userCancelOrRefund
-            .forEach(u -> userCancelOrRefundResponse.add(TrainingCancelOrRefundDto.builder()
-                    .id(u.getId())
-                    .title(u.getTraining().getTitle())
-                    .price(u.getTraining().getPrice())
-                    .createdDate(u.getCreatedDate())
-                    .build()));
-        return userCancelOrRefundResponse;
     }
 
     private void duplicateEmailOrNickname(String email, String nickname) {
