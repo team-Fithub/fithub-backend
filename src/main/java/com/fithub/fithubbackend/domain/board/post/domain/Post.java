@@ -6,9 +6,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,12 +20,9 @@ public class Post extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    private String title;
-
-    @NotNull
     private String content;
 
+    @NotNull
     private Integer views;
 
     @Comment("게시글 작성자")
@@ -40,11 +34,14 @@ public class Post extends BaseTimeEntity {
     }
 
     @Builder
-    public Post(String title, String content, User user){
-        this.title = title;
+    public Post(String content, User user){
         this.content = content;
         this.user = user;
         this.views = 0;
+    }
+
+    public void updatePost(String content) {
+        this.content = content;
     }
 
 }
