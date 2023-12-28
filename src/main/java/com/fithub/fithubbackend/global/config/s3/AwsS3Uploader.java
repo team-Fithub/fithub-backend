@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.global.config.s3;
 
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -42,18 +43,7 @@ public class AwsS3Uploader {
         return amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 S3 URL 주소 반환
     }
 
-    public void deleteFile(String uploadFilePath, String fileName) {
-        try {
-            String keyName = uploadFilePath + "/" + fileName;
-            boolean isObjectExist = amazonS3Client.doesObjectExist(bucket, keyName);
-            if (isObjectExist) {
-                amazonS3Client.deleteObject(bucket, keyName);
-            } else {
-                throw new CustomException(ErrorCode.FILE_DELETE_ERROR,ErrorCode.FILE_DELETE_ERROR.getMessage());
-            }
-        } catch (Exception e) {
-            log.debug("Delete File failed", e);
-        }
-        log.info("Delete File Success");
+    public void deleteS3(String fileName) {
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
     }
 }

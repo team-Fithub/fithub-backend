@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -26,15 +28,21 @@ public class PostDocument {
     @Comment("파일 경로")
     private String path;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
+    @Comment("파일 사이즈")
+    private long size;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
+    @OnDelete(action= OnDeleteAction.CASCADE)
     private Post post;
 
     @Builder
-    public PostDocument(String url, String inputName, String path, Post post) {
+    public PostDocument(String url, String inputName, String path, Post post, long size) {
         this.url = url;
         this.inputName = inputName;
         this.path = path;
         this.post = post;
+        this.size = size;
     }
 }

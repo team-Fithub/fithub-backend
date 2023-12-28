@@ -54,6 +54,7 @@ public class AdminServiceImpl implements AdminService {
             trainer.updateLocation(career.getCompany());
         }
 
+        trainer.grantPermission();
         trainerRepository.save(trainer);
         trainerCertificationRequestRepository.delete(trainerCertificationRequest);
     }

@@ -27,7 +27,8 @@ public enum ErrorCode {
 
     AUTHENTICATION_ERROR(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
     PARSING_ERROR(HttpStatus.BAD_GATEWAY,"파싱에 실패하였습니다."),
-    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제에 실패했습니다.");
+    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제에 실패했습니다."),
+    INVALID_IMAGE(HttpStatus.CONFLICT, "이미지 파일이 아닙니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
