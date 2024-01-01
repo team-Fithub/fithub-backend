@@ -33,4 +33,8 @@ public class PostHashtag {
     public void setPost(Post post) {
         this.post = post;
     }
+
+    public void setHashtag(Hashtag hashtag) {
+        this.hashtag = hashtag;
+    }
 }
