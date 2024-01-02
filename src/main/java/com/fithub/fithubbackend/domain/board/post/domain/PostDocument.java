@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -34,7 +32,6 @@ public class PostDocument {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "post_id")
-    @OnDelete(action= OnDeleteAction.CASCADE)
     private Post post;
 
     @Builder
@@ -44,5 +41,9 @@ public class PostDocument {
         this.path = path;
         this.post = post;
         this.size = size;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
     }
 }

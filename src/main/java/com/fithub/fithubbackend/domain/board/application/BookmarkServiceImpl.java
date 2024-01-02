@@ -29,13 +29,16 @@ public class BookmarkServiceImpl implements BookmarkService {
         if (bookmark.isPresent())
             throw new CustomException(ErrorCode.DUPLICATE, "이미 북마크한 게시글입니다.");
 
-        bookmarkRepository.save(new Bookmark(user, post));
+        post.addBookmark(new Bookmark(user, post));
     }
 
     @Override
     @Transactional
     public void deleteBookmark(User user, Post post) {
-        bookmarkRepository.deleteByUserAndPost(user, post);
+        Optional<Bookmark> bookmark = bookmarkRepository.findByUserAndPost(user, post);
+
+        if (bookmark.isPresent())
+            post.getBookmarks().remove(bookmark.get());
     }
 
 

@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.post.domain.PostHashtag;
+import com.fithub.fithubbackend.domain.board.repository.HashtagRepository;
 import com.fithub.fithubbackend.domain.board.repository.PostHashtagRepository;
 import com.fithub.fithubbackend.global.domain.Hashtag;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +18,7 @@ public class PostHashtagServiceImpl implements PostHashtagService {
 
     private final PostHashtagRepository postHashtagRepository;
     private final HashtagService hashtagService;
+    private final HashtagRepository hashtagRepository;
 
     @Override
     @Transactional
@@ -29,62 +30,65 @@ public class PostHashtagServiceImpl implements PostHashtagService {
     @Transactional
     public void savePostHashtag(String hashTagContent, Post post){
         Hashtag hashtag = hashtagService.save(hashTagContent);
-        postHashtagRepository.save(new PostHashtag(post, hashtag));
+        post.addPostHashtag(new PostHashtag(post, hashtag));
     }
 
     @Override
     @Transactional
     public void updateHashtag(String hashTagContentStr, Post post) {
 
-        // 1. post 해시태그 내용 리스트 가져오기
+        // DB에 저장된 PostHashtags 리스트
+        List<PostHashtag> dbPostHashtags = postHashtagRepository.findByPostFetch(post.getId());
+
+        // 문자열 형태의 기존 DB에 저장된 해시태그 리스트
         List<String> oldHashTags = postHashtagRepository.findHashtagByPostId(post.getId());
 
-        // 2. 업데이트된 해시태그 추출
-        List<String> newHashTags = extractHashTags(hashTagContentStr);
+        // 문자열 형태의 새로운 해시태그 리스트
+        List<String> newHashtags = extractHashTags(hashTagContentStr);
 
-        // 3. 해시태그 내용 리스트와 업데이트 해시태크 sort
-        Collections.sort(oldHashTags);
-        Collections.sort(newHashTags);
-
-        // 4. 변경 사항이 없다면 return
-        if (oldHashTags.equals(newHashTags))
+        if (oldHashTags.equals(newHashtags))
             return;
 
-        List<PostHashtag> oldPostHashtags = getPostHashTags(post);
-        List<PostHashtag> needToDelete = new ArrayList<>();
+        int i, j;
+        for (i = 0; i < newHashtags.size(); i++ ) {
 
-        for (PostHashtag oldPostHashtag : oldPostHashtags) {
-            boolean contains = newHashTags.stream().anyMatch(hashTagContent -> hashTagContent.equals(oldPostHashtag.getHashtag().getContent()));
-            if (!contains)
-                needToDelete.add(oldPostHashtag);
+            String newHashtagContent = newHashtags.get(i);
+            Optional<Hashtag> hashtag = hashtagRepository.findByContent(newHashtagContent);
+
+            if (i < oldHashTags.size()) {
+                if (!newHashtagContent.equals(oldHashTags.get(i))) {
+                    PostHashtag dbPostHashtag = dbPostHashtags.get(i);
+
+                    hashtag.ifPresentOrElse(
+                            h -> dbPostHashtag.setHashtag(h),
+                            () -> {
+                                Hashtag newHashtag = new Hashtag(newHashtagContent);
+                                hashtagRepository.save(newHashtag);
+                                dbPostHashtag.setHashtag(newHashtag);
+                            }
+                    );
+                }
+            }
+            else {
+                String addHashtagContent = newHashtags.get(i);
+
+                hashtag.ifPresentOrElse(
+                        h -> post.addPostHashtag(new PostHashtag(post, hashtag.get())),
+                        () -> {
+                            Hashtag addHashtag = new Hashtag(addHashtagContent);
+                            hashtagRepository.save(addHashtag);
+                            post.addPostHashtag(new PostHashtag(post, addHashtag));
+                        }
+                );
+            }
         }
 
-        List<String> needToAdd = newHashTags.stream().filter(newHT -> oldHashTags.stream().noneMatch(Predicate.isEqual(newHT)))
-                .collect(Collectors.toList());
+        if (newHashtags.size() < oldHashTags.size()) {
+            for (j = i; j < oldHashTags.size(); j++) {
+                post.getPostHashtags().remove(dbPostHashtags.get(j));
+            }
+        }
 
-        needToAdd.forEach(hashTagContent -> saveHashtag(hashTagContent, post));
-        needToDelete.forEach(hashTag -> {
-            postHashtagRepository.delete(hashTag);
-        });
-    }
-
-
-    @Transactional
-    public void saveHashtag(String hashTagContent, Post post){
-
-        Hashtag hashtag = hashtagService.save(hashTagContent);
-
-        Optional<PostHashtag> postHashtag = postHashtagRepository.findByPostAndHashtag(post, hashtag);
-
-        if (postHashtag.isPresent())
-            return;
-
-        postHashtagRepository.save(new PostHashtag(post, hashtag));
-    }
-
-    @Transactional
-    public List<PostHashtag> getPostHashTags(Post post){
-        return postHashtagRepository.findByPost(post);
     }
 
     public List<String> extractHashTags(String hashTagContentStr) {

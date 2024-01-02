@@ -15,11 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +38,7 @@ public class PostDocumentServiceImpl implements PostDocumentService {
                 .post(post)
                 .size(image.getSize()).build();
 
-        postDocumentRepository.save(postDocument);
+        post.addPostDocument(postDocument);
     }
 
     @Override
@@ -59,8 +56,9 @@ public class PostDocumentServiceImpl implements PostDocumentService {
 
         if (needToDelete != null && !needToDelete.isEmpty()) {
             needToDelete.forEach(imageUrl -> {
-                awsS3Uploader.deleteS3(postDocumentRepository.findByUrl(imageUrl).getPath());
-                postDocumentRepository.deleteByUrl(imageUrl);
+                PostDocument postDocument = postDocumentRepository.findByUrl(imageUrl);
+                awsS3Uploader.deleteS3(postDocument.getPath());
+                post.getPostDocuments().remove(postDocument);
             });
         }
 
@@ -74,7 +72,6 @@ public class PostDocumentServiceImpl implements PostDocumentService {
         extractMultipartFile.forEach(
                 image -> {
                     try {
-                        System.out.println(image.getOriginalFilename());
                         createDocument(image, post);
                     } catch (IOException e) {
                         throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
