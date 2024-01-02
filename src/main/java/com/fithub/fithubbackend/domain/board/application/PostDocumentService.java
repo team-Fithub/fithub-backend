@@ -12,5 +12,5 @@ public interface PostDocumentService {
 
     void updateDocument(List<PostDocumentUpdateDto> postDocumentUpdateDto, Post post);
 
-    void isValidDocument(List<MultipartFile> images);
+//    void isValidDocument(List<MultipartFile> images);
 }

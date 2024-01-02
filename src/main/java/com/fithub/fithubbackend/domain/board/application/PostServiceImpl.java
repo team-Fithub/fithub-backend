@@ -1,7 +1,6 @@
 package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
-import com.fithub.fithubbackend.domain.board.dto.PostDocumentUpdateDto;
 import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.repository.PostRepository;
@@ -9,6 +8,7 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class PostServiceImpl implements PostService {
     public void createPost(PostCreateDto postCreateDto, UserDetails userDetails) {
 
         // 이미지 확장자 검사
-        postDocumentService.isValidDocument(postCreateDto.getImages());
+        FileUtils.isValidDocument(postCreateDto.getImages());
 
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
 

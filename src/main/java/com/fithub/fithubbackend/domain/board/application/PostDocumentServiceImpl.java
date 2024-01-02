@@ -2,8 +2,8 @@ package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.dto.PostDocumentUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
-import com.fithub.fithubbackend.domain.board.repository.PostDocumentRepository;
 import com.fithub.fithubbackend.domain.board.post.domain.PostDocument;
+import com.fithub.fithubbackend.domain.board.repository.PostDocumentRepository;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,7 @@ public class PostDocumentServiceImpl implements PostDocumentService {
                 .map(PostDocumentUpdateDto::getImage)
                 .collect(Collectors.toList());
 
-        isValidDocument(extractMultipartFile);
+        FileUtils.isValidDocument(extractMultipartFile);
 
         extractMultipartFile.forEach(
                 image -> {
@@ -81,21 +80,21 @@ public class PostDocumentServiceImpl implements PostDocumentService {
 
     }
 
-    @Override
-    @Transactional
-    public void isValidDocument(List<MultipartFile> images) {
-
-        for (MultipartFile image : images) {
-            try (InputStream inputStream = image.getInputStream()) {
-                boolean isValid = FileUtils.validImageFile(inputStream);
-
-                if (!isValid) {
-                    throw new CustomException(ErrorCode.INVALID_IMAGE, "이미지 파일이 아닌 파일");
-                }
-            } catch (IOException e) {
-                throw new CustomException(ErrorCode.INVALID_IMAGE, "이미지 확장자 검사 실패");
-            }
-        }
-    }
+//    @Override
+//    @Transactional
+//    public void isValidDocument(List<MultipartFile> images) {
+//
+//        for (MultipartFile image : images) {
+//            try (InputStream inputStream = image.getInputStream()) {
+//                boolean isValid = FileUtils.validImageFile(inputStream);
+//
+//                if (!isValid) {
+//                    throw new CustomException(ErrorCode.INVALID_IMAGE, "이미지 파일이 아닌 파일");
+//                }
+//            } catch (IOException e) {
+//                throw new CustomException(ErrorCode.INVALID_IMAGE, "이미지 확장자 검사 실패");
+//            }
+//        }
+//    }
 
 }
