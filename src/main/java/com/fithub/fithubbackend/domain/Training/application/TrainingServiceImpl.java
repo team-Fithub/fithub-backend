@@ -3,17 +3,22 @@ package com.fithub.fithubbackend.domain.Training.application;
 import com.fithub.fithubbackend.domain.Training.domain.AvailableDate;
 import com.fithub.fithubbackend.domain.Training.domain.AvailableTime;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
+import com.fithub.fithubbackend.domain.Training.domain.TrainingDocument;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
+import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.util.FileUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -22,7 +27,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,9 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
+    private final AwsS3Uploader awsS3Uploader;
+
+    private final String imagePath =  "training";
 
     @Override
     @Transactional
@@ -45,17 +52,43 @@ public class TrainingServiceImpl implements TrainingService {
         List<LocalDate> availableDateList = getAvailableDateList(dto.getStartDate(), dto.getEndDate(), dto.getUnableDates());
         List<LocalTime> localTimeList = getAvailableTimeList(dto.getStartHour(), dto.getEndHour());
 
+        saveTrainingDateTime(availableDateList, localTimeList, training);
+
+        if (dto.getImages() != null) {
+            saveTrainingImages(dto.getImages(), training);
+        }
+
+        trainingRepository.save(training);
+        return training.getId();
+    }
+
+    private void saveTrainingDateTime(List<LocalDate> availableDateList, List<LocalTime> localTimeList, Training training) {
         for (LocalDate date : availableDateList) {
             AvailableDate availableDate = AvailableDate.builder()
                     .date(date)
                     .enabled(true)
                     .build();
-            List<AvailableTime> availableTimeList = localTimeList.stream().map(t -> AvailableTime.builder().date(availableDate).time(t).enabled(true).build()).collect(Collectors.toList());
+            List<AvailableTime> availableTimeList = localTimeList.stream().map(t -> AvailableTime.builder().date(availableDate).time(t).enabled(true).build()).toList();
             availableDate.updateAvailableTimes(availableTimeList);
             availableDate.addTraining(training);
         }
-        trainingRepository.save(training);
-        return training.getId();
+    }
+
+    private void saveTrainingImages(List<MultipartFile> images, Training training) {
+        FileUtils.isValidDocument(images);
+        for (MultipartFile file : images) {
+            String path = awsS3Uploader.imgPath(imagePath);
+            Document document = Document.builder()
+                    .inputName(file.getOriginalFilename())
+                    .url(awsS3Uploader.putS3(file, path))
+                    .path(path)
+                    .build();
+            TrainingDocument trainingDoc = TrainingDocument.builder()
+                    .training(training)
+                    .document(document)
+                    .build();
+            training.addImages(trainingDoc);
+        }
     }
 
     @Override

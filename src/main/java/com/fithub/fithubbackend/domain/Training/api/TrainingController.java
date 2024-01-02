@@ -21,12 +21,12 @@ public class TrainingController {
 
     private final TrainingService trainingService;
 
-    @Operation(summary = "트레이닝 생성", responses = {
+    @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능", responses = {
             @ApiResponse(responseCode = "200", description = "생성됨"),
             @ApiResponse(responseCode = "409", description = "예약 가능 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PostMapping
-    public ResponseEntity<Long> createTraining(@RequestBody @Valid TrainingCreateDto dto, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Long> createTraining(@Valid TrainingCreateDto dto, @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(trainingService.createTraining(dto, userDetails.getUsername()));
     }
 
