@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingLikes;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingDocumentDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingLikesInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
@@ -38,7 +39,12 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     @Transactional(readOnly = true)
     public TrainingInfoDto searchById(Long id) {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝이 존재하지 않습니다."));
-        return TrainingInfoDto.toDto(training);
+        TrainingInfoDto dto = TrainingInfoDto.toDto(training);
+        if (training.getImages() != null && !training.getImages().isEmpty()) {
+            List<TrainingDocumentDto> images = training.getImages().stream().map(TrainingDocumentDto::toDto).toList();
+            dto.updateImages(images);
+        }
+        return dto;
     }
 
     @Override
