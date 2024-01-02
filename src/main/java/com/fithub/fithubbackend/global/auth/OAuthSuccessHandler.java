@@ -56,6 +56,8 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private String getTargetUrl(boolean isGuest, OAuth2User oAuth2User, String accessToken) {
         if (isGuest) {
+            if (oAuth2User.getAttributes().get("provider").equals("naver"))
+                return getUserTargetUrl(accessToken);
             return getGuestTargetUrl(oAuth2User.getAttributes());
         }
         return getUserTargetUrl(accessToken);
