@@ -5,7 +5,6 @@ import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-
-import static com.fithub.fithubbackend.global.exception.ErrorCode.EXPIRED_REFRESH_TOKEN;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,7 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
+        log.info("[doFilterInternal] - 요청 path: {}", request.getServletPath());
         // 1. 쿠키에서 token 추출
         String accessToken = headerUtil.resolveAccessToken(request);
         String refreshToken = headerUtil.resolveRefreshToken(request);

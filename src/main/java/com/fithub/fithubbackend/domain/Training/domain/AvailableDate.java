@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -49,5 +50,35 @@ public class AvailableDate {
     public void addTraining(Training training) {
         this.training = training;
         training.getAvailableDates().add(this);
+    }
+
+    public boolean removeTime(LocalTime time) {
+        for (AvailableTime availableTime : this.getAvailableTimes()) {
+            if (availableTime.getTime().equals(time)) {
+                if (!availableTime.isEnabled()) return false;
+                availableTime.closeTime();
+                long enabledCnt = this.getAvailableTimes().stream().filter(AvailableTime::isEnabled).count();
+                if (enabledCnt == 0) closeDate();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void addTime(LocalTime time) {
+        for (AvailableTime availableTime : this.getAvailableTimes()) {
+            if (availableTime.getTime().equals(time)) {
+                availableTime.openTime();
+                return;
+            }
+        }
+    }
+
+    public void closeDate() {
+        this.enabled = false;
+    }
+
+    public void openDate() {
+        this.enabled = true;
     }
 }
