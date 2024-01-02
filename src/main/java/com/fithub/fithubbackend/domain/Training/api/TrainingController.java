@@ -21,7 +21,7 @@ public class TrainingController {
 
     private final TrainingService trainingService;
 
-    @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능", responses = {
+    @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능, 이미지는 모두 images로 주면 됨", responses = {
             @ApiResponse(responseCode = "200", description = "생성됨"),
             @ApiResponse(responseCode = "409", description = "예약 가능 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
