@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
+import com.fithub.fithubbackend.domain.Training.dto.CancelReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.PaymentReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.PaymentResDto;
 import com.fithub.fithubbackend.domain.Training.dto.ReserveReqDto;
@@ -10,4 +11,5 @@ import java.io.IOException;
 public interface PaymentService {
     PaymentResDto validate(PaymentReqDto dto) throws IamportResponseException, IOException;
     void reserveComplete(ReserveReqDto dto, String email);
+    void cancelPayment(CancelReqDto dto, String email) throws IamportResponseException, IOException;
 }

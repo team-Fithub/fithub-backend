@@ -2,9 +2,11 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
+import com.fithub.fithubbackend.domain.Training.dto.CancelReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.PaymentReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.PaymentResDto;
 import com.fithub.fithubbackend.domain.Training.dto.ReserveReqDto;
+import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -84,6 +86,36 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         reserveInfoRepository.save(reserveInfo);
+    }
+
+    @Override
+    @Transactional
+    public void cancelPayment(CancelReqDto dto, String email) throws IamportResponseException, IOException {
+        cancelComplete(email, dto);
+
+        Payment response = iamportClient.paymentByImpUid(dto.getImpUid()).getResponse();
+        iamportClient.cancelPaymentByImpUid(createCancelData(response));
+    }
+
+    // TODO: 예약 취소시 예약 취소됐다는 알림 트레이너에게 전달
+    private void cancelComplete(String email, CancelReqDto dto) {
+        if (!userRepository.existsByEmail(email)) {
+            throw new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다.");
+        }
+
+        ReserveInfo reserveInfo = reserveInfoRepository.findById(dto.getReservationId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 결제내역입니다."));
+        if (!reserveInfo.getStatus().equals(ReserveStatus.BEFORE)) {
+            String message = "진행 전 예약만 취소가 가능합니다.";
+            if (reserveInfo.getStatus().equals(ReserveStatus.CANCEL)) {
+                message = "이미 취소된 예약입니다.";
+            }
+            throw new CustomException(ErrorCode.INVALID_FORM_DATA, message);
+        }
+        reserveInfo.updateStatus(ReserveStatus.CANCEL);
+
+        // 예약 내역에서 예약 시간 가져와서 트레이닝에 그 시간 다시 예약 가능하도록 변경
+        Training training = reserveInfo.getTraining();
+        training.addAvailableDateTime(reserveInfo.getReserveDateTime());
     }
 
     private CancelData createCancelData(Payment response) {
