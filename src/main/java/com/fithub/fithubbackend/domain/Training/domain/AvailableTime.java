@@ -35,4 +35,12 @@ public class AvailableTime {
         this.availableDate = date;
         this.enabled = enabled;
     }
+
+    public void closeTime() {
+        this.enabled = false;
+    }
+
+    public void openTime() {
+        this.enabled = true;
+    }
 }

@@ -26,13 +26,15 @@ public class LikesServiceImpl implements LikesService {
         if (likes.isPresent())
             throw new CustomException(ErrorCode.DUPLICATE, "이미 좋아요한 게시글입니다.");
 
-        likesRepository.save(new Likes(user, post));
+        post.addLikes(new Likes(user, post));
     }
 
     @Override
     @Transactional
     public void deleteLikes(User user, Post post) {
-        likesRepository.deleteByUserAndPost(user, post);
+        Optional<Likes> likes = likesRepository.findByUserAndPost(user, post);
+        if (likes.isPresent())
+            post.getLikes().remove(likes.get());
     }
 
     @Override

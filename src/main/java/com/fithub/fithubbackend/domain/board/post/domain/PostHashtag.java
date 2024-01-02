@@ -7,8 +7,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -21,7 +19,6 @@ public class PostHashtag {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @OnDelete(action= OnDeleteAction.CASCADE)
     private Post post;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -30,6 +27,14 @@ public class PostHashtag {
     @Builder
     public PostHashtag(Post post, Hashtag hashtag){
         this.post = post;
+        this.hashtag = hashtag;
+    }
+
+    public void setPost(Post post) {
+        this.post = post;
+    }
+
+    public void setHashtag(Hashtag hashtag) {
         this.hashtag = hashtag;
     }
 }
