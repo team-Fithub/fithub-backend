@@ -37,23 +37,6 @@ public class PostHashtagServiceImpl implements PostHashtagService {
     @Transactional
     public void updateHashtag(String hashTagContentStr, Post post) {
 
-        /* 해시태그 업데이트
-        * 1. DB에 저장된 postHashtag 삭제 후 업데이트된 해시태그 저장
-        * */
-//        List<String> oldHashTags = postHashtagRepository.findHashtagByPostId(post.getId());
-//
-//        List<String> newHashTags = extractHashTags(hashTagContentStr);
-//
-//        if (oldHashTags.equals(newHashTags))
-//            return;
-//
-//        post.getPostHashtags().clear();
-//        newHashTags.forEach(hashTagContent -> savePostHashtag(hashTagContent, post));
-
-        /* 해시태그 업데이트
-         * 2. 기존 해시태그 리스트의 hashtag fk 업데이트
-         * */
-
         // DB에 저장된 PostHashtags 리스트
         List<PostHashtag> dbPostHashtags = postHashtagRepository.findByPostFetch(post.getId());
 
