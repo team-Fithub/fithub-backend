@@ -33,6 +33,9 @@ public class Trainer extends BaseTimeEntity {
     @NotNull
     private String email;
 
+    @NotNull
+    private String profileUrl;
+
     @Comment("현재 일하는 장소")
     private String location;
 
@@ -47,6 +50,7 @@ public class Trainer extends BaseTimeEntity {
         this.user = user;
         this.name = user.getName();
         this.email = user.getEmail();
+        this.profileUrl = user.getProfileImg().getUrl();
     }
 
     public void updateLocation(String location) {

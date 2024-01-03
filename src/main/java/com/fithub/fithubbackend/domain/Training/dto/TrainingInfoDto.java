@@ -22,6 +22,8 @@ public class TrainingInfoDto {
     private String content;
     private String location;
 
+    private List<TrainingDocumentDto> images;
+
     private int quota;
 
     private int price;
@@ -47,5 +49,9 @@ public class TrainingInfoDto {
                 .endDate(training.getEndDate())
                 .availableDates(training.getAvailableDates())
                 .build();
+    }
+
+    public void updateImages(List<TrainingDocumentDto> images) {
+        this.images = images;
     }
 }
