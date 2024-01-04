@@ -25,6 +25,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
     }
 
+    /* UserAdapter를 사용하면 저번에 말씀하신 userRepo를 2번 접근하는 횟수를 줄일 수 있어서 그대로 사용할지 Adapter 사용할지 문의 */
+//    @Transactional
+//    @Override
+//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
+//        return new UserAdapter(user);
+//    }
+
     private UserDetails createUserDetails(User user) {
         return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.getAuthorities());
     }

@@ -1,7 +1,7 @@
 package com.fithub.fithubbackend.domain.user.application;
 
-import com.fithub.fithubbackend.domain.user.dto.constants.MapDocumentDto;
-import com.fithub.fithubbackend.domain.user.dto.constants.MapDto;
+import com.fithub.fithubbackend.domain.user.dto.MapDocumentDto;
+import com.fithub.fithubbackend.domain.user.dto.MapDto;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.util.KakaoMapUtil;

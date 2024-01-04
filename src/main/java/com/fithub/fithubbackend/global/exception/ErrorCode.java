@@ -27,8 +27,9 @@ public enum ErrorCode {
 
     AUTHENTICATION_ERROR(HttpStatus.UNAUTHORIZED, "인증에 실패했습니다."),
     PARSING_ERROR(HttpStatus.BAD_GATEWAY,"파싱에 실패하였습니다."),
+    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"파일 삭제에 실패했습니다."),
     INVALID_IMAGE(HttpStatus.CONFLICT, "이미지 파일이 아닙니다."),
-
+    
     IAMPORT_PRICE_ERROR(HttpStatus.CONFLICT, "결제된 금액이 달라 결제가 취소되었습니다."),
     RESERVE_DATE_OR_TIME_ERROR(HttpStatus.BAD_REQUEST, "불가능한 날짜 또는 시간대입니다.");
     private final HttpStatus httpStatus;
