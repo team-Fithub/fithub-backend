@@ -1,11 +1,10 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
+import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingLikes;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingDocumentDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingLikesInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
+import com.fithub.fithubbackend.domain.Training.dto.*;
+import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -27,6 +26,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     private final TrainingRepository trainingRepository;
     private final TrainingLikesRepository trainingLikesRepository;
     private final UserRepository userRepository;
+    private final ReserveInfoRepository reserveInfoRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -83,6 +83,14 @@ public class UserTrainingServiceImpl implements UserTrainingService {
                 .id(t.getId())
                 .trainingOutlineDto(TrainingOutlineDto.toDto(t.getTraining()))
                 .build()).toList();
+    }
+
+    @Override
+    public Page<UsersReserveInfoDto> getTrainingReservationList(String email, Pageable pageable) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+        Page<ReserveInfo> page = reserveInfoRepository.findByUserId(user.getId(), pageable);
+
+        return page.map(UsersReserveInfoDto::toDto);
     }
 
     private void checkClosed(boolean closed) {
