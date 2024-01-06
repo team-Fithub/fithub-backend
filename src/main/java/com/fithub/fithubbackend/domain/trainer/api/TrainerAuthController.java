@@ -2,6 +2,10 @@ package com.fithub.fithubbackend.domain.trainer.api;
 
 import com.fithub.fithubbackend.domain.trainer.application.TrainerAuthService;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerCertificationRequestDto;
+import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.global.domain.AuthUser;
+import com.fithub.fithubbackend.global.exception.CustomException;
+import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,8 +16,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,11 +37,9 @@ public class TrainerAuthController {
             @Parameter(name="requestDto", description = "트레이너 인증 요청 dto(자격증 이미지 파일 리스트, 자격증 이름, 경력사항 리스트)")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> certificationRequest(@Valid TrainerCertificationRequestDto requestDto, @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.badRequest().body("로그인한 사용자만 가능합니다.");
-        }
-        trainerAuthService.saveTrainerCertificateRequest(requestDto, userDetails.getUsername());
+    public ResponseEntity<String> certificationRequest(@Valid TrainerCertificationRequestDto requestDto, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainerAuthService.saveTrainerCertificateRequest(requestDto, user);
         return ResponseEntity.ok().body("완료");
     }
 }

@@ -49,20 +49,18 @@ public class UserTrainingServiceImpl implements UserTrainingService {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean isLikesTraining(Long trainingId, String email) {
+    public boolean isLikesTraining(Long trainingId, User user) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
         checkClosed(training.isClosed());
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
         return trainingLikesRepository.existsByTrainingIdAndUserId(trainingId, user.getId());
     }
 
     @Override
     @Transactional
-    public void likesTraining(Long trainingId, boolean likes, String email) {
+    public void likesTraining(Long trainingId, boolean likes, User user) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
         checkClosed(training.isClosed());
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
         if (user.getId().equals(training.getTrainer().getUser().getId())) {
             throw new CustomException(ErrorCode.UNKNOWN_ERROR, "트레이너는 자신의 트레이닝을 찜할 수 없습니다.");
         }
@@ -76,8 +74,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     }
 
     @Override
-    public List<TrainingLikesInfoDto> getTrainingLikesList(String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+    public List<TrainingLikesInfoDto> getTrainingLikesList(User user) {
         List<TrainingLikes> trainingLikes = trainingLikesRepository.findByUserId(user.getId());
         return trainingLikes.stream().map(t -> TrainingLikesInfoDto.builder()
                 .id(t.getId())

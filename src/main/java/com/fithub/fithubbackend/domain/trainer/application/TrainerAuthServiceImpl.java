@@ -30,9 +30,7 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
     private final AwsS3Uploader s3Uploader;
 
     @Override
-    public void saveTrainerCertificateRequest(TrainerCertificationRequestDto requestDto, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
-
+    public void saveTrainerCertificateRequest(TrainerCertificationRequestDto requestDto, User user) {
         if (trainerRepository.existsByUserId(user.getId())) {
             throw new CustomException(ErrorCode.DUPLICATE, "트레이너 인증이 완료된 회원입니다.");
         }

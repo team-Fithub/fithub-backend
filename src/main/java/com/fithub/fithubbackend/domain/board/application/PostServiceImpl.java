@@ -10,7 +10,6 @@ import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.util.FileUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,12 +29,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void createPost(PostCreateDto postCreateDto, UserDetails userDetails) {
-
+    public void createPost(PostCreateDto postCreateDto, User user) {
         // 이미지 확장자 검사
         FileUtils.isValidDocument(postCreateDto.getImages());
-
-        User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
 
         Post post = Post.builder().content(postCreateDto.getContent()).user(user).build();
         postRepository.save(post);
@@ -54,10 +50,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void updatePost(PostUpdateDto postUpdateDto, UserDetails userDetails) {
-
+    public void updatePost(PostUpdateDto postUpdateDto, User user) {
         Post post = getPost(postUpdateDto.getId());
-        User user = getUser(userDetails);
 
         if (isWriter(user, post)) {
             if (postUpdateDto.isImageChanged())
@@ -72,18 +66,15 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void likesPost(long postId, UserDetails userDetails) {
-        User user = getUser(userDetails);
+    public void likesPost(long postId, User user) {
         Post post = getPost(postId);
 
         likesService.addLikes(user, post);
-
     }
 
     @Override
     @Transactional
-    public void createBookmark(long postId, UserDetails userDetails) {
-        User user = getUser(userDetails);
+    public void createBookmark(long postId, User user) {
         Post post = getPost(postId);
 
         bookmarkService.addBookmark(user, post);
@@ -91,8 +82,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void notLikesPost(long postId, UserDetails userDetails) {
-        User user = getUser(userDetails);
+    public void notLikesPost(long postId, User user) {
         Post post = getPost(postId);
 
         likesService.deleteLikes(user, post);
@@ -100,8 +90,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void deleteBookmark(long postId, UserDetails userDetails) {
-        User user = getUser(userDetails);
+    public void deleteBookmark(long postId, User user) {
         Post post = getPost(postId);
 
         bookmarkService.deleteBookmark(user, post);
@@ -109,10 +98,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void deletePost(long postId, UserDetails userDetails) {
+    public void deletePost(long postId, User user) {
 
         Post post = getPost(postId);
-        User user = getUser(userDetails);
 
         if (isWriter(user, post)) {
             if (commentService.countComment(post) > 1)
@@ -128,11 +116,6 @@ public class PostServiceImpl implements PostService {
         if (post.getUser().getEmail().equals(user.getEmail()))
             return true;
         return false;
-    }
-
-    @Transactional
-    public User getUser(UserDetails userDetails) {
-        return userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
     }
 
     @Transactional

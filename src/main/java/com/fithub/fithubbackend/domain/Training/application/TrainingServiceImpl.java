@@ -41,8 +41,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public Long createTraining(TrainingCreateDto dto, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+    public Long createTraining(TrainingCreateDto dto, User user) {
         Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이너"));
 
         dateValidate(dto.getStartDate(), dto.getEndDate());
@@ -93,9 +92,9 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public Long updateTraining(TrainingCreateDto dto, Long trainingId, String email) {
+    public Long updateTraining(TrainingCreateDto dto, Long trainingId, User user) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
-        permissionValidate(training.getTrainer(), email);
+        permissionValidate(training.getTrainer(), user.getEmail());
 
         if (training.isClosed()) {
             throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "마감된 트레이닝은 수정할 수 없습니다.");
@@ -126,9 +125,9 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public void updateClosed(Long id, boolean closed, String email) {
+    public void updateClosed(Long id, boolean closed, User user) {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
-        permissionValidate(training.getTrainer(), email);
+        permissionValidate(training.getTrainer(), user.getEmail());
         training.updateClosed(closed);
     }
 
