@@ -1,10 +1,9 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
-import com.fithub.fithubbackend.domain.Training.domain.AvailableDate;
-import com.fithub.fithubbackend.domain.Training.domain.AvailableTime;
-import com.fithub.fithubbackend.domain.Training.domain.Training;
-import com.fithub.fithubbackend.domain.Training.domain.TrainingDocument;
+import com.fithub.fithubbackend.domain.Training.domain.*;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
@@ -16,6 +15,8 @@ import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.util.FileUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,6 +36,8 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
+    private final ReserveInfoRepository reserveInfoRepository;
+
     private final AwsS3Uploader awsS3Uploader;
 
     private final String imagePath =  "training";
@@ -130,6 +133,16 @@ public class TrainingServiceImpl implements TrainingService {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
         permissionValidate(training.getTrainer(), email);
         training.updateClosed(closed);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TrainersReserveInfoDto> getReservationList(String email, Pageable pageable) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_ERROR, "해당 회원은 트레이너가 아닙니다."));
+
+        Page<ReserveInfo> reserveInfoPage = reserveInfoRepository.findByTrainerId(trainer.getId(), pageable);
+        return reserveInfoPage.map(TrainersReserveInfoDto::toDto);
     }
 
     private List<LocalDate> getAvailableDateList(LocalDate startLocalDate, LocalDate endLocalDate, List<LocalDate> unableDates) {
