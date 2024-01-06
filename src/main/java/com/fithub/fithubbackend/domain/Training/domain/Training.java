@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
@@ -30,6 +31,7 @@ public class Training extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Trainer trainer;
 
     @NotNull
