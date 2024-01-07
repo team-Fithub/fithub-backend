@@ -12,8 +12,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -29,7 +31,9 @@ public class Scheduler {
 
     @Async
     @Scheduled(cron = "0 */1 * * *")
+    @Transactional
     public void checkTrainingDateTimeValidation() {
+        log.info("[SCHEDULE] - checkTrainingDateTimeValidation 실행: {}", LocalDateTime.now());
         List<Training> openTrainingList = trainingRepository.findByClosedFalse();
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();

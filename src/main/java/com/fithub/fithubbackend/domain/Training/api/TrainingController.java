@@ -57,10 +57,32 @@ public class TrainingController {
 //        return ResponseEntity.ok().build();
 //    }
 
+    @Operation(summary = "트레이닝 수동 마감 설정", parameters = {
+            @Parameter(name = "trainingId", description = "마감할 트레이닝 id")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "403", description = "해당 트레이닝을 작성한 트레이너가 아니라 수정 권한이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "id에 해당하는 트레이닝이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
     @PutMapping("/close")
-    public ResponseEntity<Void> updateTrainingClosed(@RequestParam Long trainingId, @RequestParam boolean closed, @AuthUser User user) {
+    public ResponseEntity<Void> closeTraining(@RequestParam Long trainingId, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        trainingService.updateClosed(trainingId, closed, user);
+        trainingService.closeTraining(trainingId, user);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "트레이닝 수동 마감 해제", parameters = {
+            @Parameter(name = "trainingId", description = "오픈할 트레이닝 id")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "403", description = "해당 트레이닝을 작성한 트레이너가 아니라 수정 권한이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "id에 해당하는 트레이닝이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "409", description = "트레이닝 예약 가능한 마지막 날짜가 현재보다 이전이므로 수정 불가능. 트레이닝 수정을 통해 날짜 추가 필요", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @PutMapping("/open")
+    public ResponseEntity<Void> openTraining(@RequestParam Long trainingId, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainingService.openTraining(trainingId, user);
         return ResponseEntity.ok().build();
     }
 
