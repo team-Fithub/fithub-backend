@@ -2,9 +2,8 @@ package com.fithub.fithubbackend.domain.board.api;
 
 import com.fithub.fithubbackend.domain.board.application.PostService;
 import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
+import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
-import com.fithub.fithubbackend.global.exception.CustomException;
-import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,6 +13,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,9 +41,6 @@ public class PostController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createPost(@Valid PostCreateDto postCreateDto, BindingResult bindingResult, @AuthenticationPrincipal UserDetails userDetails) throws IOException {
-
-        if(bindingResult.hasErrors())
-            throw new CustomException(ErrorCode.NOT_FOUND, bindingResult.getFieldError().getDefaultMessage());
 
         postService.createPost(postCreateDto, userDetails);
         return ResponseEntity.ok().build();
@@ -70,6 +70,23 @@ public class PostController {
         postService.deletePost(postId, userDetails);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "게시글 전체 조회", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+    })
+    @GetMapping
+    public ResponseEntity<Page<PostInfoDto>> getPosts(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(postService.getAllPosts(pageable, userDetails));
+    }
+
+    @Operation(summary = "게시글 세부 조회", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 세부 조회 성공"),
+    })
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostInfoDto> getPost(@PathVariable("postId") long postId, @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(postService.getPostDetail(postId, userDetails));
+    }
+
 
     @Operation(summary = "게시글 좋아요", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 좋아요 성공"),
