@@ -4,5 +4,6 @@ public enum ReserveStatus {
     BEFORE,
     START,
     COMPLETE,
-    CANCEL
+    CANCEL,
+    NOSHOW
 }
