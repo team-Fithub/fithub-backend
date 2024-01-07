@@ -1,10 +1,8 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.*;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainersReserveInfoDto;
-import com.fithub.fithubbackend.domain.Training.repository.AvailableDateRepository;
-import com.fithub.fithubbackend.domain.Training.repository.AvailableTimeRepository;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
@@ -37,8 +35,6 @@ public class TrainingServiceImpl implements TrainingService {
 
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
-    private final AvailableDateRepository dateRepository;
-    private final AvailableTimeRepository timeRepository;
 
     private final UserRepository userRepository;
     private final ReserveInfoRepository reserveInfoRepository;
@@ -144,11 +140,9 @@ public class TrainingServiceImpl implements TrainingService {
     public void openTraining(Long id, User user) {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
         permissionValidate(training.getTrainer(), user.getEmail());
-
-        AvailableDate availableLastDate = dateRepository.findFirstByTrainingIdOrderByDateDesc(training.getId()).orElseThrow(() -> new CustomException(ErrorCode.UNCORRECTABLE_DATA, "db 저장 정보 없음. 수정을 통해 날짜 추가 필요"));
         // 트레이닝 예약 가능한 마지막 날이 현재보다 이전이면 오픈 불가능
-        if (!availableLastDate.getDate().isAfter(LocalDate.now())) {
-            throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "트레이닝 예약 날짜가 현재 날짜 이후가 아니므로 불가능");
+        if (!training.getEndDate().isAfter(LocalDate.now())) {
+            throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "트레이닝 마지막 예약 날짜가 현재 날짜 이후가 아니므로 불가능");
         }
         training.updateClosed(false);
     }
