@@ -74,8 +74,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public void reserveComplete(ReserveReqDto dto, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+    public void reserveComplete(ReserveReqDto dto, User user) {
         Training training = trainingRepository.findById(dto.getTrainingId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
 
         ReserveInfo reserveInfo = ReserveInfo.builder().dto(dto).user(user).training(training).build();

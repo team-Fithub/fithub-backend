@@ -3,6 +3,10 @@ package com.fithub.fithubbackend.domain.Training.api;
 import com.fithub.fithubbackend.domain.Training.application.TrainingService;
 import com.fithub.fithubbackend.domain.Training.dto.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.global.domain.AuthUser;
+import com.fithub.fithubbackend.global.exception.CustomException;
+import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,8 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,8 +34,9 @@ public class TrainingController {
             @ApiResponse(responseCode = "409", description = "예약 가능 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PostMapping
-    public ResponseEntity<Long> createTraining(@Valid TrainingCreateDto dto, @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(trainingService.createTraining(dto, userDetails.getUsername()));
+    public ResponseEntity<Long> createTraining(@Valid TrainingCreateDto dto, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainingService.createTraining(dto, user));
     }
 
 //    @Operation(summary = "트레이닝 수정", responses = {
@@ -55,8 +58,9 @@ public class TrainingController {
 //    }
 
     @PutMapping("/close")
-    public ResponseEntity<Void> updateTrainingClosed(@RequestParam Long trainingId, @RequestParam boolean closed, @AuthenticationPrincipal UserDetails userDetails) {
-        trainingService.updateClosed(trainingId, closed, userDetails.getUsername());
+    public ResponseEntity<Void> updateTrainingClosed(@RequestParam Long trainingId, @RequestParam boolean closed, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainingService.updateClosed(trainingId, closed, user);
         return ResponseEntity.ok().build();
     }
 
