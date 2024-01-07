@@ -4,16 +4,16 @@ import com.fithub.fithubbackend.domain.board.dto.CommentCreateDto;
 import com.fithub.fithubbackend.domain.board.dto.CommentInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.CommentUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
-import org.springframework.security.core.userdetails.UserDetails;
+import com.fithub.fithubbackend.domain.user.domain.User;
 
 import java.util.List;
 
 public interface CommentService {
-    void createComment(CommentCreateDto commentCreateDto, UserDetails userDetails);
+    void createComment(CommentCreateDto commentCreateDto, User user);
 
-    void updateComment(CommentUpdateDto commentUpdateDto, UserDetails userDetails);
+    void updateComment(CommentUpdateDto commentUpdateDto, User user);
 
-    void deleteComment(long commentId, UserDetails userDetails);
+    void deleteComment(long commentId, User user);
 
     long countComment(Post post);
 

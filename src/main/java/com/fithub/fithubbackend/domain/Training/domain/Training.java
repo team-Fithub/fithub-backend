@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
@@ -30,6 +31,7 @@ public class Training extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private Trainer trainer;
 
     @NotNull
@@ -39,6 +41,10 @@ public class Training extends BaseTimeEntity {
     @NotNull
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @OneToMany(mappedBy = "training", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"training"})
+    private List<TrainingDocument> images;
 
     @NotNull
     private boolean closed;
@@ -85,6 +91,7 @@ public class Training extends BaseTimeEntity {
         this.endHour = dto.getEndHour();
         this.trainer = trainer;
         this.availableDates = new ArrayList<>();
+        this.images = new ArrayList<>();
     }
 
     public void updateTraining(TrainingCreateDto dto) {
@@ -103,6 +110,10 @@ public class Training extends BaseTimeEntity {
         this.closed = closed;
     }
 
+    public void addImages(TrainingDocument document) {
+        this.images.add(document);
+    }
+    
     public boolean removeAvailableDateTime(LocalDateTime dateTime) {
         LocalDate reserveDate = dateTime.toLocalDate();
         LocalTime reserveTime = dateTime.toLocalTime();

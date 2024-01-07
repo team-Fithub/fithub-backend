@@ -1,8 +1,10 @@
 package com.fithub.fithubbackend.domain.user.api;
 
 import com.fithub.fithubbackend.domain.user.application.AuthService;
+import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
+import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,8 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,8 +63,8 @@ public class AuthController {
     })
     @DeleteMapping("/sign-out")
     public ResponseEntity signOut(@CookieValue(name = "accessToken") String cookieAccessToken,
-                                  @AuthenticationPrincipal UserDetails userDetails, HttpServletResponse response, HttpServletRequest request){
-        SignOutDto signOutDto = SignOutDto.builder().accessToken(cookieAccessToken).email(userDetails.getUsername()).build();
+                                  @AuthUser User user, HttpServletResponse response, HttpServletRequest request){
+        SignOutDto signOutDto = SignOutDto.builder().accessToken(cookieAccessToken).email(user.getEmail()).build();
         authService.signOut(signOutDto, response, request);
         return new ResponseEntity<>("로그아웃 성공", HttpStatus.OK);
     }

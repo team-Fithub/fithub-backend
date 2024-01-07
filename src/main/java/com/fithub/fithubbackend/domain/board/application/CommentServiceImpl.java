@@ -12,7 +12,6 @@ import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,15 +23,14 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
 
     @Override
     @Transactional
-    public void createComment(CommentCreateDto commentCreateDto, UserDetails userDetails) {
+    public void createComment(CommentCreateDto commentCreateDto, User user) {
 
         Comment comment = Comment.builder()
                 .content(commentCreateDto.getContent())
-                .user(getUser(userDetails))
+                .user(user)
                 .post(getPost(commentCreateDto.getPostId()))
                 .parent(commentCreateDto.getParentCommentId() == null ? null : getComment(commentCreateDto.getParentCommentId()))
                 .build();
@@ -41,11 +39,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void updateComment(CommentUpdateDto commentUpdateDto, UserDetails userDetails) {
+    public void updateComment(CommentUpdateDto commentUpdateDto, User user) {
 
         Comment comment = getComment(commentUpdateDto.getCommentId());
 
-        if (isWriter(getUser(userDetails), comment)) {
+        if (isWriter(user, comment)) {
             comment.updateContent(commentUpdateDto.getContent());
         }
         else {
@@ -55,11 +53,11 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void deleteComment(long commentId, UserDetails userDetails) {
+    public void deleteComment(long commentId, User user) {
 
         Comment comment = getComment(commentId);
 
-        if (isWriter(getUser(userDetails), comment)) {
+        if (isWriter(user, comment)) {
             if (comment.getParent() == null)  {     // 최상위 댓글 삭제 시, 그 아래 댓글들 모두 삭제
                 commentRepository.deleteByParentAndPost(comment, comment.getPost());
                 commentRepository.delete(comment);
@@ -99,11 +97,6 @@ public class CommentServiceImpl implements CommentService {
         });
 
         return commentInfoDtoList;
-    }
-
-    @Transactional
-    public User getUser(UserDetails userDetails) {
-        return userRepository.findByEmail(userDetails.getUsername()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
     }
 
     @Transactional

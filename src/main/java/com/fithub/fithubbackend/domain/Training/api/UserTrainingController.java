@@ -4,6 +4,9 @@ import com.fithub.fithubbackend.domain.Training.application.UserTrainingService;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingLikesInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
+import com.fithub.fithubbackend.domain.Training.dto.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
@@ -18,8 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,22 +50,18 @@ public class UserTrainingController {
             @Parameter(name = "trainingId", description = "조회할 트레이닝의 primary key(id)")
     })
     @GetMapping("/check/likes")
-    public ResponseEntity<Boolean> isLikesTraining(@RequestParam Long trainingId, @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            throw new CustomException(ErrorCode.UNKNOWN_ERROR, "로그인한 사용자만 가능합니다.");
-        }
-        return ResponseEntity.ok(userTrainingService.isLikesTraining(trainingId, userDetails.getUsername()));
+    public ResponseEntity<Boolean> isLikesTraining(@RequestParam Long trainingId, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userTrainingService.isLikesTraining(trainingId, user));
     }
 
     @Operation(summary = "트레이닝 찜 설정 및 해제", parameters = {
             @Parameter(name = "trainingId", description = "조회할 트레이닝의 primary key(id)")
     })
     @PostMapping("/likes")
-    public ResponseEntity<String> likes(@RequestParam Long trainingId, boolean likes, @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            return ResponseEntity.badRequest().body("로그인한 사용자만 가능합니다.");
-        }
-        userTrainingService.likesTraining(trainingId, likes, userDetails.getUsername());
+    public ResponseEntity<String> likes(@RequestParam Long trainingId, boolean likes, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        userTrainingService.likesTraining(trainingId, likes, user);
         return ResponseEntity.ok().body("완료");
     }
 
@@ -73,7 +70,21 @@ public class UserTrainingController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @GetMapping("/likes")
-    public ResponseEntity<List<TrainingLikesInfoDto>> getUserTrainingLikesList(@AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(userTrainingService.getTrainingLikesList(userDetails.getUsername()));
+    public ResponseEntity<List<TrainingLikesInfoDto>> getUserTrainingLikesList(@AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userTrainingService.getTrainingLikesList(user));
+    }
+
+    @Operation(summary = "회원의 트레이닝 예약 리스트", parameters = {
+            @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id desc(생성 순), 예약된 트레이닝 날짜 순은 reserveDateTime으로 주면 됨)")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @GetMapping("/reservations")
+    public ResponseEntity<Page<UsersReserveInfoDto>> getUsersTrainingReservationList(@AuthUser User user,
+                                                                                     @PageableDefault(sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userTrainingService.getTrainingReservationList(user, pageable));
     }
 }

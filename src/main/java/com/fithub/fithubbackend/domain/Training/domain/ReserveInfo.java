@@ -1,7 +1,9 @@
 package com.fithub.fithubbackend.domain.Training.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fithub.fithubbackend.domain.Training.dto.ReserveReqDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
+import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -28,6 +30,10 @@ public class ReserveInfo extends BaseTimeEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    private Trainer trainer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties({"trainer"})
     private Training training;
 
     @NotNull
@@ -59,6 +65,7 @@ public class ReserveInfo extends BaseTimeEntity {
     @Builder
     public ReserveInfo(User user, Training training, ReserveReqDto dto) {
         this.user = user;
+        this.trainer = training.getTrainer();
         this.training = training;
         this.reserveDateTime = dto.getReserveDateTime();
         this.status = ReserveStatus.BEFORE;

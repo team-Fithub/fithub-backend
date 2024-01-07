@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.user.dto.constants;
+package com.fithub.fithubbackend.domain.user.dto;
 
 import lombok.Builder;
 import lombok.Getter;

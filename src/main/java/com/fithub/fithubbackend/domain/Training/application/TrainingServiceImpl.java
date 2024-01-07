@@ -1,19 +1,25 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
-import com.fithub.fithubbackend.domain.Training.domain.AvailableDate;
-import com.fithub.fithubbackend.domain.Training.domain.AvailableTime;
-import com.fithub.fithubbackend.domain.Training.domain.Training;
+import com.fithub.fithubbackend.domain.Training.domain.*;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
+import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.util.FileUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 import java.time.LocalDate;
@@ -22,7 +28,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,11 +36,15 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
     private final UserRepository userRepository;
+    private final ReserveInfoRepository reserveInfoRepository;
+
+    private final AwsS3Uploader awsS3Uploader;
+
+    private final String imagePath =  "training";
 
     @Override
     @Transactional
-    public Long createTraining(TrainingCreateDto dto, String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+    public Long createTraining(TrainingCreateDto dto, User user) {
         Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이너"));
 
         dateValidate(dto.getStartDate(), dto.getEndDate());
@@ -45,24 +54,50 @@ public class TrainingServiceImpl implements TrainingService {
         List<LocalDate> availableDateList = getAvailableDateList(dto.getStartDate(), dto.getEndDate(), dto.getUnableDates());
         List<LocalTime> localTimeList = getAvailableTimeList(dto.getStartHour(), dto.getEndHour());
 
+        saveTrainingDateTime(availableDateList, localTimeList, training);
+
+        if (dto.getImages() != null) {
+            saveTrainingImages(dto.getImages(), training);
+        }
+
+        trainingRepository.save(training);
+        return training.getId();
+    }
+
+    private void saveTrainingDateTime(List<LocalDate> availableDateList, List<LocalTime> localTimeList, Training training) {
         for (LocalDate date : availableDateList) {
             AvailableDate availableDate = AvailableDate.builder()
                     .date(date)
                     .enabled(true)
                     .build();
-            List<AvailableTime> availableTimeList = localTimeList.stream().map(t -> AvailableTime.builder().date(availableDate).time(t).enabled(true).build()).collect(Collectors.toList());
+            List<AvailableTime> availableTimeList = localTimeList.stream().map(t -> AvailableTime.builder().date(availableDate).time(t).enabled(true).build()).toList();
             availableDate.updateAvailableTimes(availableTimeList);
             availableDate.addTraining(training);
         }
-        trainingRepository.save(training);
-        return training.getId();
+    }
+
+    private void saveTrainingImages(List<MultipartFile> images, Training training) {
+        FileUtils.isValidDocument(images);
+        for (MultipartFile file : images) {
+            String path = awsS3Uploader.imgPath(imagePath);
+            Document document = Document.builder()
+                    .inputName(file.getOriginalFilename())
+                    .url(awsS3Uploader.putS3(file, path))
+                    .path(path)
+                    .build();
+            TrainingDocument trainingDoc = TrainingDocument.builder()
+                    .training(training)
+                    .document(document)
+                    .build();
+            training.addImages(trainingDoc);
+        }
     }
 
     @Override
     @Transactional
-    public Long updateTraining(TrainingCreateDto dto, Long trainingId, String email) {
+    public Long updateTraining(TrainingCreateDto dto, Long trainingId, User user) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
-        permissionValidate(training.getTrainer(), email);
+        permissionValidate(training.getTrainer(), user.getEmail());
 
         if (training.isClosed()) {
             throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "마감된 트레이닝은 수정할 수 없습니다.");
@@ -93,10 +128,19 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public void updateClosed(Long id, boolean closed, String email) {
+    public void updateClosed(Long id, boolean closed, User user) {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
-        permissionValidate(training.getTrainer(), email);
+        permissionValidate(training.getTrainer(), user.getEmail());
         training.updateClosed(closed);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable) {
+        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_ERROR, "해당 회원은 트레이너가 아닙니다."));
+
+        Page<ReserveInfo> reserveInfoPage = reserveInfoRepository.findByTrainerId(trainer.getId(), pageable);
+        return reserveInfoPage.map(TrainersReserveInfoDto::toDto);
     }
 
     private List<LocalDate> getAvailableDateList(LocalDate startLocalDate, LocalDate endLocalDate, List<LocalDate> unableDates) {
