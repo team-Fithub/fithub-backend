@@ -65,10 +65,10 @@ public class TrainingController {
             @ApiResponse(responseCode = "404", description = "id에 해당하는 트레이닝이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PutMapping("/close")
-    public ResponseEntity<Void> closeTraining(@RequestParam Long trainingId, @AuthUser User user) {
+    public ResponseEntity<String> closeTraining(@RequestParam Long trainingId, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         trainingService.closeTraining(trainingId, user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("완료");
     }
 
     @Operation(summary = "트레이닝 수동 마감 해제", parameters = {
@@ -80,10 +80,10 @@ public class TrainingController {
             @ApiResponse(responseCode = "409", description = "트레이닝 예약 가능한 마지막 날짜가 현재보다 이전이므로 수정 불가능. 트레이닝 수정을 통해 날짜 추가 필요", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PutMapping("/open")
-    public ResponseEntity<Void> openTraining(@RequestParam Long trainingId, @AuthUser User user) {
+    public ResponseEntity<String> openTraining(@RequestParam Long trainingId, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         trainingService.openTraining(trainingId, user);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("완료");
     }
 
     @Operation(summary = "트레이너의 예약 리스트 조회", parameters = {
