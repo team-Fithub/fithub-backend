@@ -36,12 +36,14 @@ public class Scheduler {
         for (Training training : openTrainingList) {
             if (!training.getEndDate().isAfter(date)) {
                 // 트레이닝 예약 가능 날짜 중 마지막 날 조회
-                List<AvailableDate> availableDates = dateRepository.findByTrainingIdOrderByDate(training.getId());
-                AvailableDate lastDate = availableDates.get(availableDates.size() - 1);
-                // 마지막 날의 시간 리스트 조회
-                List<AvailableTime> lastDateTimes = timeRepository.findByAvailableDateIdOrderByTime(lastDate.getId());
-                if (!lastDateTimes.get(lastDateTimes.size() - 1).getTime().isAfter(time)) {
-                    training.updateClosed(true);
+                AvailableDate lastDate = dateRepository.findFirstByTrainingIdOrderByDateDesc(training.getId()).orElse(null);
+                if (lastDate != null) {
+                    AvailableTime lastTime = timeRepository.findFirstByAvailableDateIdOrderByTimeDesc(lastDate.getId()).orElse(null);
+                    if (lastTime != null && !lastTime.getTime().isAfter(time)) {
+                        training.updateClosed(true);
+                    } else if (lastTime == null) {
+                        training.updateClosed(true);
+                    }
                 }
             }
         }
