@@ -17,8 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -30,8 +28,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "프로필 조회")})
     @GetMapping("/profile")
     public ResponseEntity<ProfileDto> myProfile(@AuthUser User user){
-        if(user == null) throw new CustomException(ErrorCode.UNKNOWN_ERROR, "로그인한 사용자만 가능합니다.");
-
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userService.myProfile(user));
     }
 
@@ -45,7 +42,7 @@ public class UserController {
     })
     @PatchMapping("/profile/update")
     public ResponseEntity<User> updateProfile(@RequestPart(value = "image",required = false) MultipartFile multipartFile, @RequestPart(value = "profileDto", required = false) ProfileDto profileDto, @AuthUser User user){
-        if(user == null) throw new CustomException(ErrorCode.UNKNOWN_ERROR, "로그인한 사용자만 가능합니다.");
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userService.updateProfile(multipartFile, profileDto, user));
     }
 

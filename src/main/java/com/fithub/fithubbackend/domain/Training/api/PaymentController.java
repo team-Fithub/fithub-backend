@@ -5,12 +5,14 @@ import com.fithub.fithubbackend.domain.Training.dto.CancelReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.PaymentReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.PaymentResDto;
 import com.fithub.fithubbackend.domain.Training.dto.ReserveReqDto;
+import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.global.domain.AuthUser;
+import com.fithub.fithubbackend.global.exception.CustomException;
+import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,14 +34,16 @@ public class PaymentController {
 
     @PostMapping("/order")
     //TODO: 예약 완료 후 찜에 있는 트레이닝이면 삭제할거냐고 물어보는게 좋을수도
-    public ResponseEntity<String> reserveComplete(@RequestBody @Valid ReserveReqDto dto, @AuthenticationPrincipal UserDetails userDetails) {
-        paymentService.reserveComplete(dto, userDetails.getUsername());
+    public ResponseEntity<String> reserveComplete(@RequestBody @Valid ReserveReqDto dto, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        paymentService.reserveComplete(dto, user);
         return ResponseEntity.ok().body("완료");
     }
 
     @PostMapping("/cancel")
-    public ResponseEntity<String> cancelPayment(@RequestBody @Valid CancelReqDto dto, @AuthenticationPrincipal UserDetails userDetails) throws IamportResponseException, IOException {
-        paymentService.cancelPayment(dto, userDetails.getUsername());
+    public ResponseEntity<String> cancelPayment(@RequestBody @Valid CancelReqDto dto, @AuthUser User user) throws IamportResponseException, IOException {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        paymentService.cancelPayment(dto, user.getEmail());
         return ResponseEntity.ok().body("완료");
     }
 
