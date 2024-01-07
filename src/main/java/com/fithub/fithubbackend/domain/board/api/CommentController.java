@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/comments")
@@ -24,7 +25,6 @@ public class CommentController {
 
     @Operation(summary = "댓글 등록", responses = {
             @ApiResponse(responseCode = "200", description = "댓글 등록 완료"),
-            @ApiResponse(responseCode = "", description = "댓글 등록 실패", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PostMapping
     public ResponseEntity<Void> createComment(@Valid CommentCreateDto commentCreateDto, @AuthenticationPrincipal UserDetails userDetails) {
@@ -34,7 +34,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 수정", responses = {
             @ApiResponse(responseCode = "200", description = "댓글 수정 완료"),
-            @ApiResponse(responseCode = "", description = "댓글 수정 실패", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "댓글 작성자가 아니므로 댓글 수정 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PutMapping
     public ResponseEntity<Void> updateComment(@Valid CommentUpdateDto commentUpdateDto, @AuthenticationPrincipal UserDetails userDetails) {
@@ -44,7 +44,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "댓글 삭제 완료"),
-            @ApiResponse(responseCode = "", description = "댓글 삭제 실패", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "댓글 작성자가 아니므로 댓글 삭제 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @DeleteMapping
     public ResponseEntity<Void> deleteComment(@RequestParam(value = "commentId") long commentId, @AuthenticationPrincipal UserDetails userDetails) {

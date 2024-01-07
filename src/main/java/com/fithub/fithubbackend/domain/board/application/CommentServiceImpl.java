@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.comment.domain.Comment;
 import com.fithub.fithubbackend.domain.board.dto.CommentCreateDto;
+import com.fithub.fithubbackend.domain.board.dto.CommentInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.CommentUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.repository.CommentRepository;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +46,7 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = getComment(commentUpdateDto.getCommentId());
 
         if (isWriter(getUser(userDetails), comment)) {
-            comment.setContent(commentUpdateDto.getContent());
+            comment.updateContent(commentUpdateDto.getContent());
         }
         else {
             throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 댓글 작성자가 아님");
@@ -59,8 +62,14 @@ public class CommentServiceImpl implements CommentService {
         if (isWriter(getUser(userDetails), comment)) {
             if (comment.getParent() == null)  {     // 최상위 댓글 삭제 시, 그 아래 댓글들 모두 삭제
                 commentRepository.deleteByParentAndPost(comment, comment.getPost());
+                commentRepository.delete(comment);
             }
-            commentRepository.delete(comment);
+            else {
+                if (comment.getChildren().isEmpty())
+                    commentRepository.delete(comment);
+                else
+                    comment.deleteComment();
+            }
         }
         else {
             throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 댓글 작성자가 아님");
@@ -70,13 +79,26 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public long countComment(Post post) {
-        return commentRepository.countByPost(post);
+        return commentRepository.countByPostAndDeletedIsNull(post);
     }
 
     @Override
     @Transactional
-    public void deleteComments(Post post) {
+    public List<CommentInfoDto> getComments(Post post) {
 
+        List<CommentInfoDto> commentInfoDtoList  = new ArrayList<>();
+        List<Comment> comments = commentRepository.findByPostWithFetch(post);
+        Map<Long, CommentInfoDto> CommentInfoDtoHashMap = new HashMap<>();
+
+        comments.forEach(c -> {
+            CommentInfoDto commentInfoDto = CommentInfoDto.fromEntity(c);
+            CommentInfoDtoHashMap.put(commentInfoDto.getCommentId(), commentInfoDto);
+            if (c.getParent() != null)
+                CommentInfoDtoHashMap.get(c.getParent().getId()).getChildComment().add(commentInfoDto);
+            else commentInfoDtoList.add(commentInfoDto);
+        });
+
+        return commentInfoDtoList;
     }
 
     @Transactional
