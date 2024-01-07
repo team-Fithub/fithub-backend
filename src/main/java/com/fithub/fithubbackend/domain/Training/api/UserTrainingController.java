@@ -82,8 +82,9 @@ public class UserTrainingController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 회원", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @GetMapping("/reservations")
-    public ResponseEntity<Page<UsersReserveInfoDto>> getUsersTrainingReservationList(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<Page<UsersReserveInfoDto>> getUsersTrainingReservationList(@AuthUser User user,
                                                                                      @PageableDefault(sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(userTrainingService.getTrainingReservationList(userDetails.getUsername(), pageable));
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userTrainingService.getTrainingReservationList(user, pageable));
     }
 }

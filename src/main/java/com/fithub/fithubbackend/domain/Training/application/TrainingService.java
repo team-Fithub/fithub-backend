@@ -13,5 +13,5 @@ public interface TrainingService {
 
     void updateClosed(Long id, boolean closed, User user);
 
-    Page<TrainersReserveInfoDto> getReservationList(String email, Pageable pageable);
+    Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable);
 }

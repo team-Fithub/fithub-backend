@@ -83,10 +83,8 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     }
 
     @Override
-    public Page<UsersReserveInfoDto> getTrainingReservationList(String email, Pageable pageable) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원입니다."));
+    public Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable) {
         Page<ReserveInfo> page = reserveInfoRepository.findByUserId(user.getId(), pageable);
-
         return page.map(UsersReserveInfoDto::toDto);
     }
 

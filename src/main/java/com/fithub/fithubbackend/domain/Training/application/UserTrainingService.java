@@ -18,5 +18,5 @@ public interface UserTrainingService {
     void likesTraining(Long trainingId, boolean likes, User user);
     List<TrainingLikesInfoDto> getTrainingLikesList(User user);
 
-    Page<UsersReserveInfoDto> getTrainingReservationList(String email, Pageable pageable);
+    Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable);
 }
