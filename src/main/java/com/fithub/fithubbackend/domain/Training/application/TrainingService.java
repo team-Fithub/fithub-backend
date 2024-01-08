@@ -11,7 +11,8 @@ public interface TrainingService {
     Long updateTraining(TrainingCreateDto dto, Long trainingId, User user);
     void deleteTraining(Long id);
 
-    void updateClosed(Long id, boolean closed, User user);
+    void closeTraining(Long id, User user);
+    void openTraining(Long id, User user);
 
     Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable);
 }

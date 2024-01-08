@@ -137,4 +137,11 @@ public class Training extends BaseTimeEntity {
             }
         }
     }
+
+    public boolean isAllClosed() {
+        for (AvailableDate availableDate : this.getAvailableDates()) {
+            if (availableDate.isEnabled()) return false;
+        }
+        return true;
+    }
 }
