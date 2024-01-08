@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.board.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fithub.fithubbackend.domain.board.comment.domain.Comment;
 import com.fithub.fithubbackend.domain.board.post.domain.Bookmark;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,6 +19,10 @@ public class PostInfoDto {
 
     @Schema(description = "게시글 id")
     private Long postId;
+
+    @Schema(description = "게시글 생성일")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime postCreatedDate;
 
     @Schema(description = "게시글 내용")
     private String postContent;
@@ -72,7 +78,7 @@ public class PostInfoDto {
     @Builder
     public PostInfoDto(Long postId, String postContent, String postWriter, String postWriterProfileUrl, List<String> postHashTags,
                        Integer postViews, Long postLikesCount, List<LikesInfoDto> postLikedUser, List<String> postDocumentUrls, Integer postCommentsCount,
-                       List<Bookmark> postBookmarkedUser) {
+                       List<Bookmark> postBookmarkedUser, LocalDateTime postCreatedDate) {
         this.postId = postId;
         this.postContent = postContent;
         this.postWriter = postWriter;
@@ -84,6 +90,7 @@ public class PostInfoDto {
         this.postDocumentUrls = postDocumentUrls;
         this.postCommentsCount = postCommentsCount;
         this.postBookmarkedUser = postBookmarkedUser;
+        this.postCreatedDate = postCreatedDate;
     }
 
     public static PostInfoDto fromEntity(Post post) {
@@ -105,6 +112,7 @@ public class PostInfoDto {
                 .postHashTags(post.getPostHashtags().stream().map(hashtag -> hashtag.getHashtag().getContent()).collect(Collectors.toList()))
                 .postDocumentUrls(post.getPostDocuments().stream().map(postDocument -> postDocument.getUrl()).collect(Collectors.toList()))
                 .postBookmarkedUser(post.getBookmarks())
+                .postCreatedDate(post.getCreatedDate())
                 .build();
     }
 }

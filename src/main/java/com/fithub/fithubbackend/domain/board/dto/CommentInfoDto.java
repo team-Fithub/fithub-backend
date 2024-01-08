@@ -1,8 +1,10 @@
 package com.fithub.fithubbackend.domain.board.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fithub.fithubbackend.domain.board.comment.domain.Comment;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Data
@@ -22,6 +24,9 @@ public class CommentInfoDto {
 
     private boolean deleted;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdDate;
+
 
     private List<CommentInfoDto> childComment = new ArrayList<>();
 
@@ -36,6 +41,7 @@ public class CommentInfoDto {
         commentInfoDto.setProfileInputName(comment.getUser().getProfileImg().getInputName());
         commentInfoDto.setContent(comment.getContent());
         commentInfoDto.setParentCommentId(comment.getParent() == null ? null : comment.getParent().getId());
+        commentInfoDto.setCreatedDate(comment.getCreatedDate());
 
         return commentInfoDto;
     }
