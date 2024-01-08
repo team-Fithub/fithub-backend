@@ -99,6 +99,42 @@ public class CommentServiceImpl implements CommentService {
         return commentInfoDtoList;
     }
 
+    @Override
+    @Transactional
+    public List<CommentInfoDto> getCommentsVer2(Post post) {
+
+        List<CommentInfoDto> commentInfoDtoList  = new ArrayList<>();
+
+        List<Comment> comments = commentRepository.findByPostWithFetch(post);
+
+        Map<Long, CommentInfoDto> commentInfoDtoHashMap = new HashMap<>();
+
+        comments.forEach(c -> {
+            CommentInfoDto commentInfoDto = CommentInfoDto.fromEntity(c);
+            commentInfoDtoHashMap.put(commentInfoDto.getCommentId(), commentInfoDto);
+
+            if (c.getParent() != null)
+                findParentComment(commentInfoDtoHashMap, c.getParent().getId(), commentInfoDto);
+            else commentInfoDtoList.add(commentInfoDto);
+        });
+
+        return commentInfoDtoList;
+    }
+
+    @Transactional
+    public void findParentComment(Map<Long, CommentInfoDto> commentInfoDtoHashMap, Long parentId, CommentInfoDto childComment) {
+
+        CommentInfoDto parentComment = commentInfoDtoHashMap.get(parentId);
+
+        if (parentComment.getParentCommentId() == null) {
+            parentComment.getChildComment().add(childComment);
+            return;
+        }
+
+        findParentComment(commentInfoDtoHashMap, parentComment.getParentCommentId(), childComment);
+
+    }
+
     @Transactional
     public Post getPost(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));

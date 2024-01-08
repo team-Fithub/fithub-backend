@@ -18,4 +18,6 @@ public interface CommentService {
     long countComment(Post post);
 
     List<CommentInfoDto> getComments(Post post);
+
+    List<CommentInfoDto> getCommentsVer2(Post post);
 }

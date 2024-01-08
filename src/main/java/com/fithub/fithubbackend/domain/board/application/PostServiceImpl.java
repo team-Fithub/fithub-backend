@@ -167,7 +167,8 @@ public class PostServiceImpl implements PostService {
         }
 
         if (post.getComments() != null && !post.getComments().isEmpty())
-            postInfoDto.setComment(commentService.getComments(post));
+//            postInfoDto.setComment(commentService.getComments(post));
+            postInfoDto.setComment(commentService.getCommentsVer2(post));
 
         return postInfoDto;
     }
