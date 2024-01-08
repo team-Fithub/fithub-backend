@@ -31,7 +31,8 @@ public enum ErrorCode {
     INVALID_IMAGE(HttpStatus.CONFLICT, "이미지 파일이 아닙니다."),
     
     IAMPORT_PRICE_ERROR(HttpStatus.CONFLICT, "결제된 금액이 달라 결제가 취소되었습니다."),
-    RESERVE_DATE_OR_TIME_ERROR(HttpStatus.BAD_REQUEST, "불가능한 날짜 또는 시간대입니다.");
+    RESERVE_DATE_OR_TIME_ERROR(HttpStatus.BAD_REQUEST, "불가능한 날짜 또는 시간대입니다."),
+    PERMISSION_DENIED(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }

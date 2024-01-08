@@ -84,6 +84,10 @@ public class PaymentServiceImpl implements PaymentService {
             throw new CustomException(ErrorCode.RESERVE_DATE_OR_TIME_ERROR);
         }
 
+        // TODO: 모집이 전부 다 차서 마감되었다는 알림 전송
+        if (training.isAllClosed()) {
+            training.updateClosed(true);
+        }
         reserveInfoRepository.save(reserveInfo);
     }
 
@@ -115,6 +119,11 @@ public class PaymentServiceImpl implements PaymentService {
         // 예약 내역에서 예약 시간 가져와서 트레이닝에 그 시간 다시 예약 가능하도록 변경
         Training training = reserveInfo.getTraining();
         training.addAvailableDateTime(reserveInfo.getReserveDateTime());
+        
+        // TODO: 예약이 취소돼서 모집 마감 -> 오픈되었다는 알림
+        if (training.isClosed()) {
+            training.updateClosed(false);
+        }
     }
 
     private CancelData createCancelData(Payment response) {
