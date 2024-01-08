@@ -28,13 +28,12 @@ public class Scheduler {
     @Transactional
     public void checkTrainingDateTimeValidation() {
         log.info("[SCHEDULE] - checkTrainingDateTimeValidation 실행: {}", LocalDateTime.now());
-        List<Training> openTrainingList = trainingRepository.findByClosedFalse();
+        List<Training> openTrainingList = trainingRepository.findByClosedFalseAndEndDateLessThanEqual(LocalDate.now());
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
         for (Training training : openTrainingList) {
-            if (!training.getEndDate().isAfter(date) && !training.getEndHour().isAfter(time)) {
-                training.updateClosed(true);
-            }
+            if (training.getEndDate().isEqual(date) && !training.getEndHour().isBefore(time)) continue;
+            training.updateClosed(true);
         }
     }
 
