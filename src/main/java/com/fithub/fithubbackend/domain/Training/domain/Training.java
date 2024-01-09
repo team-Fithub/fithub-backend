@@ -14,7 +14,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -24,7 +23,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE training SET deleted = 1 WHERE training_id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Training extends BaseTimeEntity {
 
@@ -32,7 +30,7 @@ public class Training extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JsonIgnore
     private Trainer trainer;
 

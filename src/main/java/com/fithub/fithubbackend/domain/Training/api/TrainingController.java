@@ -63,10 +63,10 @@ public class TrainingController {
             @ApiResponse(responseCode = "404", description = "id에 해당하는 트레이닝이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @DeleteMapping
-    public ResponseEntity<Void> deleteTraining(@RequestParam Long trainingId, @AuthUser User user) {
+    public ResponseEntity<String> deleteTraining(@RequestParam Long trainingId, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         trainingService.deleteTraining(trainingId, user.getEmail());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body("완료");
     }
 
     @Operation(summary = "트레이닝 수동 마감 설정", parameters = {

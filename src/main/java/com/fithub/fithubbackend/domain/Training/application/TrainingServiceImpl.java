@@ -126,11 +126,12 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
+    @Transactional
     public void deleteTraining(Long id, String email) {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
         permissionValidate(training.getTrainer(), email);
 
-        if (reserveInfoRepository.existsByTrainingIdAndNotStatusNotIn(id,
+        if (reserveInfoRepository.existsByTrainingIdAndStatusNotIn(id,
                 new ReserveStatus[]{ReserveStatus.CANCEL, ReserveStatus.NOSHOW, ReserveStatus.COMPLETE})) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 트레이닝에 완료 또는 취소되지 않은 예약이 존재해 삭제 작업이 불가능합니다.");
         }
@@ -140,7 +141,7 @@ public class TrainingServiceImpl implements TrainingService {
             trainingLikesRepository.delete(trainingLikes);
         }
 
-        trainingRepository.delete(training);
+        training.updateDeleted(true);
     }
 
     @Override

@@ -10,5 +10,5 @@ public interface ReserveInfoRepository extends JpaRepository<ReserveInfo, Long> 
     Page<ReserveInfo> findByTrainerId(Long trainerId, Pageable pageable);
     Page<ReserveInfo> findByUserId(Long userId, Pageable pageable);
 
-    boolean existsByTrainingIdAndNotStatusNotIn(Long trainingId, ReserveStatus[] statuses);
+    boolean existsByTrainingIdAndStatusNotIn(Long trainingId, ReserveStatus[] statuses);
 }
