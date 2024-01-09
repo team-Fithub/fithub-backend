@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.Training.dto.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
@@ -36,6 +37,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
+    private final TrainingLikesRepository trainingLikesRepository;
 
     private final UserRepository userRepository;
     private final ReserveInfoRepository reserveInfoRepository;
@@ -133,7 +135,12 @@ public class TrainingServiceImpl implements TrainingService {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 트레이닝에 완료 또는 취소되지 않은 예약이 존재해 삭제 작업이 불가능합니다.");
         }
 
-        training.updateDeleted(true);
+        List<TrainingLikes> trainingLikesList = trainingLikesRepository.findByTrainingId(id);
+        for (TrainingLikes trainingLikes : trainingLikesList) {
+            trainingLikesRepository.delete(trainingLikes);
+        }
+
+        trainingRepository.delete(training);
     }
 
     @Override
