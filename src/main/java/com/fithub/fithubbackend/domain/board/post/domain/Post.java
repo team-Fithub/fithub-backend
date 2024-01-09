@@ -31,6 +31,8 @@ public class Post extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private User user;
 
+
+    @BatchSize(size = 100)
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
