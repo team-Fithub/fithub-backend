@@ -77,6 +77,9 @@ public class Training extends BaseTimeEntity {
     @JsonIgnoreProperties({"training"})
     private List<AvailableDate> availableDates;
 
+    @NotNull
+    private boolean deleted;
+
     @Builder
     public Training(TrainingCreateDto dto, Trainer trainer) {
         this.title = dto.getTitle();
@@ -92,6 +95,7 @@ public class Training extends BaseTimeEntity {
         this.trainer = trainer;
         this.availableDates = new ArrayList<>();
         this.images = new ArrayList<>();
+        this.deleted = false;
     }
 
     public void updateTraining(TrainingCreateDto dto) {
@@ -108,6 +112,10 @@ public class Training extends BaseTimeEntity {
 
     public void updateClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public void updateDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 
     public void addImages(TrainingDocument document) {
