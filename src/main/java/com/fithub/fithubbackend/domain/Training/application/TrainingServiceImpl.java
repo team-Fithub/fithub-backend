@@ -3,7 +3,9 @@ package com.fithub.fithubbackend.domain.Training.application;
 import com.fithub.fithubbackend.domain.Training.domain.*;
 import com.fithub.fithubbackend.domain.Training.dto.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
@@ -35,6 +37,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     private final TrainingRepository trainingRepository;
     private final TrainerRepository trainerRepository;
+    private final TrainingLikesRepository trainingLikesRepository;
 
     private final UserRepository userRepository;
     private final ReserveInfoRepository reserveInfoRepository;
@@ -96,9 +99,9 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     @Transactional
-    public Long updateTraining(TrainingCreateDto dto, Long trainingId, User user) {
+    public Long updateTraining(TrainingCreateDto dto, Long trainingId, String email) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
-        permissionValidate(training.getTrainer(), user.getEmail());
+        permissionValidate(training.getTrainer(), email);
 
         if (training.isClosed()) {
             throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "마감된 트레이닝은 수정할 수 없습니다.");
@@ -123,8 +126,22 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public void deleteTraining(Long id) {
-        // TODO: 예약 리스트 확인 후 샥제
+    @Transactional
+    public void deleteTraining(Long id, String email) {
+        Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
+        permissionValidate(training.getTrainer(), email);
+
+        if (reserveInfoRepository.existsByTrainingIdAndStatusNotIn(id,
+                new ReserveStatus[]{ReserveStatus.CANCEL, ReserveStatus.NOSHOW, ReserveStatus.COMPLETE})) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "해당 트레이닝에 완료 또는 취소되지 않은 예약이 존재해 삭제 작업이 불가능합니다.");
+        }
+
+        List<TrainingLikes> trainingLikesList = trainingLikesRepository.findByTrainingId(id);
+        for (TrainingLikes trainingLikes : trainingLikesList) {
+            trainingLikesRepository.delete(trainingLikes);
+        }
+
+        training.updateDeleted(true);
     }
 
     @Override
@@ -186,7 +203,7 @@ public class TrainingServiceImpl implements TrainingService {
     public void dateValidate(LocalDate startDate, LocalDate endDate) {
         LocalDate now = LocalDate.now();
         if (startDate.isBefore(now) || endDate.isBefore(now) || endDate.isBefore(startDate)) {
-            throw new CustomException(ErrorCode.INVALID_DATE, "선택할 수 없는 날짜입니다.");
+            throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR, "선택할 수 없는 날짜입니다.");
         }
     }
 

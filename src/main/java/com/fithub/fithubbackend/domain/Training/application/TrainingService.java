@@ -8,8 +8,8 @@ import org.springframework.data.domain.Pageable;
 
 public interface TrainingService {
     Long createTraining(TrainingCreateDto dto, User user);
-    Long updateTraining(TrainingCreateDto dto, Long trainingId, User user);
-    void deleteTraining(Long id);
+    Long updateTraining(TrainingCreateDto dto, Long trainingId, String email);
+    void deleteTraining(Long id, String email);
 
     void closeTraining(Long id, User user);
     void openTraining(Long id, User user);

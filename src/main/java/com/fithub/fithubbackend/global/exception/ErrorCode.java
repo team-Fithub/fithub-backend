@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 데이터입니다."),
-    INVALID_DATE(HttpStatus.CONFLICT, "유효하지 않은 날짜입니다."),
     UNCORRECTABLE_DATA(HttpStatus.CONFLICT, "현재 수정할 수 없는 데이터입니다."),
     DUPLICATE(HttpStatus.CONFLICT,"중복된 데이터 입니다."),
     INVALID_FORM_DATA(HttpStatus.CONFLICT,"유효하지 않은 형식의 데이터 입니다."),
@@ -31,8 +30,10 @@ public enum ErrorCode {
     INVALID_IMAGE(HttpStatus.CONFLICT, "이미지 파일이 아닙니다."),
     
     IAMPORT_PRICE_ERROR(HttpStatus.CONFLICT, "결제된 금액이 달라 결제가 취소되었습니다."),
-    RESERVE_DATE_OR_TIME_ERROR(HttpStatus.BAD_REQUEST, "불가능한 날짜 또는 시간대입니다."),
-    PERMISSION_DENIED(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다.");
+    DATE_OR_TIME_ERROR(HttpStatus.BAD_REQUEST, "불가능한 날짜 또는 시간대입니다."),
+    PERMISSION_DENIED(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
+
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }

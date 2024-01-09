@@ -10,4 +10,6 @@ public interface TrainingLikesRepository extends JpaRepository<TrainingLikes, Lo
     Optional<TrainingLikes> findByTrainingIdAndUserId(Long trainingId, Long userId);
     boolean existsByTrainingIdAndUserId(Long trainingId, Long userId);
     List<TrainingLikes> findByUserId(Long userId);
+
+    List<TrainingLikes> findByTrainingId(Long trainingId);
 }

@@ -81,7 +81,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (!training.removeAvailableDateTime(dto.getReserveDateTime())) {
             log.error("예약 완료 실패 - 예약 가능한 시간대가 없음: {}", dto.getReserveDateTime());
-            throw new CustomException(ErrorCode.RESERVE_DATE_OR_TIME_ERROR);
+            throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR);
         }
 
         // TODO: 모집이 전부 다 차서 마감되었다는 알림 전송
