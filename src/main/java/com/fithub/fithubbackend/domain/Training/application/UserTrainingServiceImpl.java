@@ -29,7 +29,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     @Override
     @Transactional(readOnly = true)
     public Page<TrainingOutlineDto> searchAll(Pageable pageable) {
-        Page<Training> trainingPage = trainingRepository.findAll(pageable);
+        Page<Training> trainingPage = trainingRepository.findAllByDeletedFalse(pageable);
         return trainingPage.map(TrainingOutlineDto::toDto);
     }
 
@@ -37,6 +37,10 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     @Transactional(readOnly = true)
     public TrainingInfoDto searchById(Long id) {
         Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝이 존재하지 않습니다."));
+        if (training.isDeleted()) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "삭제된 트레이닝입니다.");
+        }
+
         TrainingInfoDto dto = TrainingInfoDto.toDto(training);
         if (training.getImages() != null && !training.getImages().isEmpty()) {
             List<TrainingDocumentDto> images = training.getImages().stream().map(TrainingDocumentDto::toDto).toList();

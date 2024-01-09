@@ -41,6 +41,7 @@ public class UserTrainingController {
             @Parameter(name = "trainingId", description = "조회할 트레이닝의 primary key(id)")
     }, responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "400", description = "삭제된 트레이닝", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "해당하는 트레이닝 존재 X", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @GetMapping
