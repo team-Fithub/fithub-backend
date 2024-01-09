@@ -31,6 +31,7 @@ public class TrainingController {
 
     @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능, 이미지는 모두 images로 주면 됨", responses = {
             @ApiResponse(responseCode = "200", description = "생성됨"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "예약 가능 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PostMapping
@@ -41,26 +42,38 @@ public class TrainingController {
 
 //    @Operation(summary = "트레이닝 수정", responses = {
 //            @ApiResponse(responseCode = "200", description = "수정됨"),
+//            @ApiResponse(responseCode = "400", description = "수정 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+//            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
 //            @ApiResponse(responseCode = "409", description = "마감 처리 된 트레이닝을 수정하려고 함", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-//            @ApiResponse(responseCode = "409", description = "수정 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
 //    })
 //    @PutMapping
-//    public ResponseEntity<Long> updateTraining(@RequestBody @Valid TrainingCreateDto dto, @RequestParam Long trainingId, @AuthenticationPrincipal UserDetails userDetails) {
+//    public ResponseEntity<Long> updateTraining(@RequestBody @Valid TrainingCreateDto dto, @RequestParam Long trainingId, @AuthUser User user) {
 //        // TODO: 예약 관련 기능 끝난 후 수정 필요
-//        return ResponseEntity.ok(trainingService.updateTraining(dto, trainingId, userDetails.getUsername()));
+//        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+//        return ResponseEntity.ok(trainingService.updateTraining(dto, trainingId, user.getEmail()));
 //    }
 
-//    @DeleteMapping
-//    public ResponseEntity<Void> deleteTraining(@RequestParam Long trainingId) {
-//        // TODO: delete 작업 필요
-//        trainingService.deleteTraining(trainingId);
-//        return ResponseEntity.ok().build();
-//    }
+    @Operation(summary = "트레이닝 삭제 (soft delete)", parameters = {
+            @Parameter(name = "trainingId", description = "삭제할 트레이닝 id")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "삭제 성공"),
+            @ApiResponse(responseCode = "400", description = "해당 트레이닝에 취소/완료되지 않은 예약이 남아 삭제 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 트레이닝을 작성한 트레이너가 아니라 삭제 권한이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "id에 해당하는 트레이닝이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @DeleteMapping
+    public ResponseEntity<Void> deleteTraining(@RequestParam Long trainingId, @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainingService.deleteTraining(trainingId, user.getEmail());
+        return ResponseEntity.ok().build();
+    }
 
     @Operation(summary = "트레이닝 수동 마감 설정", parameters = {
             @Parameter(name = "trainingId", description = "마감할 트레이닝 id")
     }, responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "403", description = "해당 트레이닝을 작성한 트레이너가 아니라 수정 권한이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "id에 해당하는 트레이닝이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
@@ -75,6 +88,7 @@ public class TrainingController {
             @Parameter(name = "trainingId", description = "오픈할 트레이닝 id")
     }, responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "403", description = "해당 트레이닝을 작성한 트레이너가 아니라 수정 권한이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "id에 해당하는 트레이닝이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "트레이닝 예약 가능한 마지막 날짜가 현재보다 이전이므로 수정 불가능. 트레이닝 수정을 통해 날짜 추가 필요", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
