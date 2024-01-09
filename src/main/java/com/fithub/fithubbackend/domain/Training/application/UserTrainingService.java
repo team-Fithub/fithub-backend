@@ -15,7 +15,9 @@ public interface UserTrainingService {
     TrainingInfoDto searchById(Long id);
 
     boolean isLikesTraining(Long trainingId, User user);
-    void likesTraining(Long trainingId, boolean likes, User user);
+    void likesTraining(Long trainingId, User user);
+    void cancelTrainingLikes(Long trainingId, User user);
+
     List<TrainingLikesInfoDto> getTrainingLikesList(User user);
 
     Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable);
