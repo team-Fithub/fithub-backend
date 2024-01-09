@@ -36,8 +36,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             "/admin/sign-in", "**exception**","/auth/email/**"
     };
 
+    private static final String[] SHOULD_NOT_FILTER_GET_URI_LIST = new String[] {
+            "/users/training/", "/users/training/all"
+    };
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        if (request.getMethod().equals("GET")) {
+            return Arrays.stream(SHOULD_NOT_FILTER_GET_URI_LIST).anyMatch(e -> new AntPathMatcher().match(e, request.getServletPath()));
+        }
         return Arrays.stream(SHOULD_NOT_FILTER_URI_ALL_LIST)
                 .anyMatch(e -> new AntPathMatcher().match(e, request.getServletPath()));
     }

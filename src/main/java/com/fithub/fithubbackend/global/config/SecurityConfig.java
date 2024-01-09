@@ -46,8 +46,9 @@ public class SecurityConfig {
     };
 
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
-        "/users/training/**"
+        "/users/training/all", "/users/training/"
     };
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity

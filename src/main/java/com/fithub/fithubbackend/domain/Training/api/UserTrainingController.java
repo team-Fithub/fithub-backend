@@ -33,7 +33,6 @@ public class UserTrainingController {
 
     @Operation(summary = "트레이닝 전체 조회, page 사용 (size = 9, sort=\"id\" desc 적용되어있음. swagger에서 보낼 때 따로 지정하는 거 없으면 parameter에 pageable은 다 지우고 보내도 됨)")
     @GetMapping("/all")
-    // TODO: Security permitAll, filter X 추가
     public ResponseEntity<Page<TrainingOutlineDto>> searchAll(@PageableDefault(size = 9, sort = "id",  direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(userTrainingService.searchAll(pageable));
     }
