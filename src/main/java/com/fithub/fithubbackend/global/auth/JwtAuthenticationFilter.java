@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         log.info("[doFilterInternal] - 요청 path: {}", request.getServletPath());
-        // 1. 쿠키에서 token 추출
+        // 1. 헤더, 쿠키에서 token 추출
         String accessToken = headerUtil.resolveAccessToken(request);
         String refreshToken = headerUtil.resolveRefreshToken(request);
 
