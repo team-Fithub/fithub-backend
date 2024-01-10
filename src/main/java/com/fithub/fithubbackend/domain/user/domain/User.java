@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fithub.fithubbackend.domain.user.dto.OAuthSignUpDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
@@ -10,7 +11,6 @@ import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import com.fithub.fithubbackend.global.domain.Document;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -131,18 +130,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.phone = phone;
     }
 
-    public User updateNicknameAndEmail(String nickname, String email) {
-        this.nickname = nickname;
-        this.email = email;
-        return this;
-    }
-
-    public void updateNameAndPhoneAndBioAndGender(OAuthSignUpDto oAuthSignUpDto) {
+    public void setOAuthSignUp(OAuthSignUpDto oAuthSignUpDto) {
+        this.email = oAuthSignUpDto.getEmail();
         this.name = oAuthSignUpDto.getName();
         this.phone = oAuthSignUpDto.getPhone();
         this.bio = oAuthSignUpDto.getBio();
         this.gender = oAuthSignUpDto.getGender();
     }
+
     public void updateProfile(ProfileDto dto) {
         if(dto.getNickname() != null) this.nickname = dto.getNickname();
         if(dto.getEmail() != null) this.email = dto.getEmail();
