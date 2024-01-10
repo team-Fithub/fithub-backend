@@ -59,7 +59,7 @@ public class SecurityConfig {
 
                 // jwtFilter 추가
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisUtil, headerUtil), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtExceptionFilter(jwtTokenProvider, headerUtil, cookieUtil), JwtAuthenticationFilter.class)
+                .addFilterBefore(new JwtExceptionFilter(jwtTokenProvider, headerUtil), JwtAuthenticationFilter.class)
 
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(requests -> requests
