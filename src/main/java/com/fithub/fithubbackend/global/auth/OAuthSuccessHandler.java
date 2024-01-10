@@ -46,7 +46,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         boolean isGuest = oAuth2User.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_GUEST"));
         String accessToken = "";
 
-        if (isGuest == true && oAuth2User.getAttributes().get("provider").equals("naver")) {
+        if (isGuest && oAuth2User.getAttributes().get("provider").equals("naver")) {
             User user = userRepository.findByEmail((String) oAuth2User.getAttributes().get("email")).orElseThrow(() -> new UsernameNotFoundException("소셜 회원가입을 다시 진행해주십시오."));
             user.updateGuestToUser();
             isGuest = false;
@@ -78,6 +78,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private String getGuestTargetUrl(Map<String, Object> attributes) {
         return UriComponentsBuilder.fromUriString(firstRedirect)
                 .queryParam("provider", attributes.get("provider"))
+                .queryParam("providerId", attributes.get("providerId"))
                 .queryParam("email", attributes.get("email"))
                 .queryParam("name", attributes.get("name"))
                 .queryParam("phone", attributes.get("phone"))

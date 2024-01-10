@@ -20,17 +20,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -171,17 +168,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, String email, HttpServletResponse response) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("소셜 회원가입을 다시 진행해주십시오."));
-        user.updateNameAndPhoneAndBioAndGender(oAuthSignUpDto);
+    public String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response) {
+        User user = userRepository.findByProviderId(oAuthSignUpDto.getProviderId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 회원을 찾을 수 없습니다. 소셜 회원가입을 다시 진행해주십시오."));
+        user.setOAuthSignUp(oAuthSignUpDto);
         user.updateGuestToUser();
 
-        TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(email);
+        TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(oAuthSignUpDto.getEmail());
 
         // refreshToken 쿠키에 저장
         cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
         // Redis에 Key(이메일):Value(refreshToken) 저장
-        redisUtil.setData(email, tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+        redisUtil.setData(oAuthSignUpDto.getEmail(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
         return tokenInfoDto.getAccessToken();
     }
 

@@ -40,6 +40,7 @@ public class SecurityConfig {
 
     private final OAuthService oAuthService;
     private final OAuthSuccessHandler oAuthSuccessHandler;
+    private final OAuthFailureHandler oAuthFailureHandler;
 
     private static final String[] PERMIT_ALL_PATTERNS = new String[] {
             "/", "/auth/**", "/oauth2/**"
@@ -74,11 +75,12 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(e -> {
                     e.authenticationEntryPoint(new CustomAuthenticationEntryPoint());
-                    e.accessDeniedHandler(((request, response, accessDeniedException) -> response.sendRedirect("/login")));
+                    e.accessDeniedHandler(new CustomAccessDeniedHandler());
                 })
                 .oauth2Login(oauth2Login -> {
                     oauth2Login.userInfoEndpoint(userInfoEndPoint -> userInfoEndPoint.userService(oAuthService));
                     oauth2Login.successHandler(oAuthSuccessHandler);
+                    oauth2Login.failureHandler(oAuthFailureHandler);
                 })
                 .build();
     }

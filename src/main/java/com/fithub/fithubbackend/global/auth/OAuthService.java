@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,10 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         User user = OAuthAttributes.extract(registrationId, attributes);
+        if (!registrationId.equals("kakao") && userRepository.existsByEmail(user.getEmail())) {
+            throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST), "일반 회원가입이 진행된 이메일입니다.");
+        }
+
         user = saveOrUpdate(user,registrationId);
 
         Map<String, Object> customAttribute = customAttribute(attributes, userNameAttributeName, user);
@@ -55,38 +61,30 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         customAttribute.put(userNameAttributeName, attributes.get(userNameAttributeName));
         customAttribute.put("id", user.getId());
         customAttribute.put("provider", user.getProvider());
+        customAttribute.put("providerId", user.getProviderId());
         customAttribute.put("name", user.getName());
         customAttribute.put("email", user.getEmail());
-//        customAttribute.put("profileImg", user.getProfileImg());
         customAttribute.put("phone", user.getPhone());
         customAttribute.put("gender", user.getGender().toString());
         return customAttribute;
     }
 
     private User saveOrUpdate(User user, String registrationId) {
-        // 회원가입에서는 GUEST 권한 부여, 추가 정보 입력 후 GUEST 권한 삭제, USER 권한 부여
-        User newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
-                .map(m -> m.updateNicknameAndEmail(user.getNickname(), user.getEmail()))
-                .orElseGet(() -> {
-                    // REFACTOR: factory나 그런 걸로 리팩토링 가능
-                    if(registrationId.equals("google")) {
-                        return ofGoogle(user);
-                    }
-                    else if(registrationId.equals("kakao")){
-//                        Document profileImg = Document.builder()
-//                                .url(user.getProfileImg().getUrl())
-//                                .inputName(user.getProfileImg().getInputName())
-//                                .path(user.getProfileImg().getPath())
-//                                .build();
-//                        documentRepository.save(profileImg);
-//                        return ofKakao(user, profileImg);
-                        return ofKakao(user);
-                    }
-                    else
+        User newUser;
+        if (registrationId.equals("kakao")) {
+            newUser = userRepository.findByProviderId(user.getProviderId()).orElseGet(() -> ofKakao(user));
+        } else {
+            newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
+                    .orElseGet(() -> {
+                        if(registrationId.equals("google")) {
+                            return ofGoogle(user);
+                        }
                         return ofNaver(user);
-                });
+                    });
+        }
         return userRepository.save(newUser);
     }
+
     private User ofGoogle(User user) {
         return User.oAuthBuilder()
                 .nickname(user.getNickname())
@@ -95,14 +93,6 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                 .providerId(user.getProviderId())
                 .oAuthBuild();
     }
-//    private User ofKakao(User user, Document profileImg) {
-//        return User.oAuthKakaoBuilder()
-//                .nickname(user.getNickname())
-//                .profileImg(profileImg)
-//                .provider(user.getProvider())
-//                .providerId(user.getProviderId())
-//                .oAuthKakaoBuild();
-//    }
 
     private User ofKakao(User user) {
         return User.oAuthKakaoBuilder()

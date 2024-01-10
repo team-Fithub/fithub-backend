@@ -7,12 +7,15 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.NAME_REGEXP;
-import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.PHONE_NUMBER_REGEXP;
+import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.*;
 
 @Getter
 @Setter
 public class OAuthSignUpDto {
+
+    @NotNull
+    @Pattern(regexp = EMAIL_REGEXP, message = "이메일 형식에 맞지 않습니다.")
+    private String email;
 
     @NotNull
     @Pattern(regexp = NAME_REGEXP, message = "특수문자 및 숫자는 포함될 수 없습니다.")
@@ -28,4 +31,8 @@ public class OAuthSignUpDto {
 
     @NotNull
     private Gender gender;
+
+    @NotNull
+    @Schema(description = "소셜 회원가입, 로그인시에 저장된 제공자 + id", example = "kakao_121211")
+    private String providerId;
 }

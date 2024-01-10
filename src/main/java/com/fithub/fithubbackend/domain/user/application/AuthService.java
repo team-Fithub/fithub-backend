@@ -5,7 +5,6 @@ import com.fithub.fithubbackend.global.auth.TokenInfoDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,5 +19,5 @@ public interface AuthService {
 
     TokenInfoDto reissue(String cookieRefreshToken, HttpServletRequest request, HttpServletResponse response);
 
-    String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, String email, HttpServletResponse response);
+    String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response);
 }
