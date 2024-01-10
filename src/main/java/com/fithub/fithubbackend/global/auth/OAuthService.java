@@ -10,6 +10,8 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,10 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         User user = OAuthAttributes.extract(registrationId, attributes);
+        if (!registrationId.equals("kakao") && userRepository.existsByEmail(user.getEmail())) {
+            throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST), "일반 회원가입이 진행된 이메일입니다.");
+        }
+
         user = saveOrUpdate(user,registrationId);
 
         Map<String, Object> customAttribute = customAttribute(attributes, userNameAttributeName, user);
@@ -55,9 +61,9 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         customAttribute.put(userNameAttributeName, attributes.get(userNameAttributeName));
         customAttribute.put("id", user.getId());
         customAttribute.put("provider", user.getProvider());
+        customAttribute.put("providerId", user.getProviderId());
         customAttribute.put("name", user.getName());
         customAttribute.put("email", user.getEmail());
-//        customAttribute.put("profileImg", user.getProfileImg());
         customAttribute.put("phone", user.getPhone());
         customAttribute.put("gender", user.getGender().toString());
         return customAttribute;
@@ -95,14 +101,6 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                 .providerId(user.getProviderId())
                 .oAuthBuild();
     }
-//    private User ofKakao(User user, Document profileImg) {
-//        return User.oAuthKakaoBuilder()
-//                .nickname(user.getNickname())
-//                .profileImg(profileImg)
-//                .provider(user.getProvider())
-//                .providerId(user.getProviderId())
-//                .oAuthKakaoBuild();
-//    }
 
     private User ofKakao(User user) {
         return User.oAuthKakaoBuilder()
