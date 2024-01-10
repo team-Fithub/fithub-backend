@@ -70,29 +70,21 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
     }
 
     private User saveOrUpdate(User user, String registrationId) {
-        // 회원가입에서는 GUEST 권한 부여, 추가 정보 입력 후 GUEST 권한 삭제, USER 권한 부여
-        User newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
-                .map(m -> m.updateNicknameAndEmail(user.getNickname(), user.getEmail()))
-                .orElseGet(() -> {
-                    // REFACTOR: factory나 그런 걸로 리팩토링 가능
-                    if(registrationId.equals("google")) {
-                        return ofGoogle(user);
-                    }
-                    else if(registrationId.equals("kakao")){
-//                        Document profileImg = Document.builder()
-//                                .url(user.getProfileImg().getUrl())
-//                                .inputName(user.getProfileImg().getInputName())
-//                                .path(user.getProfileImg().getPath())
-//                                .build();
-//                        documentRepository.save(profileImg);
-//                        return ofKakao(user, profileImg);
-                        return ofKakao(user);
-                    }
-                    else
+        User newUser;
+        if (registrationId.equals("kakao")) {
+            newUser = userRepository.findByProviderId(user.getProviderId()).orElseGet(() -> ofKakao(user));
+        } else {
+            newUser = userRepository.findByEmailAndProvider(user.getEmail(), user.getProvider())
+                    .orElseGet(() -> {
+                        if(registrationId.equals("google")) {
+                            return ofGoogle(user);
+                        }
                         return ofNaver(user);
-                });
+                    });
+        }
         return userRepository.save(newUser);
     }
+
     private User ofGoogle(User user) {
         return User.oAuthBuilder()
                 .nickname(user.getNickname())
