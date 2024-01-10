@@ -186,6 +186,9 @@ public class AuthServiceImpl implements AuthService {
         cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
         // Redis에 Key(이메일):Value(refreshToken) 저장
         redisUtil.setData(oAuthSignUpDto.getEmail(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+
+        response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
+
         return tokenInfoDto.getAccessToken();
     }
 
