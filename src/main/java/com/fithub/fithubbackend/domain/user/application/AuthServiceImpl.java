@@ -195,8 +195,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void updatePassword(PasswordUpdateDto passwordUpdateDto) {
-        System.out.println(passwordUpdateDto.getEmail());
-
         User user = userRepository.findByEmail(passwordUpdateDto.getEmail()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
 
         if (passwordEncoder.matches(passwordUpdateDto.getPassword(), user.getPassword()))
