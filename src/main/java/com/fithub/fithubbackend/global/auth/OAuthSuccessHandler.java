@@ -39,6 +39,9 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
 
+    private static final String BEARER_TYPE = "Bearer ";
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -52,12 +55,14 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             isGuest = false;
         }
 
-        if (!isGuest) {
-            accessToken = setCookieAndRedis(response, authentication, oAuth2User.getAttribute("email")).getAccessToken();
-        }
+//        if (!isGuest) {
+//            accessToken = setCookieAndRedis(response, authentication, oAuth2User.getAttribute("email")).getAccessToken();
+//        }
+        accessToken = setCookieAndRedis(response, authentication, oAuth2User.getAttribute("email")).getAccessToken();
 
-        String targetUrl = getTargetUrl(isGuest, oAuth2User, accessToken);
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+//        String targetUrl = getTargetUrl(isGuest, oAuth2User);
+        response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + accessToken);
+//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
     private TokenInfoDto setCookieAndRedis(HttpServletResponse response, Authentication authentication, String email) {
@@ -67,11 +72,11 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         return tokenInfoDto;
     }
 
-    private String getTargetUrl(boolean isGuest, OAuth2User oAuth2User, String accessToken) {
+    private String getTargetUrl(boolean isGuest, OAuth2User oAuth2User) {
         if (isGuest) {
             return getGuestTargetUrl(oAuth2User.getAttributes());
         }
-        return getUserTargetUrl(accessToken);
+        return getUserTargetUrl();
     }
 
 
@@ -87,9 +92,8 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                 .encode().toString();
     }
 
-    private String getUserTargetUrl(String accessToken) {
+    private String getUserTargetUrl() {
         return UriComponentsBuilder.fromUriString(url)
-                .queryParam("accessToken", accessToken)
                 .build().toString();
     }
 }
