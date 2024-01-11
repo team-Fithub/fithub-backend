@@ -41,7 +41,7 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
         User user = OAuthAttributes.extract(registrationId, attributes);
-        if (!registrationId.equals("kakao") && userRepository.existsByEmail(user.getEmail())) {
+        if (!registrationId.equals("kakao") && userRepository.existsByEmailAndProviderIsNull(user.getEmail())) {
             throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST), "일반 회원가입이 진행된 이메일입니다.");
         }
 
