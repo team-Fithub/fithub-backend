@@ -87,4 +87,14 @@ public class AuthController {
     public ResponseEntity<String> oAuthSignUp(@RequestBody OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response) {
         return ResponseEntity.ok(authService.oAuthSignUp(oAuthSignUpDto, response));
     }
+
+    @Operation(summary = "비밀번호 변경", responses = {
+            @ApiResponse(responseCode = "200", description = "비밀번호 변경 성공"),
+            @ApiResponse(responseCode = "400", description = "기존 비밀번호와 동일하므로 다른 비밀번호로 변경 필요")
+    })
+    @PostMapping("/change/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody @Valid PasswordUpdateDto passwordUpdateDto) {
+        authService.updatePassword(passwordUpdateDto);
+        return ResponseEntity.ok().build();
+    }
 }

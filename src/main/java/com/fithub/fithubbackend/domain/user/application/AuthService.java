@@ -20,4 +20,6 @@ public interface AuthService {
     TokenInfoDto reissue(String cookieRefreshToken, HttpServletRequest request, HttpServletResponse response);
 
     String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response);
+
+    void updatePassword(PasswordUpdateDto passwordDto);
 }

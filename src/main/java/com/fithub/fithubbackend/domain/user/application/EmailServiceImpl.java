@@ -1,7 +1,11 @@
 package com.fithub.fithubbackend.domain.user.application;
 
+import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.EmailDto;
 import com.fithub.fithubbackend.domain.user.dto.EmailNumberDto;
+import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.exception.CustomException;
+import com.fithub.fithubbackend.global.exception.ErrorCode;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -22,6 +27,7 @@ public class EmailServiceImpl implements EmailService {
     private final String SUBJECT = "핏헙 인증메일 입니다.";
     private final String MESSAGE = "인증번호는 %s 입니다.";
     private final JavaMailSender javaMailSender;
+    private final UserRepository userRepository;
     @Value("${spring.mail.username}")
     private String from;
     private HashMap<String,String> sentMail = new HashMap<>();
@@ -56,5 +62,15 @@ public class EmailServiceImpl implements EmailService {
             return new ResponseEntity<>("Fail", HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>("Fail", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void isUserSignedUpAndSendEmail(EmailDto emailDto) throws MessagingException {
+        User user = userRepository.findByEmail(emailDto.getTo()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
+        if (! user.getProvider().isEmpty())
+            throw new CustomException(ErrorCode.DUPLICATE, user.getProvider() + "로 가입된 이메일");
+
+        sendEmail(emailDto);
     }
 }
