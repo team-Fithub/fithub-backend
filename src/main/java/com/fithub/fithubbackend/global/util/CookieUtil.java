@@ -47,20 +47,6 @@ public class CookieUtil {
         return response;
     }
 
-    @Description("access Token 쿠키 생성")
-    public HttpServletResponse addAccessTokenCookie(HttpServletResponse response, String accessToken) {
-
-        ResponseCookie cookie = ResponseCookie.from("accessToken", accessToken)
-//                .maxAge(1800)
-                .path("/")
-                .sameSite("None")
-                .httpOnly(true)
-                .secure(true)  //    HTTPS 프로토콜에서만 쿠키 전송 가능
-                .build();
-        response.addHeader("Set-Cookie", cookie.toString());
-        return response;
-    }
-
     @Description("refresh token 쿠키 삭제")
     public void deleteRefreshTokenCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> refreshTokenCookie = Arrays

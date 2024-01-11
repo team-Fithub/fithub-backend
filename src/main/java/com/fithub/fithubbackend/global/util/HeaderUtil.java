@@ -3,22 +3,23 @@ package com.fithub.fithubbackend.global.util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class HeaderUtil {
 
-    public static final String ACCESS_TOKEN_COOKIE = "accessToken";
+    private static final String BEARER_TYPE = "Bearer";
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
 
     public static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
 
     public String resolveAccessToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
 
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies)
-                if (ACCESS_TOKEN_COOKIE.equals(cookie.getName()))
-                    return cookie.getValue();
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_TYPE)) {
+            return bearerToken.substring(7);
         }
         return null;
     }

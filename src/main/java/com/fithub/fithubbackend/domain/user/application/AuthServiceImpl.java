@@ -51,6 +51,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${default.image.address}")
     private String profileImgUrl;
+
+    private static final String BEARER_TYPE = "Bearer ";
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+
+
     @Override
     @Transactional
     public ResponseEntity<SignUpResponseDto> signUp(SignUpDto signUpDto, MultipartFile profileImg, BindingResult bindingResult) throws IOException {
@@ -100,6 +106,7 @@ public class AuthServiceImpl implements AuthService {
             // Redis에 Key(이메일):Value(refreshToken) 저장
             redisUtil.setData(authentication.getName(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
 
+            response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
             return tokenInfoDto;
         } catch (BadCredentialsException e) {
             throw new CustomException(ErrorCode.INVALID_PWD);
@@ -179,6 +186,9 @@ public class AuthServiceImpl implements AuthService {
         cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
         // Redis에 Key(이메일):Value(refreshToken) 저장
         redisUtil.setData(oAuthSignUpDto.getEmail(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+
+        response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
+
         return tokenInfoDto.getAccessToken();
     }
 
