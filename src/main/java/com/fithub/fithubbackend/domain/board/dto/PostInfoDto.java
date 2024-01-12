@@ -46,6 +46,9 @@ public class PostInfoDto {
     private List<LikesInfoDto> postLikedUser;
 
     @JsonIgnore
+    private Post post;
+
+    @JsonIgnore
     private List<Bookmark> postBookmarkedUser;
 
     @Schema(description = "게시글 첨부 이미지 url 리스트")
@@ -78,7 +81,7 @@ public class PostInfoDto {
     @Builder
     public PostInfoDto(Long postId, String postContent, String postWriter, String postWriterProfileUrl, List<String> postHashTags,
                        Integer postViews, Long postLikesCount, List<LikesInfoDto> postLikedUser, List<String> postDocumentUrls, Integer postCommentsCount,
-                       List<Bookmark> postBookmarkedUser, LocalDateTime postCreatedDate) {
+                       List<Bookmark> postBookmarkedUser, LocalDateTime postCreatedDate, Post post) {
         this.postId = postId;
         this.postContent = postContent;
         this.postWriter = postWriter;
@@ -91,6 +94,7 @@ public class PostInfoDto {
         this.postCommentsCount = postCommentsCount;
         this.postBookmarkedUser = postBookmarkedUser;
         this.postCreatedDate = postCreatedDate;
+        this.post = post;
     }
 
     public static PostInfoDto fromEntity(Post post) {
@@ -113,6 +117,7 @@ public class PostInfoDto {
                 .postDocumentUrls(post.getPostDocuments().stream().map(postDocument -> postDocument.getUrl()).collect(Collectors.toList()))
                 .postBookmarkedUser(post.getBookmarks())
                 .postCreatedDate(post.getCreatedDate())
+                .post(post)
                 .build();
     }
 }
