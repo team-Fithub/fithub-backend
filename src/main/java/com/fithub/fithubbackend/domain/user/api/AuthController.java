@@ -80,11 +80,22 @@ public class AuthController {
 
 
     @Operation(summary = "소셜 회원가입 추가 정보 저장", responses = {
-            @ApiResponse(responseCode = "200", description = "accessToken 반환. 세션 쿠키로 설정 필요"),
+            @ApiResponse(responseCode = "200", description = "accessToken 헤더 세팅됨"),
             @ApiResponse(responseCode = "404", description = "소셜 회원가입이 제대로 성공하지 못 해 db에 user 정보가 저장된게 없음. 다시 회원가입부터 진행 필요")
     })
     @PostMapping("/oauth/regist")
     public ResponseEntity<String> oAuthSignUp(@RequestBody OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response) {
-        return ResponseEntity.ok(authService.oAuthSignUp(oAuthSignUpDto, response));
+        authService.oAuthSignUp(oAuthSignUpDto, response);
+        return ResponseEntity.ok().body("완료");
+    }
+
+    @Operation(summary = "소셜 로그인 성공 시 토큰 발급을 위한 api", responses = {
+            @ApiResponse(responseCode = "200", description = "accessToken 헤더 세팅됨"),
+            @ApiResponse(responseCode = "400", description = "이메일과 provider를 검사한 결과 해당 provider로 가입된 이에일이 아님")
+    })
+    @GetMapping("/oauth/login")
+    public ResponseEntity<String> oAuthLogin(@Parameter String email, @Parameter String provider, HttpServletResponse response) {
+        authService.oAuthLogin(email, provider, response);
+        return ResponseEntity.ok().body("완료");
     }
 }

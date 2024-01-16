@@ -175,7 +175,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response) {
+    public void oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response) {
         User user = userRepository.findByProviderId(oAuthSignUpDto.getProviderId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 회원을 찾을 수 없습니다. 소셜 회원가입을 다시 진행해주십시오."));
         user.setOAuthSignUp(oAuthSignUpDto);
         user.updateGuestToUser();
@@ -188,12 +188,26 @@ public class AuthServiceImpl implements AuthService {
         redisUtil.setData(oAuthSignUpDto.getEmail(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
 
         response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
-
-        return tokenInfoDto.getAccessToken();
     }
 
+    @Override
+    public void oAuthLogin(String email, String provider, HttpServletResponse response) {
+        if (!userRepository.existsByEmailAndProvider(email, provider)) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "해당 provider로 가입된 이메일이 아닙니다.");
+        }
+        TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(email);
+
+        // refreshToken 쿠키에 저장
+        cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
+        // Redis에 Key(이메일):Value(refreshToken) 저장
+        redisUtil.setData(email, tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+
+        response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
+    }
+
+
     private void duplicateNickname(String nickname){
-        if(userRepository.findByNickname(nickname).isPresent())
+        if(userRepository.existsByNickname(nickname))
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 닉네임 입니다.");
     }
     private void duplicateEmail(String email){
