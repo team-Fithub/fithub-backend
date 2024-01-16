@@ -32,6 +32,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -211,9 +212,16 @@ public class AuthServiceImpl implements AuthService {
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 닉네임 입니다.");
     }
     private void duplicateEmail(String email){
-        if(userRepository.findByEmail(email).isPresent())
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (user.getProvider() != null && !user.getProvider().isEmpty()) {
+                throw new CustomException(ErrorCode.DUPLICATE, "해당 이메일은 " + user.getProvider() + " 소셜 로그인이 진행된 이메일입니다.");
+            }
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 이메일 입니다.");
+        }
     }
+
     private void formValidate(BindingResult bindingResult){
         String message = String.valueOf(bindingResult.getFieldErrors().stream()
                         .findFirst().map(DefaultMessageSourceResolvable::getDefaultMessage))
