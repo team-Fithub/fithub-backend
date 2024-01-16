@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.board.api;
 
 import com.fithub.fithubbackend.domain.board.application.PostService;
 import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
+import com.fithub.fithubbackend.domain.board.dto.PostDetailInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -73,20 +74,36 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "게시글 전체 조회", responses = {
+    @Operation(summary = "게시글 전체 조회 (회원 ver)", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     })
     @GetMapping
-    public ResponseEntity<Page<PostInfoDto>> getPosts(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @AuthUser User user) {
-        return ResponseEntity.ok(postService.getAllPosts(pageable, user));
+    public ResponseEntity<Page<PostInfoDto>> getAllPostsForUser(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @AuthUser User user) {
+        return ResponseEntity.ok(postService.getAllPostsForUser(pageable, user));
     }
 
-    @Operation(summary = "게시글 세부 조회", responses = {
+    @Operation(summary = "게시글 전체 조회 (비회원 ver)", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+    })
+    @GetMapping("/non-user")
+    public ResponseEntity<Page<PostInfoDto>> getAllPostsForNonUser(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(postService.getAllPostsForNonUser(pageable));
+    }
+
+    @Operation(summary = "게시글 세부 조회 (회원 ver)", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 세부 조회 성공"),
     })
     @GetMapping("/{postId}")
-    public ResponseEntity<PostInfoDto> getPost(@PathVariable("postId") long postId, @AuthUser User user) {
-        return ResponseEntity.ok(postService.getPostDetail(postId, user));
+    public ResponseEntity<PostDetailInfoDto> getPostDetailForUser(@PathVariable("postId") long postId, @AuthUser User user) {
+        return ResponseEntity.ok(postService.getPostDetailForUser(postId, user));
+    }
+
+    @Operation(summary = "게시글 세부 조회 (비회원 ver)", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 세부 조회 성공"),
+    })
+    @GetMapping("/non-user/{postId}")
+    public ResponseEntity<PostDetailInfoDto> getPostDetailForNonUser(@PathVariable("postId") long postId) {
+        return ResponseEntity.ok(postService.getPostDetailForNonUser(postId));
     }
 
 
