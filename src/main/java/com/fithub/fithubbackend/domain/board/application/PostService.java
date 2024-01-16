@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
+import com.fithub.fithubbackend.domain.board.dto.PostDetailInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
 import org.springframework.data.domain.Page;
@@ -23,7 +24,11 @@ public interface PostService {
 
     void deletePost(long postId, User user);
 
-    Page<PostInfoDto> getAllPosts(Pageable pageable, User use);
+    Page<PostInfoDto> getAllPostsForUser(Pageable pageable, User use);
 
-    PostInfoDto getPostDetail(long postId, User use);
+    PostDetailInfoDto getPostDetailForUser(long postId, User use);
+
+    Page<PostInfoDto> getAllPostsForNonUser(Pageable pageable);
+
+    PostDetailInfoDto getPostDetailForNonUser(long postId);
 }

@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
+import com.fithub.fithubbackend.domain.board.dto.PostDetailInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
@@ -116,13 +117,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostInfoDto> getAllPosts(Pageable pageable, User user) {
+    public Page<PostInfoDto> getAllPostsForUser(Pageable pageable, User user) {
 
         Page<Post> posts = postRepository.findAll(pageable);
         Page<PostInfoDto> postInfoDtos = posts.map(PostInfoDto::fromEntity);
 
         postInfoDtos.forEach(postInfoDto -> {
-            if (user != null) {
                 if (!postInfoDto.getPostLikedUser().isEmpty() && postInfoDto.getPostLikedUser() != null) {
                     List<String> likedUsers = postInfoDto.getPostLikedUser().stream().map(likesInfoDto -> likesInfoDto.getLikedUser()).collect(Collectors.toList());
                     if (likedUsers.contains(user.getNickname()))
@@ -134,10 +134,6 @@ public class PostServiceImpl implements PostService {
                     if (bookmarkedUsers.contains(user.getNickname()))
                         postInfoDto.checkBookmark(true);
                 }
-            }
-
-            if (postInfoDto.getPost().getComments() != null && !postInfoDto.getPost().getComments().isEmpty())
-                postInfoDto.setComment(commentService.getCommentsVer2(postInfoDto.getPost()));
         });
 
         return postInfoDtos;
@@ -145,31 +141,48 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public PostInfoDto getPostDetail(long postId, User user) {
+    public PostDetailInfoDto getPostDetailForUser(long postId, User user) {
 
         Post post = getPost(postId);
 
-        PostInfoDto postInfoDto = PostInfoDto.fromEntity(post);
+        PostDetailInfoDto postDetailInfoDto = PostDetailInfoDto.fromEntity(post);
 
-        if (user != null) {
-            if (post.getLikes() != null && !post.getLikes().isEmpty()) {
-                List<String> likedUsers = postInfoDto.getPostLikedUser().stream().map(likesInfoDto -> likesInfoDto.getLikedUser()).collect(Collectors.toList());
-                if (likedUsers.contains(user.getNickname()))
-                    postInfoDto.checkLikes(true);
-            }
+        if (post.getLikes() != null && !post.getLikes().isEmpty()) {
+            List<String> likedUsers = postDetailInfoDto.getPostLikedUser().stream().map(likesInfoDto -> likesInfoDto.getLikedUser()).collect(Collectors.toList());
+            if (likedUsers.contains(user.getNickname()))
+                postDetailInfoDto.checkLikes(true);
+        }
 
-            if (!post.getBookmarks().isEmpty() && post.getBookmarks() != null) {
-                List<String> bookmarkedUsers = postInfoDto.getPostBookmarkedUser().stream().map(bookmark -> bookmark.getUser().getNickname()).collect(Collectors.toList());
-                if (bookmarkedUsers.contains(user.getNickname()))
-                    postInfoDto.checkBookmark(true);
-            }
+        if (!post.getBookmarks().isEmpty() && post.getBookmarks() != null) {
+            List<String> bookmarkedUsers = postDetailInfoDto.getPostBookmarkedUser().stream().map(bookmark -> bookmark.getUser().getNickname()).collect(Collectors.toList());
+            if (bookmarkedUsers.contains(user.getNickname()))
+                postDetailInfoDto.checkBookmark(true);
         }
 
         if (post.getComments() != null && !post.getComments().isEmpty())
-//            postInfoDto.setComment(commentService.getComments(post));
-            postInfoDto.setComment(commentService.getCommentsVer2(post));
+            postDetailInfoDto.setComment(commentService.getCommentsVer2(post));
 
-        return postInfoDto;
+        return postDetailInfoDto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PostInfoDto> getAllPostsForNonUser(Pageable pageable) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        Page<PostInfoDto> postInfoDtos = posts.map(PostInfoDto::fromEntity);
+        return postInfoDtos;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PostDetailInfoDto getPostDetailForNonUser(long postId) {
+        Post post = getPost(postId);
+        PostDetailInfoDto postDetailInfoDto = PostDetailInfoDto.fromEntity(post);
+
+        if (post.getComments() != null && !post.getComments().isEmpty())
+            postDetailInfoDto.setComment(commentService.getCommentsVer2(post));
+
+        return postDetailInfoDto;
     }
 
     @Transactional
