@@ -1,7 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fithub.fithubbackend.domain.Training.domain.AvailableDate;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import lombok.*;
 
@@ -34,7 +33,7 @@ public class TrainingInfoDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
-    private List<AvailableDate> availableDates;
+    private List<TrainingAvailableDateDto> availableDates;
 
     public static TrainingInfoDto toDto(Training training) {
         return TrainingInfoDto.builder()
@@ -47,7 +46,7 @@ public class TrainingInfoDto {
                 .price(training.getPrice())
                 .startDate(training.getStartDate())
                 .endDate(training.getEndDate())
-                .availableDates(training.getAvailableDates())
+                .availableDates(training.getAvailableDates().stream().map(TrainingAvailableDateDto::toDto).toList())
                 .build();
     }
 
