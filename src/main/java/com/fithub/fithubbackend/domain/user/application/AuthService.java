@@ -19,5 +19,7 @@ public interface AuthService {
 
     TokenInfoDto reissue(String cookieRefreshToken, HttpServletRequest request, HttpServletResponse response);
 
-    String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response);
+    void oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response);
+
+    void oAuthLogin(String email, String provider, HttpServletResponse response);
 }

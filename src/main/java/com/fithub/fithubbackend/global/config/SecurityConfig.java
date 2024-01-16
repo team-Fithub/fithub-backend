@@ -1,7 +1,6 @@
 package com.fithub.fithubbackend.global.config;
 
 import com.fithub.fithubbackend.global.auth.*;
-import com.fithub.fithubbackend.global.util.CookieUtil;
 import com.fithub.fithubbackend.global.util.HeaderUtil;
 import com.fithub.fithubbackend.global.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisUtil redisUtil;
     private final HeaderUtil headerUtil;
-    private final CookieUtil cookieUtil;
 
     private final OAuthService oAuthService;
     private final OAuthSuccessHandler oAuthSuccessHandler;
