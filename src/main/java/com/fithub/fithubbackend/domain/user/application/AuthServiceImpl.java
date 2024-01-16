@@ -32,6 +32,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -175,7 +176,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response) {
+    public void oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response) {
         User user = userRepository.findByProviderId(oAuthSignUpDto.getProviderId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 회원을 찾을 수 없습니다. 소셜 회원가입을 다시 진행해주십시오."));
         user.setOAuthSignUp(oAuthSignUpDto);
         user.updateGuestToUser();
@@ -188,8 +189,21 @@ public class AuthServiceImpl implements AuthService {
         redisUtil.setData(oAuthSignUpDto.getEmail(), tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
 
         response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
+    }
 
-        return tokenInfoDto.getAccessToken();
+    @Override
+    public void oAuthLogin(String email, String provider, HttpServletResponse response) {
+        if (!userRepository.existsByEmailAndProvider(email, provider)) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "해당 provider로 가입된 이메일이 아닙니다.");
+        }
+        TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(email);
+
+        // refreshToken 쿠키에 저장
+        cookieUtil.addRefreshTokenCookie(response, tokenInfoDto);
+        // Redis에 Key(이메일):Value(refreshToken) 저장
+        redisUtil.setData(email, tokenInfoDto.getRefreshToken(), tokenInfoDto.getRefreshTokenExpirationTime());
+
+        response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
     }
 
     @Override
@@ -205,13 +219,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private void duplicateNickname(String nickname){
-        if(userRepository.findByNickname(nickname).isPresent())
+        if(userRepository.existsByNickname(nickname))
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 닉네임 입니다.");
     }
     private void duplicateEmail(String email){
-        if(userRepository.findByEmail(email).isPresent())
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (user.getProvider() != null && !user.getProvider().isEmpty()) {
+                throw new CustomException(ErrorCode.DUPLICATE, "해당 이메일은 " + user.getProvider() + " 소셜 로그인이 진행된 이메일입니다.");
+            }
             throw new CustomException(ErrorCode.DUPLICATE,"중복된 이메일 입니다.");
+        }
     }
+
     private void formValidate(BindingResult bindingResult){
         String message = String.valueOf(bindingResult.getFieldErrors().stream()
                         .findFirst().map(DefaultMessageSourceResolvable::getDefaultMessage))
