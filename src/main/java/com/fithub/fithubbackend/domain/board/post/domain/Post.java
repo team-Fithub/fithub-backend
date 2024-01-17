@@ -34,23 +34,23 @@ public class Post extends BaseTimeEntity {
 
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
+    private Set<Comment> comments = new HashSet<>();
 
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Bookmark> bookmarks = new ArrayList<>();
+    private Set<Bookmark> bookmarks = new HashSet<>();
 
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<Likes> likes = new ArrayList<>();
+    private Set<Likes> likes = new HashSet<>();
 
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<PostHashtag> postHashtags = new ArrayList<>();
+    private Set<PostHashtag> postHashtags = new HashSet<>();
 
     @BatchSize(size = 100)
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private List<PostDocument> postDocuments = new ArrayList<>();
+    private Set<PostDocument> postDocuments = new HashSet<>();
 
     public void setUser(User user) {
         this.user = user;
