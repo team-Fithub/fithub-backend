@@ -74,6 +74,22 @@ public class AvailableDate {
         }
     }
 
+    public void closeCurrentTime(LocalTime now) {
+        for (AvailableTime time : this.getAvailableTimes()) {
+            if (time.isEnabled() && time.getTime().getHour() == now.getHour()) {
+                time.closeTime();
+                return;
+            }
+        }
+    }
+
+    public boolean isAllClosed() {
+        for (AvailableTime time : this.getAvailableTimes()) {
+            if (time.isEnabled()) return false;
+        }
+        return true;
+    }
+
     public void closeDate() {
         this.enabled = false;
     }

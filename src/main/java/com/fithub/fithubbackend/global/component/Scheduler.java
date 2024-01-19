@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.global.component;
 
+import com.fithub.fithubbackend.domain.Training.domain.AvailableDate;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,12 @@ public class Scheduler {
         LocalDate date = LocalDate.now();
         LocalTime time = LocalTime.now();
         for (Training training : openTrainingList) {
+            AvailableDate today = training.getToday(date);
+            if (today != null && today.isEnabled()) {
+                today.closeCurrentTime(time);
+                if (today.isAllClosed()) today.closeDate();
+            }
+
             if (training.getEndDate().isEqual(date) && !training.getEndHour().isBefore(time)) continue;
             training.updateClosed(true);
         }
