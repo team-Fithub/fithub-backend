@@ -10,10 +10,6 @@ import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Override
-    @EntityGraph(attributePaths = {"user", "user.profileImg", "likes", "postHashtags", "postDocuments", "postHashtags.hashtag"})
-    Page<Post> findAll(Pageable pageable);
-
     @EntityGraph(attributePaths = {"user", "user.profileImg", "likes", "postHashtags", "postDocuments", "postHashtags.hashtag", "comments"})
     @Query(value = "SELECT post " +
             "FROM Post post " +
