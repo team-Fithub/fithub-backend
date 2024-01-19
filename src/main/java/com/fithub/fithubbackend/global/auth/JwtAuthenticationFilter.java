@@ -33,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String[] SHOULD_NOT_FILTER_URI_ALL_LIST = new String[]{
             "/auth/sign-in", "/auth/sign-up", "/auth/oauth/**", "exception",
-            "/admin/sign-in", "**exception**","/auth/email/**", "/auth/change/password"
+            "/admin/sign-in", "**exception**","/auth/email/**"
     };
 
     private static final String[] SHOULD_NOT_FILTER_GET_URI_LIST = new String[] {

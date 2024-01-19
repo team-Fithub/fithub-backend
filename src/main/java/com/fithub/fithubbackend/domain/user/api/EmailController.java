@@ -34,14 +34,14 @@ public class EmailController {
         return emailService.checkCertificationNumber(emailNumberDto);
     }
 
-    @Operation(summary = "비밀번호 찾기 위해 회원 가입 여부 확인 및 이메일 전송(인증번호) ", responses = {
-            @ApiResponse(responseCode = "200", description = "이메일(인증번호) 전송 완료"),
+    @Operation(summary = "임시 비밀번호 이메일 전송", responses = {
+            @ApiResponse(responseCode = "200", description = "이메일 전송 완료"),
             @ApiResponse(responseCode = "404", description = "가입되지 않는 이메일", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "소셜 로그인으로 가입된 이메일", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping("/validation/send")
-    public ResponseEntity<Void> isUserSignedUpAndSendEmail(@RequestBody EmailDto emailDto) throws MessagingException {
-        emailService.isUserSignedUpAndSendEmail(emailDto);
+    @PostMapping("/send/temporary-password")
+    public ResponseEntity<Void> sendEmailWithTemporaryPassword(@RequestBody EmailDto emailDto) throws MessagingException {
+        emailService.sendEmailWithTemporaryPassword(emailDto);
         return ResponseEntity.ok().build();
     }
 }

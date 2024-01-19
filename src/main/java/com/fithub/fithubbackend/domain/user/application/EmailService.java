@@ -8,5 +8,5 @@ import org.springframework.http.ResponseEntity;
 public interface EmailService {
     void sendEmail(EmailDto emailDto) throws MessagingException;
     ResponseEntity<String> checkCertificationNumber(EmailNumberDto emailNumberDto);
-    void isUserSignedUpAndSendEmail(EmailDto emailDto) throws MessagingException;
+    void sendEmailWithTemporaryPassword(EmailDto emailDto) throws MessagingException;
 }
