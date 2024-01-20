@@ -173,6 +173,24 @@ public class TrainingServiceImpl implements TrainingService {
         return reserveInfoPage.map(TrainersReserveInfoDto::toDto);
     }
 
+    @Override
+    @Transactional
+    // TODO: 노쇼 처리 시 예약 회원에게 알림
+    public void updateReservationStatusNoShow(String email, Long reservationId) {
+        ReserveInfo reserveInfo = reserveInfoRepository.findById(reservationId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약은 존재하지 않습니다."));
+
+        isReserveInfoStatusComplete(reserveInfo);
+        permissionValidate(reserveInfo.getTrainer(), email);
+
+        reserveInfo.updateStatus(ReserveStatus.NOSHOW);
+    }
+
+    private void isReserveInfoStatusComplete(ReserveInfo reserveInfo) {
+        if (!reserveInfo.getStatus().equals(ReserveStatus.COMPLETE)) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "해당 예약은 진행 전 / 진행 중 / 취소 상태이므로 노쇼 처리할 수 없습니다. 완료 처리된 예약만 노쇼 처리가 가능합니다.");
+        }
+    }
+
     private List<LocalDate> getAvailableDateList(LocalDate startLocalDate, LocalDate endLocalDate, List<LocalDate> unableDates) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(Date.valueOf(startLocalDate));

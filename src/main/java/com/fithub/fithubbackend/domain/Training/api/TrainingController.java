@@ -113,4 +113,11 @@ public class TrainingController {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(trainingService.getReservationList(user, pageable));
     }
+
+    @PutMapping("/reservation/status/noshow")
+    public ResponseEntity<String> updateReservationStatusNoShow(@AuthUser User user, @RequestParam Long reservationId) {
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainingService.updateReservationStatusNoShow(user.getEmail(), reservationId);
+        return ResponseEntity.ok().body("완료");
+    }
 }
