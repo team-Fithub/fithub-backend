@@ -167,7 +167,7 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional(readOnly = true)
     public Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable) {
-        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_ERROR, "해당 회원은 트레이너가 아닙니다."));
+        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 트레이너가 아닙니다."));
 
         Page<ReserveInfo> reserveInfoPage = reserveInfoRepository.findByTrainerId(trainer.getId(), pageable);
         return reserveInfoPage.map(TrainersReserveInfoDto::toDto);
