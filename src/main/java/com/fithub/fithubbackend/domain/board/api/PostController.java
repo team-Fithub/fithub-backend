@@ -1,9 +1,7 @@
 package com.fithub.fithubbackend.domain.board.api;
 
 import com.fithub.fithubbackend.domain.board.application.PostService;
-import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
-import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
-import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
+import com.fithub.fithubbackend.domain.board.dto.*;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -77,16 +75,16 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     })
     @GetMapping
-    public ResponseEntity<Page<PostInfoDto>> getPosts(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, @AuthUser User user) {
-        return ResponseEntity.ok(postService.getAllPosts(pageable, user));
+    public ResponseEntity<Page<PostOutlineDto>> getAllPosts(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(postService.getAllPosts(pageable));
     }
 
     @Operation(summary = "게시글 세부 조회", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 세부 조회 성공"),
     })
     @GetMapping("/{postId}")
-    public ResponseEntity<PostInfoDto> getPost(@PathVariable("postId") long postId, @AuthUser User user) {
-        return ResponseEntity.ok(postService.getPostDetail(postId, user));
+    public ResponseEntity<PostDetailInfoDto> getPostDetail(@PathVariable("postId") long postId) {
+        return ResponseEntity.ok(postService.getPostDetail(postId));
     }
 
 

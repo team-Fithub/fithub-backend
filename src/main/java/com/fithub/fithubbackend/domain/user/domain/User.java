@@ -152,6 +152,10 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.roles.set(this.roles.indexOf("ROLE_GUEST"), "ROLE_USER");
     }
 
+    public void updatePassword(String password) {
+        this.password =password;
+    }
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

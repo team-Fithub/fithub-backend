@@ -10,7 +10,7 @@ import java.util.*;
 
 public interface PostHashtagRepository extends JpaRepository<PostHashtag, Long> {
 
-    @Query(value = "SELECT h.content FROM PostHashtag p JOIN Hashtag h ON p.hashtag = h WHERE p.post.id = :postId order by p.id")
+    @Query(value = "SELECT h.content FROM PostHashtag p JOIN FETCH Hashtag h ON p.hashtag = h WHERE p.post.id = :postId order by p.id")
     List<String> findHashtagByPostId(@Param("postId") Long postId);
 
     @Query(value = "SELECT ph FROM PostHashtag ph LEFT JOIN FETCH ph.hashtag WHERE ph.post.id = :postId")

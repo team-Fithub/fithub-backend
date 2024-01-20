@@ -206,6 +206,17 @@ public class AuthServiceImpl implements AuthService {
         response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
     }
 
+    @Override
+    @Transactional
+    public void updatePassword(PasswordUpdateDto passwordUpdateDto) {
+        User user = userRepository.findByEmail(passwordUpdateDto.getEmail()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
+
+        if (passwordEncoder.matches(passwordUpdateDto.getPassword(), user.getPassword()))
+            throw new CustomException(ErrorCode.BAD_REQUEST, "기존 비밀번호와 동일하므로 다른 비밀번호로 변경 필요");
+
+        user.updatePassword(passwordEncoder.encode(passwordUpdateDto.getPassword()));
+
+    }
 
     private void duplicateNickname(String nickname){
         if(userRepository.existsByNickname(nickname))
