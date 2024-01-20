@@ -63,7 +63,7 @@ public class Scheduler {
         }
 
         LocalDateTime timeToChangeComplete = reserveTime.minusHours(1);
-        List<ReserveInfo> reserveInfoListToChangeComplete = reserveInfoRepository.findByReserveDateTimeAndStatus(timeToChangeComplete, ReserveStatus.BEFORE);
+        List<ReserveInfo> reserveInfoListToChangeComplete = reserveInfoRepository.findByReserveDateTimeAndStatus(timeToChangeComplete, ReserveStatus.START);
         for (ReserveInfo reserveInfo : reserveInfoListToChangeComplete) {
             reserveInfo.updateStatus(ReserveStatus.COMPLETE);
         }
