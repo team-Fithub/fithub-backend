@@ -63,7 +63,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private String bio;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, optional = false)
     @JoinColumn(name = "document_id")
     private Document profileImg;
 
