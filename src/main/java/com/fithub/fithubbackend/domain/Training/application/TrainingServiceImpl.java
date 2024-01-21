@@ -167,10 +167,28 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional(readOnly = true)
     public Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable) {
-        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_ERROR, "해당 회원은 트레이너가 아닙니다."));
+        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 트레이너가 아닙니다."));
 
         Page<ReserveInfo> reserveInfoPage = reserveInfoRepository.findByTrainerId(trainer.getId(), pageable);
         return reserveInfoPage.map(TrainersReserveInfoDto::toDto);
+    }
+
+    @Override
+    @Transactional
+    // TODO: 노쇼 처리 시 예약 회원에게 알림
+    public void updateReservationStatusNoShow(String email, Long reservationId) {
+        ReserveInfo reserveInfo = reserveInfoRepository.findById(reservationId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약은 존재하지 않습니다."));
+
+        isReserveInfoStatusComplete(reserveInfo);
+        permissionValidate(reserveInfo.getTrainer(), email);
+
+        reserveInfo.updateStatus(ReserveStatus.NOSHOW);
+    }
+
+    private void isReserveInfoStatusComplete(ReserveInfo reserveInfo) {
+        if (!reserveInfo.getStatus().equals(ReserveStatus.COMPLETE)) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "해당 예약은 진행 전 / 진행 중 / 취소 상태이므로 노쇼 처리할 수 없습니다. 완료 처리된 예약만 노쇼 처리가 가능합니다.");
+        }
     }
 
     private List<LocalDate> getAvailableDateList(LocalDate startLocalDate, LocalDate endLocalDate, List<LocalDate> unableDates) {
