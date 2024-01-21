@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -132,6 +133,43 @@ public class PostServiceImpl implements PostService {
         return postDetailInfoDto;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId) {
+        Post post = postRepository.findPostWithHashtags(postId);
+        return checkLikeAndBookmarkStatus(user, post);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(Pageable pageable, User user) {
+        Page<Post> posts = postRepository.findAll(pageable);
+        List<LikesBookmarkStatusDto> likesBookmarkStatusDtos = new ArrayList<>();
+        posts.forEach(post -> likesBookmarkStatusDtos.add(checkLikeAndBookmarkStatus(user, post)));
+        return likesBookmarkStatusDtos;
+    }
+
+    public LikesBookmarkStatusDto checkLikeAndBookmarkStatus(User user, Post post) {
+
+        LikesBookmarkStatusDto likesBookmarkStatusDto = LikesBookmarkStatusDto.builder()
+                .postId(post.getId()).build();
+
+        if (post.getLikes() != null && !post.getLikes().isEmpty()) {
+            List<String> likedUsers = post.getLikes().stream().map(likes -> likes.getUser().getNickname()).collect(Collectors.toList());
+            if (likedUsers.contains(user.getNickname()))
+                likesBookmarkStatusDto.updateLikesStatus(true);
+        } else
+            likesBookmarkStatusDto.updateLikesStatus(false);
+
+        if (post.getBookmarks() != null && !post.getBookmarks().isEmpty()) {
+            List<String> bookmarkedUsers = post.getBookmarks().stream().map(likes -> likes.getUser().getNickname()).collect(Collectors.toList());
+            if (bookmarkedUsers.contains(user.getNickname()))
+                likesBookmarkStatusDto.updateBookmarkStatus(true);
+        } else
+            likesBookmarkStatusDto.updateBookmarkStatus(false);
+
+        return likesBookmarkStatusDto;
+    }
 
     @Transactional
     public boolean isWriter(User user, Post post) {

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import com.fithub.fithubbackend.domain.user.domain.User;
 
+import java.util.*;
 
 public interface PostService {
     void createPost(PostCreateDto postCreateDto, User user);
@@ -24,4 +25,8 @@ public interface PostService {
     Page<PostOutlineDto> getAllPosts(Pageable pageable);
 
     PostDetailInfoDto getPostDetail(long postId);
+
+    LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId);
+
+    List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(Pageable pageable, User user);
 }

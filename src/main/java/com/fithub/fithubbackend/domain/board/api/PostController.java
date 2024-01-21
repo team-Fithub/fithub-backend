@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/posts")
@@ -74,7 +76,7 @@ public class PostController {
     @Operation(summary = "게시글 전체 조회", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     })
-    @GetMapping
+    @GetMapping("/public")
     public ResponseEntity<Page<PostOutlineDto>> getAllPosts(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(postService.getAllPosts(pageable));
     }
@@ -82,9 +84,26 @@ public class PostController {
     @Operation(summary = "게시글 세부 조회", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 세부 조회 성공"),
     })
-    @GetMapping("/{postId}")
+    @GetMapping("/public/{postId}")
     public ResponseEntity<PostDetailInfoDto> getPostDetail(@PathVariable("postId") long postId) {
         return ResponseEntity.ok(postService.getPostDetail(postId));
+    }
+
+    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+    })
+    @GetMapping("/like-and-bookmark-status")
+    public ResponseEntity<List<LikesBookmarkStatusDto>> getAllPostsWithLikesAndBookmark(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                                                                                        @AuthUser User user) {
+        return ResponseEntity.ok(postService.checkPostsLikeAndBookmarkStatus(pageable, user));
+    }
+
+    @Operation(summary = "게시글 세부 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+    })
+    @GetMapping("/{postId}/like-and-bookmark-status")
+    public ResponseEntity<LikesBookmarkStatusDto> getAllPostsWithLikesAndBookmark(@AuthUser User user, @PathVariable("postId") long postId) {
+        return ResponseEntity.ok(postService.checkPostLikeAndBookmarkStatus(user, postId));
     }
 
 
