@@ -37,18 +37,22 @@ public class Post extends BaseTimeEntity {
     private Set<Comment> comments = new HashSet<>();
 
     @BatchSize(size = 100)
+    @OrderBy("id asc")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Bookmark> bookmarks = new HashSet<>();
 
     @BatchSize(size = 100)
+    @OrderBy("id asc")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Likes> likes = new HashSet<>();
 
     @BatchSize(size = 100)
+    @OrderBy("id asc")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<PostHashtag> postHashtags = new HashSet<>();
 
     @BatchSize(size = 100)
+    @OrderBy("id asc")
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<PostDocument> postDocuments = new HashSet<>();
 
