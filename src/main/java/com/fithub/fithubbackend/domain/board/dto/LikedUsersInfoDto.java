@@ -30,7 +30,7 @@ public class LikedUsersInfoDto {
     public static LikedUsersInfoDto toDo(Post post) {
         return LikedUsersInfoDto.builder()
                 .likedCount((long) post.getLikes().size())
-                .likedUsers(post.getLikes().stream().limit(3).map(LikesInfoDto::toDto).collect(Collectors.toList()))
+                .likedUsers(post.getLikes().stream().limit(4).map(LikesInfoDto::toDto).collect(Collectors.toList()))
                 .build();
     }
 
