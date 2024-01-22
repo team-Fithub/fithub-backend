@@ -136,37 +136,30 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId) {
-        Post post = postRepository.findPostWithHashtags(postId);
-        return checkLikeAndBookmarkStatus(user, post);
+        return checkLikeAndBookmarkStatus(user, postId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(Pageable pageable, User user) {
-        Page<Post> posts = postRepository.findAll(pageable);
+    public List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(List<PostOutlineDto> postOutlineDtos, User user) {
+
         List<LikesBookmarkStatusDto> likesBookmarkStatusDtos = new ArrayList<>();
-        posts.forEach(post -> likesBookmarkStatusDtos.add(checkLikeAndBookmarkStatus(user, post)));
+        for (PostOutlineDto postOutlineDto: postOutlineDtos) {
+            likesBookmarkStatusDtos.add(checkLikeAndBookmarkStatus(user, postOutlineDto.getPostInfo().getPostId()));
+        }
         return likesBookmarkStatusDtos;
     }
 
-    public LikesBookmarkStatusDto checkLikeAndBookmarkStatus(User user, Post post) {
+    public LikesBookmarkStatusDto checkLikeAndBookmarkStatus(User user, long postId) {
 
         LikesBookmarkStatusDto likesBookmarkStatusDto = LikesBookmarkStatusDto.builder()
-                .postId(post.getId()).build();
+                .postId(postId).build();
 
-        if (post.getLikes() != null && !post.getLikes().isEmpty()) {
-            List<String> likedUsers = post.getLikes().stream().map(likes -> likes.getUser().getNickname()).collect(Collectors.toList());
-            if (likedUsers.contains(user.getNickname()))
-                likesBookmarkStatusDto.updateLikesStatus(true);
-        } else
-            likesBookmarkStatusDto.updateLikesStatus(false);
+        if (bookmarkService.isBookmarked(user, postId))
+            likesBookmarkStatusDto.updateBookmarkStatus(true);
 
-        if (post.getBookmarks() != null && !post.getBookmarks().isEmpty()) {
-            List<String> bookmarkedUsers = post.getBookmarks().stream().map(likes -> likes.getUser().getNickname()).collect(Collectors.toList());
-            if (bookmarkedUsers.contains(user.getNickname()))
-                likesBookmarkStatusDto.updateBookmarkStatus(true);
-        } else
-            likesBookmarkStatusDto.updateBookmarkStatus(false);
+        if (likesService.isLiked(user, postId))
+            likesBookmarkStatusDto.updateLikesStatus(true);
 
         return likesBookmarkStatusDto;
     }

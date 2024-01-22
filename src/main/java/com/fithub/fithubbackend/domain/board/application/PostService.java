@@ -28,5 +28,5 @@ public interface PostService {
 
     LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId);
 
-    List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(Pageable pageable, User user);
+    List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(List<PostOutlineDto> postOutlineDtos, User user);
 }
