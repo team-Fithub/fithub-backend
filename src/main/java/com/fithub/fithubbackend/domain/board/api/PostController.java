@@ -92,9 +92,9 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     })
     @GetMapping("/like-and-bookmark-status")
-    public ResponseEntity<List<LikesBookmarkStatusDto>> getAllPostsWithLikesAndBookmark(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+    public ResponseEntity<List<LikesBookmarkStatusDto>> getAllPostsWithLikesAndBookmark(@RequestBody List<PostOutlineDto> postOutlineDtos,
                                                                                         @AuthUser User user) {
-        return ResponseEntity.ok(postService.checkPostsLikeAndBookmarkStatus(pageable, user));
+        return ResponseEntity.ok(postService.checkPostsLikeAndBookmarkStatus(postOutlineDtos, user));
     }
 
     @Operation(summary = "게시글 세부 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
