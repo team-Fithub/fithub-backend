@@ -1,9 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
-import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingLikesInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
-import com.fithub.fithubbackend.domain.Training.dto.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.*;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,4 +18,11 @@ public interface UserTrainingService {
     List<TrainingLikesInfoDto> getTrainingLikesList(User user);
 
     Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable);
+
+    List<TrainingReviewInfoDto> getAllReviews(User user);
+    TrainingReviewInfoDto getReviewForReservation(User user, Long reserveId);
+
+    Long writeReviewOnCompletedReservation(User user, TrainingReviewReqDto dto);
+    void updateReview(User user, Long reviewId, TrainingReviewReqDto dto);
+    void deleteReview(User user, Long reviewId);
 }
