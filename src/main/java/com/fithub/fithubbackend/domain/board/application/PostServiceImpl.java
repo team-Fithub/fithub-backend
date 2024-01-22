@@ -124,7 +124,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public PostDetailInfoDto getPostDetail(long postId) {
-        Post post = postRepository.findByPostIdWithFetchJoin(postId);
+        Post post = postRepository.findPostWithHashtags(postId);
         PostDetailInfoDto postDetailInfoDto = PostDetailInfoDto.toDto(post);
 
         if (post.getComments() != null && !post.getComments().isEmpty())
