@@ -82,6 +82,7 @@ public class PostController {
 
     @Operation(summary = "게시글 세부 조회", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 세부 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @GetMapping("/public/{postId}")
     public ResponseEntity<PostDetailInfoDto> getPostDetail(@PathVariable("postId") long postId) {
@@ -110,7 +111,7 @@ public class PostController {
 
     @Operation(summary = "게시글 좋아요", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 좋아요 성공"),
-            @ApiResponse(responseCode = "409", description = "이미 좋아요한 게시글"),
+            @ApiResponse(responseCode = "409", description = "이미 좋아요한 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     }, parameters = {
             @Parameter(name = "postId", description = "좋아요한 게시글 id")
     })
@@ -136,7 +137,7 @@ public class PostController {
 
     @Operation(summary = "게시글 북마크", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 북마크 성공"),
-            @ApiResponse(responseCode = "409", description = "이미 북마크한 게시글"),
+            @ApiResponse(responseCode = "409", description = "이미 북마크한 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     }, parameters = {
             @Parameter(name = "postId", description = "북마크한 게시글 id")
     })
