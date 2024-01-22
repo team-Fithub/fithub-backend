@@ -124,7 +124,11 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public PostDetailInfoDto getPostDetail(long postId) {
-        Post post = postRepository.findPostWithHashtags(postId);
+        Post post = postRepository.findByPostIdWithFetchJoin(postId);
+
+        if (post == null)
+            throw new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글");
+
         PostDetailInfoDto postDetailInfoDto = PostDetailInfoDto.toDto(post);
 
         if (post.getComments() != null && !post.getComments().isEmpty())
