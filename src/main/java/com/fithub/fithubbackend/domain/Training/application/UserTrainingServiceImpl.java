@@ -151,6 +151,7 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     }
 
     @Override
+    @Transactional
     public void deleteReview(User user, Long reviewId) {
         TrainingReview trainingReview = trainingReviewRepository.findById(reviewId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 후기가 존재하지 않습니다."));
         permissionValidate(user.getEmail(), trainingReview.getUser().getEmail());
