@@ -45,24 +45,34 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public User updateProfile(MultipartFile profileImg, ProfileDto profileDto, User user) {
-        if(profileDto != null)
-            user.updateProfile(profileDto);
+        System.out.println("UserServiceImpl.updateProfile 실행");
 
-        if(profileImg != null) {
-            awsS3Uploader.deleteS3(user.getProfileImg().getPath());
-            documentRepository.deleteById(user.getProfileImg().getId());
-            String profileImgPath = awsS3Uploader.imgPath("profiles");
-            Document document = Document.builder()
-                    .url(awsS3Uploader.putS3(profileImg,profileImgPath))
-                    .inputName(profileImg.getOriginalFilename())
-                    .path(profileImgPath)
-                    .build();
-            documentRepository.save(document);
-            user.updateProfileImg(document);
+        try {
+            if (profileDto != null) {
+                System.out.println("UserServiceImpl.updateProfile: profileDto 수정");
+                user.updateProfile(profileDto);
+            }
+
+            if (profileImg != null) {
+                System.out.println("UserServiceImpl.updateProfile: profileImg 수정");
+                awsS3Uploader.deleteS3(user.getProfileImg().getPath());
+                documentRepository.deleteById(user.getProfileImg().getId());
+                String profileImgPath = awsS3Uploader.imgPath("profiles");
+                Document document = Document.builder()
+                        .url(awsS3Uploader.putS3(profileImg, profileImgPath))
+                        .inputName(profileImg.getOriginalFilename())
+                        .path(profileImgPath)
+                        .build();
+                documentRepository.save(document);
+                user.updateProfileImg(document);
+            }
+
+            userRepository.save(user);
+            return user;
+        } catch (Exception e) {
+            // 롤백이 필요한 예외가 여기에 포함되어야 합니다.
+            throw new RuntimeException("프로필 업데이트 중 오류 발생", e);
         }
-        // TODO : 트랜잭션이 동작을 안함.. 수정예정
-        userRepository.save(user);
-        return user;
     }
 
     private void duplicateEmailOrNickname(String email, String nickname) {
