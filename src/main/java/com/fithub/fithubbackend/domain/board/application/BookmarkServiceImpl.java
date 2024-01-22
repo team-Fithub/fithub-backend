@@ -48,4 +48,11 @@ public class BookmarkServiceImpl implements BookmarkService {
     public List<Bookmark> getBookmarksByUser(User user) {
         return bookmarkRepository.findByUserOrderByCreatedDateDesc(user);
     }
+
+    @Override
+    public boolean isBookmarked(User user, Long postId) {
+        if (bookmarkRepository.existsByUserIdAndPostId(user.getId(), postId) == 1)
+            return true;
+        return false;
+    }
 }

@@ -48,4 +48,11 @@ public class LikesServiceImpl implements LikesService {
     public List<Likes> getLikesByUser(User user) {
         return likesRepository.findByUserOrderByCreatedDateDesc(user);
     }
+
+    @Override
+    public boolean isLiked(User user, Long postId) {
+        if (likesRepository.existsByUserIdAndPostId(user.getId(), postId) == 1)
+            return true;
+        return false;
+    }
 }
