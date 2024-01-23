@@ -46,6 +46,16 @@ public class UserTrainingController {
         return ResponseEntity.ok(userTrainingService.searchById(trainingId));
     }
 
+    @Operation(summary = "트레이닝 상세 조회에서 트레이닝 리뷰 리스트 조회", parameters = {
+            @Parameter(name = "trainingId", description = "조회할 트레이닝의 primary key(id)")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+    })
+    @GetMapping("/reviews")
+    public ResponseEntity<List<TrainingReviewDto>> getTrainingReviews (@RequestParam Long trainingId) {
+        return ResponseEntity.ok(userTrainingService.getTrainingReviews(trainingId));
+    }
+
     @Operation(summary = "트레이닝 찜 리스트 조회", responses = {
             @ApiResponse(responseCode = "200", description = "리스트 조회 성공"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
@@ -117,7 +127,7 @@ public class UserTrainingController {
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @GetMapping("/reservation/review/all")
-    public ResponseEntity<List<TrainingReviewInfoDto>> getAllReviews(@AuthUser User user) {
+    public ResponseEntity<List<UsersTrainingReviewDto>> getAllReviews(@AuthUser User user) {
         if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userTrainingService.getAllReviews(user));
     }
@@ -130,7 +140,7 @@ public class UserTrainingController {
             @ApiResponse(responseCode = "404", description = "해당 예약에 작성된 후기가 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @GetMapping("/reservation/review")
-    public ResponseEntity<TrainingReviewInfoDto> getReviewForReservation(@AuthUser User user, @RequestParam Long reserveId) {
+    public ResponseEntity<UsersTrainingReviewDto> getReviewForReservation(@AuthUser User user, @RequestParam Long reserveId) {
         if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userTrainingService.getReviewForReservation(user, reserveId));
     }

@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
 import lombok.*;
 
@@ -9,18 +10,23 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class TrainingReviewInfoDto {
+public class UsersTrainingReviewDto {
     private Long reviewId;
     private Long trainingId;
     private String trainingTitle;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reserveDateTime;
     private String content;
     private int star;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime createdDate;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime modifiedDate;
 
-    public static TrainingReviewInfoDto toDto(TrainingReview review) {
-        return TrainingReviewInfoDto.builder()
+    public static UsersTrainingReviewDto toDto(TrainingReview review) {
+        return UsersTrainingReviewDto.builder()
                 .reviewId(review.getId())
                 .trainingId(review.getTraining().getId())
                 .trainingTitle(review.getTraining().getTitle())

@@ -54,6 +54,12 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     }
 
     @Override
+    public List<TrainingReviewDto> getTrainingReviews(Long id) {
+        List<TrainingReview> trainingReviewList = trainingReviewRepository.findByTrainingId(id);
+        return trainingReviewList.stream().map(TrainingReviewDto::toDto).toList();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public boolean isLikesTraining(Long trainingId, User user) {
         if (!trainingRepository.existsById(trainingId)) {
@@ -108,16 +114,16 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     }
 
     @Override
-    public List<TrainingReviewInfoDto> getAllReviews(User user) {
+    public List<UsersTrainingReviewDto> getAllReviews(User user) {
         List<TrainingReview> trainingReviewList = trainingReviewRepository.findByUserIdOrderByIdDesc(user.getId());
-        return trainingReviewList.stream().map(TrainingReviewInfoDto::toDto).toList();
+        return trainingReviewList.stream().map(UsersTrainingReviewDto::toDto).toList();
     }
 
     @Override
-    public TrainingReviewInfoDto getReviewForReservation(User user, Long reserveId) {
+    public UsersTrainingReviewDto getReviewForReservation(User user, Long reserveId) {
         TrainingReview trainingReview = trainingReviewRepository.findByReserveInfoId(reserveId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약에 후기가 존재하지 않습니다."));
         permissionValidate(user.getEmail(), trainingReview.getUser().getEmail());
-        return TrainingReviewInfoDto.toDto(trainingReview);
+        return UsersTrainingReviewDto.toDto(trainingReview);
     }
 
     @Override

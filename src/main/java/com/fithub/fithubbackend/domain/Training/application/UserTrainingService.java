@@ -10,6 +10,7 @@ import java.util.List;
 public interface UserTrainingService {
     Page<TrainingOutlineDto> searchAll(Pageable pageable);
     TrainingInfoDto searchById(Long id);
+    List<TrainingReviewDto> getTrainingReviews(Long id);
 
     boolean isLikesTraining(Long trainingId, User user);
     void likesTraining(Long trainingId, User user);
@@ -19,8 +20,8 @@ public interface UserTrainingService {
 
     Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable);
 
-    List<TrainingReviewInfoDto> getAllReviews(User user);
-    TrainingReviewInfoDto getReviewForReservation(User user, Long reserveId);
+    List<UsersTrainingReviewDto> getAllReviews(User user);
+    UsersTrainingReviewDto getReviewForReservation(User user, Long reserveId);
 
     Long writeReviewOnCompletedReservation(User user, TrainingReviewReqDto dto);
     void updateReview(User user, Long reviewId, TrainingReviewReqDto dto);
