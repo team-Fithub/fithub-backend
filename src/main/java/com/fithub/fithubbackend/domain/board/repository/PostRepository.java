@@ -9,10 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
-
-    @EntityGraph(attributePaths = {"user", "user.profileImg", "likes", "postHashtags", "postDocuments", "postHashtags.hashtag", "comments"})
     @Query(value = "SELECT post " +
             "FROM Post post " +
+            "JOIN FETCH post.user user " +
+            "JOIN FETCH user.profileImg profileImg " +
+            "JOIN FETCH post.postDocuments postDocuments " +
             "WHERE post.id = :postId")
-    Post findPostWithHashtags(@Param("postId") long postId);
+    Post findByPostIdWithFetchJoin(@Param("postId") long postId);
+
 }

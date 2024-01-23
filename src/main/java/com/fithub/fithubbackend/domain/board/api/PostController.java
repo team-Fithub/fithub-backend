@@ -20,8 +20,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class PostController {
             @ApiResponse(responseCode = "409", description = "이미지가 아닌 파일 업로드 또는 이미지 확장자 검사 실패", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> createPost(@Valid PostCreateDto postCreateDto, BindingResult bindingResult, @AuthUser User user) {
+    public ResponseEntity<Void> createPost(@Valid PostCreateDto postCreateDto, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
 
         postService.createPost(postCreateDto, user);
@@ -74,23 +75,47 @@ public class PostController {
     @Operation(summary = "게시글 전체 조회", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     })
-    @GetMapping
+    @GetMapping("/public")
     public ResponseEntity<Page<PostOutlineDto>> getAllPosts(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(postService.getAllPosts(pageable));
     }
 
     @Operation(summary = "게시글 세부 조회", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 세부 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
-    @GetMapping("/{postId}")
+    @GetMapping("/public/{postId}")
     public ResponseEntity<PostDetailInfoDto> getPostDetail(@PathVariable("postId") long postId) {
         return ResponseEntity.ok(postService.getPostDetail(postId));
+    }
+
+    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+    }, parameters = {
+            @Parameter(name = "postOutlineDtos", description = "게시글 전체 조회하여 받은 response body의 content")
+    })
+    @GetMapping("/like-and-bookmark-status")
+    public ResponseEntity<List<LikesBookmarkStatusDto>> getAllPostsWithLikesAndBookmark(@RequestBody List<PostOutlineDto> postOutlineDtos,
+                                                                                        @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(postService.checkPostsLikeAndBookmarkStatus(postOutlineDtos, user));
+    }
+
+    @Operation(summary = "게시글 세부 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @GetMapping("/{postId}/like-and-bookmark-status")
+    public ResponseEntity<LikesBookmarkStatusDto> getAllPostsWithLikesAndBookmark(@AuthUser User user, @PathVariable("postId") long postId) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(postService.checkPostLikeAndBookmarkStatus(user, postId));
     }
 
 
     @Operation(summary = "게시글 좋아요", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 좋아요 성공"),
-            @ApiResponse(responseCode = "409", description = "이미 좋아요한 게시글"),
+            @ApiResponse(responseCode = "409", description = "이미 좋아요한 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     }, parameters = {
             @Parameter(name = "postId", description = "좋아요한 게시글 id")
     })
@@ -103,6 +128,7 @@ public class PostController {
 
     @Operation(summary = "게시글 좋아요 취소", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 좋아요 취소 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     }, parameters = {
             @Parameter(name = "postId", description = "좋아요 취소할 게시글 id")
     })
@@ -116,7 +142,8 @@ public class PostController {
 
     @Operation(summary = "게시글 북마크", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 북마크 성공"),
-            @ApiResponse(responseCode = "409", description = "이미 북마크한 게시글"),
+            @ApiResponse(responseCode = "409", description = "이미 북마크한 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     }, parameters = {
             @Parameter(name = "postId", description = "북마크한 게시글 id")
     })
@@ -129,6 +156,7 @@ public class PostController {
 
     @Operation(summary = "게시글 북마크 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 북마크 삭제 성공"),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     }, parameters = {
             @Parameter(name = "postId", description = "북마크 삭제할 게시글 id")
     })

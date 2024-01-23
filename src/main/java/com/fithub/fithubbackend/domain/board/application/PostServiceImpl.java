@@ -14,8 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -123,7 +124,11 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public PostDetailInfoDto getPostDetail(long postId) {
-        Post post = postRepository.findPostWithHashtags(postId);
+        Post post = postRepository.findByPostIdWithFetchJoin(postId);
+
+        if (post == null)
+            throw new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글");
+
         PostDetailInfoDto postDetailInfoDto = PostDetailInfoDto.toDto(post);
 
         if (post.getComments() != null && !post.getComments().isEmpty())
@@ -132,6 +137,37 @@ public class PostServiceImpl implements PostService {
         return postDetailInfoDto;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId) {
+        Post post = getPost(postId);
+        return checkLikeAndBookmarkStatus(user, post.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(List<PostOutlineDto> postOutlineDtos, User user) {
+
+        List<LikesBookmarkStatusDto> likesBookmarkStatusDtos = new ArrayList<>();
+        for (PostOutlineDto postOutlineDto: postOutlineDtos) {
+            likesBookmarkStatusDtos.add(checkLikeAndBookmarkStatus(user, postOutlineDto.getPostInfo().getPostId()));
+        }
+        return likesBookmarkStatusDtos;
+    }
+
+    public LikesBookmarkStatusDto checkLikeAndBookmarkStatus(User user, long postId) {
+
+        LikesBookmarkStatusDto likesBookmarkStatusDto = LikesBookmarkStatusDto.builder()
+                .postId(postId).build();
+
+        if (bookmarkService.isBookmarked(user, postId))
+            likesBookmarkStatusDto.updateBookmarkStatus(true);
+
+        if (likesService.isLiked(user, postId))
+            likesBookmarkStatusDto.updateLikesStatus(true);
+
+        return likesBookmarkStatusDto;
+    }
 
     @Transactional
     public boolean isWriter(User user, Post post) {

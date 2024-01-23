@@ -14,4 +14,6 @@ public interface LikesService {
     List<Likes> getLikesByPost(Post post);
 
     List<Likes> getLikesByUser(User user);
+
+    boolean isLiked(User user, Long postId);
 }
