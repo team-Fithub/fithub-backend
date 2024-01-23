@@ -142,7 +142,7 @@ public class User extends BaseTimeEntity implements UserDetails {
         if(dto.getNickname() != null) this.nickname = dto.getNickname();
         if(dto.getEmail() != null) this.email = dto.getEmail();
         if(dto.getPhone() != null) this.phone = dto.getPhone();
-        if(dto.getBio() != null) this.nickname = dto.getBio();
+        if(dto.getBio() != null) this.bio = dto.getBio();
     }
     public void updateProfileImg(Document profileImg) {
         this.profileImg = profileImg;

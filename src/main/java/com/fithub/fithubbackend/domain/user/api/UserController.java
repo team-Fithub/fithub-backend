@@ -54,7 +54,7 @@ public class UserController {
 //    }
 
     @Operation(summary = "프로필 수정 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
-            @ApiResponse(responseCode = "200", description = "회원 생성"),
+            @ApiResponse(responseCode = "200", description = "프로필 업데이트"),
             @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
