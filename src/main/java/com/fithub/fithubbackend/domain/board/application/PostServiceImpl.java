@@ -140,7 +140,8 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional(readOnly = true)
     public LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId) {
-        return checkLikeAndBookmarkStatus(user, postId);
+        Post post = getPost(postId);
+        return checkLikeAndBookmarkStatus(user, post.getId());
     }
 
     @Override
