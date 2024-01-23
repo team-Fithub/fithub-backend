@@ -79,22 +79,4 @@ public class PostDocumentServiceImpl implements PostDocumentService {
         );
 
     }
-
-//    @Override
-//    @Transactional
-//    public void isValidDocument(List<MultipartFile> images) {
-//
-//        for (MultipartFile image : images) {
-//            try (InputStream inputStream = image.getInputStream()) {
-//                boolean isValid = FileUtils.validImageFile(inputStream);
-//
-//                if (!isValid) {
-//                    throw new CustomException(ErrorCode.INVALID_IMAGE, "이미지 파일이 아닌 파일");
-//                }
-//            } catch (IOException e) {
-//                throw new CustomException(ErrorCode.INVALID_IMAGE, "이미지 확장자 검사 실패");
-//            }
-//        }
-//    }
-
 }

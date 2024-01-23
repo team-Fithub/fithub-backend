@@ -1,8 +1,6 @@
 package com.fithub.fithubbackend.domain.board.application;
 
-import com.fithub.fithubbackend.domain.board.dto.PostCreateDto;
-import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
-import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
+import com.fithub.fithubbackend.domain.board.dto.*;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.repository.PostRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -116,61 +115,58 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostInfoDto> getAllPosts(Pageable pageable, User user) {
-
+    public Page<PostOutlineDto> getAllPosts(Pageable pageable) {
         Page<Post> posts = postRepository.findAll(pageable);
-        Page<PostInfoDto> postInfoDtos = posts.map(PostInfoDto::fromEntity);
-
-        if (user != null) {
-
-            postInfoDtos.forEach(postInfoDto -> {
-                if (!postInfoDto.getPostLikedUser().isEmpty() && postInfoDto.getPostLikedUser() != null ) {
-                    List<String> likedUsers = postInfoDto.getPostLikedUser().stream().map(likesInfoDto -> likesInfoDto.getLikedUser()).collect(Collectors.toList());
-                    if (likedUsers.contains(user.getNickname()))
-                        postInfoDto.checkLikes(true);
-                }
-            });
-
-            postInfoDtos.forEach(postInfoDto -> {
-                if (!postInfoDto.getPostBookmarkedUser().isEmpty() && postInfoDto.getPostBookmarkedUser() != null ) {
-                    List<String> bookmarkedUsers = postInfoDto.getPostBookmarkedUser().stream().map(bookmark -> bookmark.getUser().getNickname()).collect(Collectors.toList());
-                    if (bookmarkedUsers.contains(user.getNickname()))
-                        postInfoDto.checkBookmark(true);
-                }
-
-            });
-
-        }
-        return postInfoDtos;
+        Page<PostOutlineDto> postOutlineDtos = posts.map(PostOutlineDto::toDto);
+        return postOutlineDtos;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public PostInfoDto getPostDetail(long postId, User user) {
+    public PostDetailInfoDto getPostDetail(long postId) {
+        Post post = postRepository.findByPostIdWithFetchJoin(postId);
 
-        Post post = getPost(postId);
+        if (post == null)
+            throw new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글");
 
-        PostInfoDto postInfoDto = PostInfoDto.fromEntity(post);
-
-        if (user != null) {
-            if(post.getLikes() != null && !post.getLikes().isEmpty()) {
-                List<String> likedUsers = postInfoDto.getPostLikedUser().stream().map(likesInfoDto -> likesInfoDto.getLikedUser()).collect(Collectors.toList());
-                if (likedUsers.contains(user.getNickname()))
-                    postInfoDto.checkLikes(true);
-            }
-
-            if (!post.getBookmarks().isEmpty() && post.getBookmarks() != null ) {
-                List<String> bookmarkedUsers = postInfoDto.getPostBookmarkedUser().stream().map(bookmark -> bookmark.getUser().getNickname()).collect(Collectors.toList());
-                if (bookmarkedUsers.contains(user.getNickname()))
-                    postInfoDto.checkBookmark(true);
-            }
-        }
+        PostDetailInfoDto postDetailInfoDto = PostDetailInfoDto.toDto(post);
 
         if (post.getComments() != null && !post.getComments().isEmpty())
-//            postInfoDto.setComment(commentService.getComments(post));
-            postInfoDto.setComment(commentService.getCommentsVer2(post));
+            postDetailInfoDto.setComment(commentService.getCommentsVer2(post));
 
-        return postInfoDto;
+        return postDetailInfoDto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId) {
+        Post post = getPost(postId);
+        return checkLikeAndBookmarkStatus(user, post.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(List<PostOutlineDto> postOutlineDtos, User user) {
+
+        List<LikesBookmarkStatusDto> likesBookmarkStatusDtos = new ArrayList<>();
+        for (PostOutlineDto postOutlineDto: postOutlineDtos) {
+            likesBookmarkStatusDtos.add(checkLikeAndBookmarkStatus(user, postOutlineDto.getPostInfo().getPostId()));
+        }
+        return likesBookmarkStatusDtos;
+    }
+
+    public LikesBookmarkStatusDto checkLikeAndBookmarkStatus(User user, long postId) {
+
+        LikesBookmarkStatusDto likesBookmarkStatusDto = LikesBookmarkStatusDto.builder()
+                .postId(postId).build();
+
+        if (bookmarkService.isBookmarked(user, postId))
+            likesBookmarkStatusDto.updateBookmarkStatus(true);
+
+        if (likesService.isLiked(user, postId))
+            likesBookmarkStatusDto.updateLikesStatus(true);
+
+        return likesBookmarkStatusDto;
     }
 
     @Transactional

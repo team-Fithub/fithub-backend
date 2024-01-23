@@ -13,8 +13,12 @@ import java.time.LocalDateTime;
 @Builder
 @Schema(description = "회원의 트레이닝 예약 정보 확인")
 public class UsersReserveInfoDto {
+
+    @Schema(description = "트레이닝 예약 id")
+    private Long reservationId;
+
     @Schema(description = "트레이닝 id")
-    private Long id;
+    private Long trainingId;
 
     @Schema(description = "트레이닝 제목")
     private String title;
@@ -42,7 +46,8 @@ public class UsersReserveInfoDto {
     // TODO: 트레이너용 dto, 회원용 dto로 나누기 (트레이너한테는 자기 이름 필요없으니까 불필요한 trainer 조회 없이가도록)
     public static UsersReserveInfoDto toDto(ReserveInfo reserveInfo) {
         return UsersReserveInfoDto.builder()
-                .id(reserveInfo.getId())
+                .reservationId(reserveInfo.getId())
+                .trainingId(reserveInfo.getTraining().getId())
                 .title(reserveInfo.getTraining().getTitle())
                 .trainerName(reserveInfo.getTrainer().getName())
                 .trainingDateTime(reserveInfo.getReserveDateTime())

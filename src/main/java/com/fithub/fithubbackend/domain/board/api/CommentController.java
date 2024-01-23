@@ -29,7 +29,7 @@ public class CommentController {
             @ApiResponse(responseCode = "200", description = "댓글 등록 완료"),
     })
     @PostMapping
-    public ResponseEntity<Void> createComment(@Valid CommentCreateDto commentCreateDto, @AuthUser User user) {
+    public ResponseEntity<Void> createComment(@RequestBody @Valid CommentCreateDto commentCreateDto, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         commentService.createComment(commentCreateDto, user);
         return ResponseEntity.ok().build();
@@ -40,7 +40,7 @@ public class CommentController {
             @ApiResponse(responseCode = "404", description = "댓글 작성자가 아니므로 댓글 수정 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PutMapping
-    public ResponseEntity<Void> updateComment(@Valid CommentUpdateDto commentUpdateDto, @AuthUser User user) {
+    public ResponseEntity<Void> updateComment(@RequestBody @Valid CommentUpdateDto commentUpdateDto, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         commentService.updateComment(commentUpdateDto, user);
         return ResponseEntity.ok().build();

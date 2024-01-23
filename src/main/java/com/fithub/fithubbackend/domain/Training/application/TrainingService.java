@@ -15,4 +15,6 @@ public interface TrainingService {
     void openTraining(Long id, User user);
 
     Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable);
+
+    void updateReservationStatusNoShow(String email, Long reservationId);
 }

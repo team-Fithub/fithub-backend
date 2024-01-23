@@ -65,22 +65,27 @@ public class AuthServiceImpl implements AuthService {
         duplicateEmail(signUpDto.getEmail()); // 이메일 중복 확인
         duplicateNickname(signUpDto.getNickname()); // 닉네임 중복 확인
 
-        String profileImgInputName = "default";
-        String profileImgPath = "profiles/default";
-
+        Document document = null;
+        
         if(profileImg != null && !profileImg.isEmpty()){
-            profileImgPath = awsS3Uploader.imgPath("profiles");
+            String profileImgPath = awsS3Uploader.imgPath("profiles");
             profileImgUrl = awsS3Uploader.putS3(profileImg,profileImgPath);
-            profileImgInputName = profileImg.getOriginalFilename();
+            String profileImgInputName = profileImg.getOriginalFilename();
+
+            document = Document.builder()
+                    .url(profileImgUrl)
+                    .inputName(profileImgInputName)
+                    .path(profileImgPath)
+                    .build();
+
+            documentRepository.save(document);
+        }
+        else {
+            Optional<Document> defaultDocument = documentRepository.findById(1L);
+            if (defaultDocument.isPresent()) 
+                document = defaultDocument.get();
         }
 
-        Document document = Document.builder()
-                        .url(profileImgUrl)
-                        .inputName(profileImgInputName)
-                        .path(profileImgPath)
-                        .build();
-
-        documentRepository.save(document);
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword()); // 비밀번호 인코딩
 
         User user = User.builder().signUpDto(signUpDto).encodedPassword(encodedPassword).document(document).build();
@@ -206,6 +211,17 @@ public class AuthServiceImpl implements AuthService {
         response.setHeader(AUTHORIZATION_HEADER, BEARER_TYPE + tokenInfoDto.getAccessToken());
     }
 
+    @Override
+    @Transactional
+    public void updatePassword(PasswordUpdateDto passwordUpdateDto) {
+        User user = userRepository.findByEmail(passwordUpdateDto.getEmail()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
+
+        if (passwordEncoder.matches(passwordUpdateDto.getPassword(), user.getPassword()))
+            throw new CustomException(ErrorCode.BAD_REQUEST, "기존 비밀번호와 동일하므로 다른 비밀번호로 변경 필요");
+
+        user.updatePassword(passwordEncoder.encode(passwordUpdateDto.getPassword()));
+
+    }
 
     private void duplicateNickname(String nickname){
         if(userRepository.existsByNickname(nickname))
