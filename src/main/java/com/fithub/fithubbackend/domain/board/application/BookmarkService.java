@@ -12,4 +12,6 @@ public interface BookmarkService {
     void deleteBookmark(User user, Post post);
 
     List<Bookmark> getBookmarksByUser(User user);
+
+    boolean isBookmarked(User user, Long postId);
 }

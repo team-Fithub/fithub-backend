@@ -152,4 +152,11 @@ public class Training extends BaseTimeEntity {
         }
         return true;
     }
+
+    public AvailableDate getToday(LocalDate today) {
+        for (AvailableDate date : this.getAvailableDates()) {
+            if (date.getDate().equals(today)) return date;
+        }
+        return null;
+    }
 }

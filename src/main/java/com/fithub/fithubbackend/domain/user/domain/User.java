@@ -63,7 +63,7 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     private String bio;
 
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST, optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id")
     private Document profileImg;
 
@@ -150,6 +150,10 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updateGuestToUser() {
         this.roles.set(this.roles.indexOf("ROLE_GUEST"), "ROLE_USER");
+    }
+
+    public void updatePassword(String password) {
+        this.password =password;
     }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
