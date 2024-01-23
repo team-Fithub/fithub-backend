@@ -51,7 +51,7 @@ public class LikesServiceImpl implements LikesService {
 
     @Override
     public boolean isLiked(User user, Long postId) {
-        if (likesRepository.existsByUserIdAndPostId(user.getId(), postId) == 1)
+        if (likesRepository.existsByUserAndPostId(user, postId))
             return true;
         return false;
     }

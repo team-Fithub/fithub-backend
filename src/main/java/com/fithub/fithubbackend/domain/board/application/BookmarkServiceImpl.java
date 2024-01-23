@@ -51,7 +51,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public boolean isBookmarked(User user, Long postId) {
-        if (bookmarkRepository.existsByUserIdAndPostId(user.getId(), postId) == 1)
+        if (bookmarkRepository.existsByUserAndPostId(user, postId))
             return true;
         return false;
     }

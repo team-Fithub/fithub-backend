@@ -19,9 +19,5 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
 
     List<Likes> findByPostOrderByCreatedDateAsc(Post post);
 
-    @Query(value = "SELECT EXISTS (" +
-            "SELECT *" +
-            "FROM likes l " +
-            "WHERE l.post_id = :postId AND l.user_id = :userId );", nativeQuery = true)
-    Integer existsByUserIdAndPostId(@Param("userId") long userId, @Param("postId") long postId);
+    boolean existsByUserAndPostId(User user, Long postId);
 }

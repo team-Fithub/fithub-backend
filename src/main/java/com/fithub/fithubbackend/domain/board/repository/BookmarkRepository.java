@@ -18,10 +18,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 
     List<Bookmark> findByUserOrderByCreatedDateDesc(User user);
 
-    @Query(value = "SELECT EXISTS (" +
-            "SELECT *" +
-            "FROM bookmark b " +
-            "WHERE b.post_id = :postId AND b.user_id = :userId );", nativeQuery = true)
-    Integer existsByUserIdAndPostId(@Param("userId") long userId, @Param("postId") long postId);
+    boolean existsByUserAndPostId(User user, Long postId);
 
 }
