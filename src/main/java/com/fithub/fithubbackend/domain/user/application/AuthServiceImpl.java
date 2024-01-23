@@ -65,22 +65,27 @@ public class AuthServiceImpl implements AuthService {
         duplicateEmail(signUpDto.getEmail()); // 이메일 중복 확인
         duplicateNickname(signUpDto.getNickname()); // 닉네임 중복 확인
 
-        String profileImgInputName = "default";
-        String profileImgPath = "profiles/default";
-
+        Document document = null;
+        
         if(profileImg != null && !profileImg.isEmpty()){
-            profileImgPath = awsS3Uploader.imgPath("profiles");
+            String profileImgPath = awsS3Uploader.imgPath("profiles");
             profileImgUrl = awsS3Uploader.putS3(profileImg,profileImgPath);
-            profileImgInputName = profileImg.getOriginalFilename();
+            String profileImgInputName = profileImg.getOriginalFilename();
+
+            document = Document.builder()
+                    .url(profileImgUrl)
+                    .inputName(profileImgInputName)
+                    .path(profileImgPath)
+                    .build();
+
+            documentRepository.save(document);
+        }
+        else {
+            Optional<Document> defaultDocument = documentRepository.findById(1L);
+            if (defaultDocument.isPresent()) 
+                document = defaultDocument.get();
         }
 
-        Document document = Document.builder()
-                        .url(profileImgUrl)
-                        .inputName(profileImgInputName)
-                        .path(profileImgPath)
-                        .build();
-
-        documentRepository.save(document);
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword()); // 비밀번호 인코딩
 
         User user = User.builder().signUpDto(signUpDto).encodedPassword(encodedPassword).document(document).build();
