@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Service
@@ -25,8 +23,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
     private final AwsS3Uploader awsS3Uploader;
-
-    private final RedisUtil redisUtil;
 
     @Override
     @Transactional(readOnly = true)
@@ -70,6 +66,5 @@ public class UserServiceImpl implements UserService {
             || userRepository.findByNickname(nickname).isPresent())
             throw new CustomException(ErrorCode.DUPLICATE,ErrorCode.DUPLICATE.getMessage());
     }
-
 
 }
