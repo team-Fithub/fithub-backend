@@ -18,6 +18,8 @@ import java.util.Optional;
 public class LikesServiceImpl implements LikesService {
 
     private final LikesRepository likesRepository;
+
+    // TODO 게시글 좋아요 시, 게시글 작성자에게 알림 전송
     @Override
     @Transactional
     public void addLikes(User user, Post post) {
