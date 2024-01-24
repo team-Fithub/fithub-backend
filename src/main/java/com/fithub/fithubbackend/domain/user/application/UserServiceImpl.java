@@ -14,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Service
@@ -29,7 +27,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public ProfileDto myProfile(User user) {
-        user = getUser(user.getEmail());
         return ProfileDto.builder()
                 .nickname(user.getNickname())
                 .email(user.getEmail())
@@ -44,7 +41,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public User updateProfile(MultipartFile profileImg, ProfileDto profileDto, User user) {
-        user = getUser(user.getEmail());
         if(profileDto != null)
             user.updateProfile(profileDto);
 
@@ -69,11 +65,6 @@ public class UserServiceImpl implements UserService {
         if(userRepository.findByEmail(email).isPresent()
             || userRepository.findByNickname(nickname).isPresent())
             throw new CustomException(ErrorCode.DUPLICATE,ErrorCode.DUPLICATE.getMessage());
-    }
-
-    @Transactional(readOnly = true)
-    public User getUser(String email) {
-        return userRepository.findByEmailFetch(email).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
     }
 
 }
