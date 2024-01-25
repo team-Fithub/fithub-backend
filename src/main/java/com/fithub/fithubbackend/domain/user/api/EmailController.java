@@ -39,7 +39,7 @@ public class EmailController {
             @ApiResponse(responseCode = "404", description = "가입되지 않는 이메일", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "소셜 로그인으로 가입된 이메일", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @PostMapping("/send/temporary-password")
+    @PatchMapping("/send/temporary-password")
     public ResponseEntity<Void> sendEmailWithTemporaryPassword(@RequestBody EmailDto emailDto) throws MessagingException {
         emailService.sendEmailWithTemporaryPassword(emailDto);
         return ResponseEntity.ok().build();
