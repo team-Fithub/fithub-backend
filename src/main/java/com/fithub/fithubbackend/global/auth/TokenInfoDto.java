@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.global.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +12,9 @@ public class TokenInfoDto {
 
     private String grantType;
     private String accessToken;
+    @JsonIgnore
     private String refreshToken;
+    @JsonIgnore
     private Long refreshTokenExpirationTime;
 
     @Builder

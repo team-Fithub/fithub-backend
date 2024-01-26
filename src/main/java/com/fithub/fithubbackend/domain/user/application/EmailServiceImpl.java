@@ -77,7 +77,7 @@ public class EmailServiceImpl implements EmailService {
     @Transactional
     public void sendEmailWithTemporaryPassword(EmailDto emailDto) throws MessagingException {
         User user = userRepository.findByEmail(emailDto.getTo()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 회원"));
-        if (! user.getProvider().isEmpty() && user.getProvider() != null )
+        if (user.getProvider() != null && ! user.getProvider().isEmpty())
             throw new CustomException(ErrorCode.DUPLICATE, user.getProvider() + "로 가입된 이메일");
 
         boolean useLetters = true;
