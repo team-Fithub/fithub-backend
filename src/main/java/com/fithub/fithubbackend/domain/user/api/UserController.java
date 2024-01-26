@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
+import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -53,21 +54,40 @@ public class UserController {
 //        return ResponseEntity.ok(userService.updateProfile(multipartFile, profileDto, user));
 //    }
 
+//    @Operation(summary = "프로필 수정 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
+//            @ApiResponse(responseCode = "200", description = "프로필 업데이트"),
+//            @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+//            @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+//            @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+//            @ApiResponse(responseCode = "409", description = "형식 에러 (이메일 형식 , 비밀번호 형식(8자이상 특수문자 포함), 닉네임 형식(특수문자 제외 한글, 영어, 숫자), 전화번호 형식 (xxx-xxx(xxxx)-xxxx)", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+//    }, parameters = {
+//            @Parameter(name="signUpDto", description = "=application/json 타입 지정 필요"),
+//            @Parameter(name="profileImg", description = "프로필 이미지. 없을 경우 기본 이미지로 저장됨")
+//    })
+//    @PutMapping(value = "/profile/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<User> updateProfile(@RequestPart(value = "profileDto") @Valid ProfileDto profileDto,
+//                                                    @RequestPart(value ="profileImg", required = false) MultipartFile profileImg,
+//                                                    @AuthUser User user) throws IOException {
+//        return ResponseEntity.ok(userService.updateProfile(profileImg, profileDto, user));
+//    }
+
     @Operation(summary = "프로필 수정 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
             @ApiResponse(responseCode = "200", description = "프로필 업데이트"),
-            @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "409", description = "아이디 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "409", description = "형식 에러 (이메일 형식 , 비밀번호 형식(8자이상 특수문자 포함), 닉네임 형식(특수문자 제외 한글, 영어, 숫자), 전화번호 형식 (xxx-xxx(xxxx)-xxxx)", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+            @ApiResponse(responseCode = "409", description = "중복 또는 형식 에러", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     }, parameters = {
-            @Parameter(name="signUpDto", description = "=application/json 타입 지정 필요"),
-            @Parameter(name="profileImg", description = "프로필 이미지. 없을 경우 기본 이미지로 저장됨")
+            @Parameter(name="nickname", description = "닉네임"),
+            @Parameter(name="gender", description = "성별"),
+            @Parameter(name="phone", description = "전화번호"),
+            @Parameter(name="profileImg", description = "프로필 이미지")
     })
     @PutMapping(value = "/profile/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> updateProfile(@RequestPart(value = "profileDto") @Valid ProfileDto profileDto,
-                                                    @RequestPart(value ="profileImg", required = false) MultipartFile profileImg,
-                                                    @AuthUser User user) throws IOException {
-        return ResponseEntity.ok(userService.updateProfile(profileImg, profileDto, user));
+    public ResponseEntity<User> updateProfile(
+            @RequestParam(value = "nickname", required = false) String nickname,
+            @RequestParam(value = "gender", required = false) Gender gender,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestPart(value ="profileImg", required = false) MultipartFile profileImg,
+            @AuthUser User user) throws IOException {
+        return ResponseEntity.ok(userService.updateProfile(nickname, gender, phone, profileImg, user));
     }
 
 }
