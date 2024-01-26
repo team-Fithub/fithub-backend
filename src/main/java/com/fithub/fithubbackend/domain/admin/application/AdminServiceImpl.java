@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +50,8 @@ public class AdminServiceImpl implements AdminService {
         trainer.updateCareerList(trainerCareerList);
         trainer.updateTrainerLicenseImg(trainerLicenseImgList);
 
-        TrainerCareer career = trainerCareerList.stream().filter(TrainerCareer::isWorking).findFirst().orElseGet(null);
-        if (career != null) {
-            trainer.updateLocation(career.getCompany());
-        }
+        Optional<TrainerCareer> company = trainerCareerList.stream().filter(TrainerCareer::isWorking).findFirst();
+        company.ifPresent(trainerCareer -> trainer.updateLocation(trainerCareer.getCompany()));
 
         trainer.grantPermission();
         trainerRepository.save(trainer);
