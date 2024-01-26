@@ -72,7 +72,7 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "게시글 전체 조회", responses = {
+    @Operation(summary = "게시글 전체 조회, page 사용 (size = 9, sort = \"id\", desc 적용). 페이지 이동 시 page 값만 보내주면 됨. ex) \"page\" : 0 인 경우 1 페이지", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     })
     @GetMapping("/public")
@@ -89,12 +89,10 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostDetail(postId));
     }
 
-    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
+    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver), 게시글 전체 조회하여 받은 response body의 content을 Request body로 전달", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
-    }, parameters = {
-            @Parameter(name = "postOutlineDtos", description = "게시글 전체 조회하여 받은 response body의 content")
     })
-    @GetMapping("/like-and-bookmark-status")
+    @PostMapping("/like-and-bookmark-status")
     public ResponseEntity<List<LikesBookmarkStatusDto>> getAllPostsWithLikesAndBookmark(@RequestBody List<PostOutlineDto> postOutlineDtos,
                                                                                         @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");

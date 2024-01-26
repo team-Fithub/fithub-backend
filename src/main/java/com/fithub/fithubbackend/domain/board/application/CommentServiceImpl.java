@@ -24,6 +24,7 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
 
+    // TODO 댓글 작성 시, 게시글 작성자(+부모 댓글 작성자)에게 알림 전송
     @Override
     @Transactional
     public void createComment(CommentCreateDto commentCreateDto, User user) {
