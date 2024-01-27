@@ -197,8 +197,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void oAuthLogin(String email, String provider, HttpServletResponse response) {
-        if (!userRepository.existsByEmailAndProvider(email, provider)) {
+    public void oAuthLogin(oAuthSignInDto dto, HttpServletResponse response) {
+        String email = dto.getEmail();
+        if (!userRepository.existsByEmailAndProvider(email, dto.getProvider())) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 provider로 가입된 이메일이 아닙니다.");
         }
         TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(email);

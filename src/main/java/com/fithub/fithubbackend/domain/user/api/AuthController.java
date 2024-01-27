@@ -89,13 +89,15 @@ public class AuthController {
         return ResponseEntity.ok().body("완료");
     }
 
-    @Operation(summary = "소셜 로그인 성공 시 토큰 발급을 위한 api", responses = {
+    @Operation(summary = "소셜 로그인 성공 시 토큰 발급을 위한 api", parameters = {
+            @Parameter(name = "dto", description = "소셜 로그인을 시도해서 성공 리다이렉트로 들어온 email과 provider를 담은 dto")
+    }, responses = {
             @ApiResponse(responseCode = "200", description = "accessToken 헤더 세팅됨"),
             @ApiResponse(responseCode = "400", description = "이메일과 provider를 검사한 결과 해당 provider로 가입된 이에일이 아님")
     })
-    @GetMapping("/oauth/login")
-    public ResponseEntity<String> oAuthLogin(@RequestParam String email, @RequestParam String provider, HttpServletResponse response) {
-        authService.oAuthLogin(email, provider, response);
+    @PostMapping("/oauth/login")
+    public ResponseEntity<String> oAuthLogin(@RequestBody oAuthSignInDto dto, HttpServletResponse response) {
+        authService.oAuthLogin(dto, response);
         return ResponseEntity.ok().body("완료");
     }
 
