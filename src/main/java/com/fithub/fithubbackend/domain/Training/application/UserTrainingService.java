@@ -18,6 +18,8 @@ public interface UserTrainingService {
 
     List<TrainingLikesInfoDto> getTrainingLikesList(User user);
 
+    Page<TrainingOutlineDto> searchTrainingByConditions(TrainingSearchConditionDto conditions, Pageable pageable);
+
     Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable);
 
     List<UsersTrainingReviewDto> getAllReviews(User user);

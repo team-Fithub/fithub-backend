@@ -41,7 +41,7 @@ public class SecurityConfig {
     private final OAuthFailureHandler oAuthFailureHandler;
 
     private static final String[] PERMIT_ALL_PATTERNS = new String[] {
-            "/", "/auth/**", "/oauth2/**"
+            "/", "/auth/**", "/oauth2/**", "/users/training/search"
     };
 
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
