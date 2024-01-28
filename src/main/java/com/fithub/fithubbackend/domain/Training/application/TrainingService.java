@@ -1,20 +1,19 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
-import com.fithub.fithubbackend.domain.Training.dto.TrainersReserveInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
-import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingReviewDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingSearchConditionDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface TrainingService {
-    Long createTraining(TrainingCreateDto dto, User user);
-    Long updateTraining(TrainingCreateDto dto, Long trainingId, String email);
-    void deleteTraining(Long id, String email);
+    Page<TrainingOutlineDto> searchAll(Pageable pageable);
+    TrainingInfoDto searchById(Long id);
+    List<TrainingReviewDto> getTrainingReviews(Long id);
 
-    void closeTraining(Long id, User user);
-    void openTraining(Long id, User user);
+    Page<TrainingOutlineDto> searchTrainingByConditions(TrainingSearchConditionDto conditions, Pageable pageable);
 
-    Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable);
-
-    void updateReservationStatusNoShow(String email, Long reservationId);
 }
