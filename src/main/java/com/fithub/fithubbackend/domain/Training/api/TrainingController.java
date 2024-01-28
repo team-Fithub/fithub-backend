@@ -3,7 +3,7 @@ package com.fithub.fithubbackend.domain.Training.api;
 import com.fithub.fithubbackend.domain.Training.application.TrainingService;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingReviewDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingSearchConditionDto;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;

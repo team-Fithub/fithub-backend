@@ -1,7 +1,9 @@
 package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.UserTrainingReservationService;
-import com.fithub.fithubbackend.domain.Training.dto.*;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;

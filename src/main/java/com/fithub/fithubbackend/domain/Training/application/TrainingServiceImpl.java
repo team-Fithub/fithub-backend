@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.Training.application;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
 import com.fithub.fithubbackend.domain.Training.dto.*;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.repository.*;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;

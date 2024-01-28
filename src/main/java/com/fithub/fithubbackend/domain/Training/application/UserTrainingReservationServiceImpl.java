@@ -2,9 +2,9 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingReviewReqDto;
-import com.fithub.fithubbackend.domain.Training.dto.UsersReserveInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.UsersTrainingReviewDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;

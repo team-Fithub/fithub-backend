@@ -2,7 +2,7 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingReviewDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingSearchConditionDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

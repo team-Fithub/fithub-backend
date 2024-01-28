@@ -1,10 +1,10 @@
 package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.PaymentService;
-import com.fithub.fithubbackend.domain.Training.dto.CancelReqDto;
-import com.fithub.fithubbackend.domain.Training.dto.PaymentReqDto;
-import com.fithub.fithubbackend.domain.Training.dto.PaymentResDto;
-import com.fithub.fithubbackend.domain.Training.dto.ReserveReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.CancelReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentResDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.ReserveReqDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;

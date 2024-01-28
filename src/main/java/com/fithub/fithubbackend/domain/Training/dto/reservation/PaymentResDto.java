@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.Training.dto;
+package com.fithub.fithubbackend.domain.Training.dto.reservation;
 
 import lombok.Builder;
 

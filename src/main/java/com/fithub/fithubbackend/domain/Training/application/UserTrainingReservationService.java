@@ -1,6 +1,8 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
-import com.fithub.fithubbackend.domain.Training.dto.*;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
