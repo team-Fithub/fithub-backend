@@ -108,6 +108,18 @@ public class UserTrainingController {
         return ResponseEntity.ok().body("완료");
     }
 
+    @Operation(summary = "트레이닝 검색 (필터 포함)", parameters = {
+            @Parameter(name = "conditions", description = "검색 조건들 (제목 키워드, 최저/최고가, 시작/마감일"),
+            @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id desc(생성 순), title, startDate, endDate, price 지정 가능")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+    })
+    @PostMapping("/search")
+    public ResponseEntity<Page<TrainingOutlineDto>> searchTrainingByConditions(@RequestBody TrainingSearchConditionDto conditions
+            , @PageableDefault(size = 9, sort = "id",  direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(userTrainingService.searchTrainingByConditions(conditions, pageable));
+    }
+
     @Operation(summary = "회원의 트레이닝 예약 리스트", parameters = {
             @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id desc(생성 순), 예약된 트레이닝 날짜 순은 reserveDateTime으로 주면 됨)")
     }, responses = {

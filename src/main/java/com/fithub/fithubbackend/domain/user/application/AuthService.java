@@ -21,7 +21,7 @@ public interface AuthService {
 
     void oAuthSignUp(OAuthSignUpDto oAuthSignUpDto, HttpServletResponse response);
 
-    void oAuthLogin(String email, String provider, HttpServletResponse response);
+    void oAuthLogin(oAuthSignInDto dto, HttpServletResponse response);
 
     void updatePassword(PasswordUpdateDto passwordDto);
 

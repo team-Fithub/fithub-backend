@@ -6,10 +6,7 @@ import com.fithub.fithubbackend.domain.Training.domain.TrainingLikes;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
 import com.fithub.fithubbackend.domain.Training.dto.*;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
-import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
+import com.fithub.fithubbackend.domain.Training.repository.*;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -29,6 +26,8 @@ public class UserTrainingServiceImpl implements UserTrainingService {
     private final TrainingLikesRepository trainingLikesRepository;
     private final ReserveInfoRepository reserveInfoRepository;
     private final TrainingReviewRepository trainingReviewRepository;
+
+    private final CustomTrainingRepository customTrainingRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -105,6 +104,12 @@ public class UserTrainingServiceImpl implements UserTrainingService {
                 .id(t.getId())
                 .trainingOutlineDto(TrainingOutlineDto.toDto(t.getTraining()))
                 .build()).toList();
+    }
+
+    @Override
+    public Page<TrainingOutlineDto> searchTrainingByConditions(TrainingSearchConditionDto conditions, Pageable pageable) {
+        Page<Training> trainingList = customTrainingRepository.searchByConditions(conditions, pageable);
+        return trainingList.map(TrainingOutlineDto::toDto);
     }
 
     @Override
