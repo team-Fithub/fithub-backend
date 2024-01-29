@@ -25,8 +25,9 @@ public class OpenApiConfig {
         Components components = new Components()
                 .addSecuritySchemes(jwtName, new SecurityScheme()
                         .name(jwtName)
-                        .type(SecurityScheme.Type.APIKEY)
-                        .in(SecurityScheme.In.HEADER));
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT"));
 
         return new OpenAPI()
                 .addServersItem(new Server().url("/"))
