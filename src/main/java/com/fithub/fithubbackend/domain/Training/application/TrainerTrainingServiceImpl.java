@@ -133,14 +133,12 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         permissionValidate(training.getTrainer(), email);
 
         if (reserveInfoRepository.existsByTrainingIdAndStatusNotIn(id,
-                new ReserveStatus[]{ReserveStatus.CANCEL, ReserveStatus.NOSHOW, ReserveStatus.COMPLETE})) {
+                List.of(ReserveStatus.CANCEL, ReserveStatus.NOSHOW, ReserveStatus.COMPLETE))) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 트레이닝에 완료 또는 취소되지 않은 예약이 존재해 삭제 작업이 불가능합니다.");
         }
 
         List<TrainingLikes> trainingLikesList = trainingLikesRepository.findByTrainingId(id);
-        for (TrainingLikes trainingLikes : trainingLikesList) {
-            trainingLikesRepository.delete(trainingLikes);
-        }
+        trainingLikesRepository.deleteAll(trainingLikesList);
 
         training.updateDeleted(true);
     }
