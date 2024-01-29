@@ -27,7 +27,7 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional(readOnly = true)
     public Page<TrainingOutlineDto> searchAll(Pageable pageable) {
-        Page<Training> trainingPage = trainingRepository.findAllByDeletedFalse(pageable);
+        Page<Training> trainingPage = trainingRepository.findAllByDeletedFalseAndClosedFalse(pageable);
         return trainingPage.map(TrainingOutlineDto::toDto);
     }
 
