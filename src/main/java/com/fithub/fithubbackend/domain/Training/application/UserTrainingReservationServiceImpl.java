@@ -2,8 +2,9 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
-import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveCancelInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
@@ -28,8 +29,16 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
 
     @Override
     public Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable) {
-        Page<ReserveInfo> page = reserveInfoRepository.findByUserId(user.getId(), pageable);
+        Page<ReserveInfo> page = reserveInfoRepository.findByUserIdAndStatusIn(user.getId(),
+                List.of(ReserveStatus.BEFORE, ReserveStatus.START, ReserveStatus.COMPLETE),pageable);
         return page.map(UsersReserveInfoDto::toDto);
+    }
+
+    @Override
+    public Page<UsersReserveCancelInfoDto> getTrainingReservationCancelAndNoShowList(User user, Pageable pageable) {
+        Page<ReserveInfo> page = reserveInfoRepository.findByUserIdAndStatusIn(user.getId(),
+                List.of(ReserveStatus.CANCEL, ReserveStatus.NOSHOW), pageable);
+        return page.map(UsersReserveCancelInfoDto::toDto);
     }
 
     @Override
