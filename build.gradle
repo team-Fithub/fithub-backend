@@ -59,6 +59,9 @@ dependencies {
 	// portone (결제 api)
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
 
+	// websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
