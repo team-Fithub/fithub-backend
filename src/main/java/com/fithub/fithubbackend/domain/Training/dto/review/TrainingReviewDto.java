@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.Training.dto;
+package com.fithub.fithubbackend.domain.Training.dto.review;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;

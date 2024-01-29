@@ -1,7 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fithub.fithubbackend.domain.Training.dto.ReserveReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.ReserveReqDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.user.domain.User;

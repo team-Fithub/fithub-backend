@@ -1,7 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingReviewReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
