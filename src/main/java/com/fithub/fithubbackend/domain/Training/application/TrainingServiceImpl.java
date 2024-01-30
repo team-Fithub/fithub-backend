@@ -2,9 +2,14 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
-import com.fithub.fithubbackend.domain.Training.dto.*;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingDocumentDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingSearchConditionDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewDto;
-import com.fithub.fithubbackend.domain.Training.repository.*;
+import com.fithub.fithubbackend.domain.Training.repository.CustomTrainingRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +32,7 @@ public class TrainingServiceImpl implements TrainingService {
     @Override
     @Transactional(readOnly = true)
     public Page<TrainingOutlineDto> searchAll(Pageable pageable) {
-        Page<Training> trainingPage = trainingRepository.findAllByDeletedFalse(pageable);
+        Page<Training> trainingPage = trainingRepository.findAllByDeletedFalseAndClosedFalse(pageable);
         return trainingPage.map(TrainingOutlineDto::toDto);
     }
 

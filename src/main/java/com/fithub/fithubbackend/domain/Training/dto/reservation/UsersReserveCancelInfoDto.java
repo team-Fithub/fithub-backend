@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-@Schema(description = "회원의 트레이닝 예약, 진행,종료 정보 확인")
-public class UsersReserveInfoDto {
+@Schema(description = "회원의 트레이닝 예약 취소 정보 확인")
+public class UsersReserveCancelInfoDto {
 
     @Schema(description = "트레이닝 예약 id")
     private Long reservationId;
@@ -27,7 +27,7 @@ public class UsersReserveInfoDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reserveDateTime;
 
-    @Schema(description = "트레이닝 진행 상황(진행 전, 진행중, 진행완료)")
+    @Schema(description = "트레이닝 진행 상황(취소, 노쇼)")
     private ReserveStatus status;
 
     @Schema(description = "트레이닝 결제 금액")
@@ -36,12 +36,12 @@ public class UsersReserveInfoDto {
     @Schema(description = "트레이닝 구매 번호")
     private String merchantUid;
 
-    @Schema(description = "트레이닝 결제(예약)한 날짜, 시간")
+    @Schema(description = "트레이닝을 취소한 날짜, 시간")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime paymentDateTime;
+    private LocalDateTime cancelDateTime;
 
-    public static UsersReserveInfoDto toDto(ReserveInfo reserveInfo) {
-        return UsersReserveInfoDto.builder()
+    public static UsersReserveCancelInfoDto toDto(ReserveInfo reserveInfo) {
+        return UsersReserveCancelInfoDto.builder()
                 .reservationId(reserveInfo.getId())
                 .trainingId(reserveInfo.getTraining().getId())
                 .title(reserveInfo.getTraining().getTitle())
@@ -49,7 +49,7 @@ public class UsersReserveInfoDto {
                 .status(reserveInfo.getStatus())
                 .price(reserveInfo.getPrice())
                 .merchantUid(reserveInfo.getMerchantUid())
-                .paymentDateTime(reserveInfo.getCreatedDate())
+                .cancelDateTime(reserveInfo.getModifiedDate())
                 .build();
     }
 }

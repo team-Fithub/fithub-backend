@@ -7,6 +7,7 @@ import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -29,6 +30,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     private final TrainingLikesRepository trainingLikesRepository;
 
     private final ReserveInfoRepository reserveInfoRepository;
+    private final TrainingReviewRepository trainingReviewRepository;
 
     private final AwsS3Uploader awsS3Uploader;
 
@@ -130,14 +133,12 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         permissionValidate(training.getTrainer(), email);
 
         if (reserveInfoRepository.existsByTrainingIdAndStatusNotIn(id,
-                new ReserveStatus[]{ReserveStatus.CANCEL, ReserveStatus.NOSHOW, ReserveStatus.COMPLETE})) {
+                List.of(ReserveStatus.CANCEL, ReserveStatus.NOSHOW, ReserveStatus.COMPLETE))) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 트레이닝에 완료 또는 취소되지 않은 예약이 존재해 삭제 작업이 불가능합니다.");
         }
 
         List<TrainingLikes> trainingLikesList = trainingLikesRepository.findByTrainingId(id);
-        for (TrainingLikes trainingLikes : trainingLikesList) {
-            trainingLikesRepository.delete(trainingLikes);
-        }
+        trainingLikesRepository.deleteAll(trainingLikesList);
 
         training.updateDeleted(true);
     }
@@ -173,7 +174,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
     @Override
     @Transactional
-    // TODO: 노쇼 처리 시 예약 회원에게 알림
+    // TODO: 노쇼 처리 시, 리뷰 비공개 처리 시 예약 회원에게 알림
     public void updateReservationStatusNoShow(String email, Long reservationId) {
         ReserveInfo reserveInfo = reserveInfoRepository.findById(reservationId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약은 존재하지 않습니다."));
 
@@ -181,6 +182,9 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         permissionValidate(reserveInfo.getTrainer(), email);
 
         reserveInfo.updateStatus(ReserveStatus.NOSHOW);
+
+        Optional<TrainingReview> optionalTrainingReview = trainingReviewRepository.findByReserveInfoId(reserveInfo.getId());
+        optionalTrainingReview.ifPresent(TrainingReview::lock);
     }
 
     private void isReserveInfoStatusComplete(ReserveInfo reserveInfo) {

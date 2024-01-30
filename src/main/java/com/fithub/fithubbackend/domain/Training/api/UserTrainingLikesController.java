@@ -44,7 +44,8 @@ public class UserTrainingLikesController {
     }, responses = {
             @ApiResponse(responseCode = "400", description = "트레이너는 자신의 트레이닝 찜 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "해당 트레이닝이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+            @ApiResponse(responseCode = "404", description = "해당 트레이닝이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "409", description = "마감된 트레이닝은 찜 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping
     public ResponseEntity<String> likes(@RequestParam Long trainingId, @AuthUser User user) {

@@ -10,6 +10,6 @@ import java.util.List;
 
 public interface TrainingRepository extends JpaRepository<Training, Long> {
 
-    Page<Training> findAllByDeletedFalse(Pageable pageable);
+    Page<Training> findAllByDeletedFalseAndClosedFalse(Pageable pageable);
     List<Training> findByClosedFalseAndEndDateLessThanEqual(LocalDate now);
 }

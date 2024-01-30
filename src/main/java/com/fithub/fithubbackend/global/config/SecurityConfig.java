@@ -102,7 +102,7 @@ public class SecurityConfig {
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowedMethods(List.of("*"));
-        corsConfiguration.setExposedHeaders(List.of("X-AUTH-TOKEN"));
+        corsConfiguration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
