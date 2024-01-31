@@ -2,10 +2,10 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
-import com.fithub.fithubbackend.domain.Training.dto.CancelReqDto;
-import com.fithub.fithubbackend.domain.Training.dto.PaymentReqDto;
-import com.fithub.fithubbackend.domain.Training.dto.PaymentResDto;
-import com.fithub.fithubbackend.domain.Training.dto.ReserveReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.CancelReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentReqDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentResDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.ReserveReqDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
