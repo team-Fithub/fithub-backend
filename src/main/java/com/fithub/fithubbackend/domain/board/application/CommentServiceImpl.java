@@ -3,19 +3,22 @@ package com.fithub.fithubbackend.domain.board.application;
 import com.fithub.fithubbackend.domain.board.comment.domain.Comment;
 import com.fithub.fithubbackend.domain.board.dto.CommentCreateDto;
 import com.fithub.fithubbackend.domain.board.dto.CommentInfoDto;
+import com.fithub.fithubbackend.domain.board.dto.ParentCommentInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.CommentUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.repository.CommentRepository;
 import com.fithub.fithubbackend.domain.board.repository.PostRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
-import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -82,59 +85,46 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Transactional
-    public List<CommentInfoDto> getComments(Post post) {
-
-        List<CommentInfoDto> commentInfoDtoList  = new ArrayList<>();
-        List<Comment> comments = commentRepository.findByPostWithFetch(post);
-        Map<Long, CommentInfoDto> CommentInfoDtoHashMap = new HashMap<>();
-
-        comments.forEach(c -> {
-            CommentInfoDto commentInfoDto = CommentInfoDto.fromEntity(c);
-            CommentInfoDtoHashMap.put(commentInfoDto.getCommentId(), commentInfoDto);
-            if (c.getParent() != null)
-                CommentInfoDtoHashMap.get(c.getParent().getId()).getChildComment().add(commentInfoDto);
-            else commentInfoDtoList.add(commentInfoDto);
-        });
-
-        return commentInfoDtoList;
+    @Transactional(readOnly = true)
+    public Page<ParentCommentInfoDto> getCommentsWithPage(Pageable pageable,
+                                                          long postId) {
+        Page<Comment> comments = commentRepository.findByPostIdAndParentIsNull(pageable, postId);
+        return comments.map(ParentCommentInfoDto::toDto);
     }
 
     @Override
-    @Transactional
-    public List<CommentInfoDto> getCommentsVer2(Post post) {
+    @Transactional(readOnly = true)
+    public List<CommentInfoDto> getDetailComments(long parentCommentId) {
 
-        List<CommentInfoDto> commentInfoDtoList  = new ArrayList<>();
+        // 1. 최상위 댓글 가져오기
+        Comment parentComment = getComment(parentCommentId);
 
-        List<Comment> comments = commentRepository.findByPostWithFetch(post);
+        // 2. 댓글의 자식 답글 가져오기
+        List<Comment> childComments = parentComment.getChildren();
 
-        Map<Long, CommentInfoDto> commentInfoDtoHashMap = new HashMap<>();
+        // 3. 최상위 댓글의 자식 답글을 넣을 list 선언
+        List<CommentInfoDto> result = new ArrayList<>();
 
-        comments.forEach(c -> {
-            CommentInfoDto commentInfoDto = CommentInfoDto.fromEntity(c);
-            commentInfoDtoHashMap.put(commentInfoDto.getCommentId(), commentInfoDto);
-
-            if (c.getParent() != null)
-                findParentComment(commentInfoDtoHashMap, c.getParent().getId(), commentInfoDto);
-            else commentInfoDtoList.add(commentInfoDto);
+        // 4. 재귀 함수를 이용하여 답글의 답글까지 모두 가져와 result에 추가
+        childComments.forEach(childComment -> {
+            if (childComment.getChildren().isEmpty())
+                result.add(CommentInfoDto.toDto(childComment));
+            else
+                getChildCommentsWithRecursive(result, childComment);
         });
 
-        return commentInfoDtoList;
+        // 5. 마지막으로 comment 아이디로 정렬 후 반환
+        return result.stream().sorted(Comparator.comparing(CommentInfoDto::getCommentId))
+                .collect(Collectors.toList());
     }
 
-    @Transactional
-    public void findParentComment(Map<Long, CommentInfoDto> commentInfoDtoHashMap, Long parentId, CommentInfoDto childComment) {
-
-        CommentInfoDto parentComment = commentInfoDtoHashMap.get(parentId);
-
-        if (parentComment.getParentCommentId() == null) {
-            parentComment.getChildComment().add(childComment);
+    public void getChildCommentsWithRecursive(List<CommentInfoDto> result, Comment parentComment) {
+        result.add(CommentInfoDto.toDto(parentComment));
+        if (parentComment.getChildren().isEmpty())
             return;
-        }
-
-        findParentComment(commentInfoDtoHashMap, parentComment.getParentCommentId(), childComment);
-
+        parentComment.getChildren().forEach(child-> getChildCommentsWithRecursive(result, child));
     }
+
 
     @Transactional
     public Post getPost(Long postId) {
