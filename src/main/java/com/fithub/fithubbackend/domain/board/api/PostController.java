@@ -85,7 +85,7 @@ public class PostController {
             @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @GetMapping("/public/{postId}")
-    public ResponseEntity<PostDetailInfoDto> getPostDetail(@PathVariable("postId") long postId) {
+    public ResponseEntity<PostOutlineDto> getPostDetail(@PathVariable("postId") long postId) {
         return ResponseEntity.ok(postService.getPostDetail(postId));
     }
 
