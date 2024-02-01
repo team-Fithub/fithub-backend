@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -25,7 +27,6 @@ public class CommentInfoDto {
 
     private String mentionedUserNickname;
 
-
     private boolean deleted;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -33,6 +34,8 @@ public class CommentInfoDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedDate;
+
+    private List<CommentInfoDto> childComments = new ArrayList<>();
 
     @Builder
     public CommentInfoDto(Long commentId, String writerNickName, String content, String mentionedUserNickname,

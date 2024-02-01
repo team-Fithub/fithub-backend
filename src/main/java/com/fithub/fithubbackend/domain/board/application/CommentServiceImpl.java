@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -96,33 +95,41 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     public List<CommentInfoDto> getDetailComments(long parentCommentId) {
 
-        // 1. 최상위 댓글 가져오기
         Comment parentComment = getComment(parentCommentId);
 
-        // 2. 댓글의 자식 답글 가져오기
         List<Comment> childComments = parentComment.getChildren();
 
-        // 3. 최상위 댓글의 자식 답글을 넣을 list 선언
-        List<CommentInfoDto> result = new ArrayList<>();
+        List<CommentInfoDto> commentInfoDtos = new ArrayList<>();
 
-        // 4. 재귀 함수를 이용하여 답글의 답글까지 모두 가져와 result에 추가
-        childComments.forEach(childComment -> {
-            if (childComment.getChildren().isEmpty())
-                result.add(CommentInfoDto.toDto(childComment));
-            else
-                getChildCommentsWithRecursive(result, childComment);
-        });
+        if  (! childComments.isEmpty()) {
+            Map<Long, CommentInfoDto> commentInfoDtoHashMap = new HashMap<>();
 
-        // 5. 마지막으로 comment 아이디로 정렬 후 반환
-        return result.stream().sorted(Comparator.comparing(CommentInfoDto::getCommentId))
-                .collect(Collectors.toList());
+            childComments.forEach(childComment -> {
+                if (childComment.getChildren().isEmpty())
+                    commentInfoDtos.add(CommentInfoDto.toDto(childComment));
+                else
+                    getChildCommentsWithRecursive(parentCommentId, commentInfoDtoHashMap, commentInfoDtos, childComment);
+            });
+        }
+
+        return commentInfoDtos;
     }
 
-    public void getChildCommentsWithRecursive(List<CommentInfoDto> result, Comment parentComment) {
-        result.add(CommentInfoDto.toDto(parentComment));
-        if (parentComment.getChildren().isEmpty())
+    public void getChildCommentsWithRecursive(long parentCommentId, Map<Long, CommentInfoDto> commentInfoDtoHashMap,
+                                              List<CommentInfoDto> commentInfoDtos, Comment comment) {
+
+        CommentInfoDto commentInfoDto = CommentInfoDto.toDto(comment);
+        commentInfoDtoHashMap.put(comment.getId(), commentInfoDto);
+
+        if (comment.getParent().getId() == parentCommentId)
+            commentInfoDtos.add(commentInfoDto);
+        else
+            commentInfoDtoHashMap.get(comment.getParent().getId()).getChildComments().add(commentInfoDto);
+
+        if (comment.getChildren().isEmpty())
             return;
-        parentComment.getChildren().forEach(child-> getChildCommentsWithRecursive(result, child));
+
+        comment.getChildren().forEach(child-> getChildCommentsWithRecursive(parentCommentId, commentInfoDtoHashMap, commentInfoDtos, child));
     }
 
 
