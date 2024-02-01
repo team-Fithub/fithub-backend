@@ -34,7 +34,7 @@ public class PostOutlineDto {
 
         Integer commentsCount = 0;
         for (Comment comment: post.getComments())
-            if (comment.getDeleted() == null)
+            if (comment.getDeleted() == null && comment.getParent() == null)
                 commentsCount++;
 
         return PostOutlineDto.builder()
