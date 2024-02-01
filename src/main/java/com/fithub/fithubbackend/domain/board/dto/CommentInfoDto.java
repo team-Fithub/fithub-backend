@@ -14,27 +14,36 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Schema(description = "답글 정보 dto")
+@Schema(description = "최상위 댓글의 답글 정보 dto")
 public class CommentInfoDto {
 
+    @Schema(description = "답글 id")
     private Long commentId;
 
+    @Schema(description = "답글 작성자의 닉네임")
     private String writerNickName;
 
+    @Schema(description = "답글 작성자의 프로필 url")
     private String writerProfileUrl;
 
+    @Schema(description = "답글 내용")
     private String content;
 
+    @Schema(description = "부모 댓글 작성자의 닉네임 (멘션 언급 시 사용 ex @fithub )")
     private String mentionedUserNickname;
 
+    @Schema(description = "답글 삭제 여부")
     private boolean deleted;
 
+    @Schema(description = "답글 생성일")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdDate;
 
+    @Schema(description = "답글 수정일")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedDate;
 
+    @Schema(description = "자식 답글 리스트")
     private List<CommentInfoDto> childComments = new ArrayList<>();
 
     @Builder
