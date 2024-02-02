@@ -9,5 +9,5 @@ import java.util.List;
 
 public interface UserService {
     ProfileDto myProfile(User user);
-    User updateProfile(String nickname, Gender gender, String phone, MultipartFile profileImg, User user);
+    User updateProfile(ProfileDto profileDto, User user);
 }

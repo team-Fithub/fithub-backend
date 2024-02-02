@@ -38,6 +38,23 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public User updateProfile(ProfileDto profileDto, User user) {
+        try {
+            // 중복 검사
+            // duplicateNickname(profileDto.getNickname());
+
+            if (profileDto == null) { throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "프로필 데이터가 비어있습니다."); }
+
+            user.updateProfile(profileDto);
+            userRepository.save(user);
+            return user;
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "프로필 업데이트 중 오류가 발생했습니다");
+        }
+    }
+
 //    @Override
 //    @Transactional(rollbackFor = {Exception.class})
 //    public User updateProfile(MultipartFile profileImg, ProfileDto profileDto, User user) {
@@ -71,33 +88,33 @@ public class UserServiceImpl implements UserService {
 //        }
 //    }
 
-    @Transactional(rollbackFor = {Exception.class})
-    public User updateProfile(String nickname, Gender gender, String phone, MultipartFile profileImg, User user) {
-
-        try {
-            if (nickname != null) {
-                duplicateEmailOrNickname(nickname);
-                user.setNickname(nickname);
-            }
-
-            if (gender != null) {
-                user.setGender(gender);
-            }
-
-            if (phone != null) {
-                user.setPhone(phone);
-            }
-
-            if (profileImg != null) {
-                handleProfileImageUpdate(profileImg, user);
-            }
-
-            userRepository.save(user);
-            return user;
-        } catch (Exception e) {
-            throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, ErrorCode.UPLOAD_PROFILE_ERROR.getMessage());
-        }
-    }
+//    @Transactional(rollbackFor = {Exception.class})
+//    public User updateProfile(String nickname, Gender gender, String phone, MultipartFile profileImg, User user) {
+//
+//        try {
+//            if (nickname != null) {
+//                duplicateEmailOrNickname(nickname);
+//                user.setNickname(nickname);
+//            }
+//
+//            if (gender != null) {
+//                user.setGender(gender);
+//            }
+//
+//            if (phone != null) {
+//                user.setPhone(phone);
+//            }
+//
+//            if (profileImg != null) {
+//                handleProfileImageUpdate(profileImg, user);
+//            }
+//
+//            userRepository.save(user);
+//            return user;
+//        } catch (Exception e) {
+//            throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, ErrorCode.UPLOAD_PROFILE_ERROR.getMessage());
+//        }
+//    }
 
     private void handleProfileImageUpdate(MultipartFile profileImg, User user) {
         awsS3Uploader.deleteS3(user.getProfileImg().getPath());
@@ -114,7 +131,7 @@ public class UserServiceImpl implements UserService {
         user.updateProfileImg(document);
     }
 
-    private void duplicateEmailOrNickname(String nickname) {
+    private void duplicateNickname(String nickname) {
         if(userRepository.findByNickname(nickname).isPresent())
             throw new CustomException(ErrorCode.DUPLICATE,ErrorCode.DUPLICATE.getMessage());
     }

@@ -40,7 +40,21 @@ public class UserController {
         return ResponseEntity.ok(userService.myProfile(user));
     }
 
-//    @Operation(summary = "프로필 수정", responses = {
+    @Operation(summary = "프로필 수정", responses = {
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    }, parameters = {
+            @Parameter(name="profileDto", description = "프로필내역")
+    })
+    @PutMapping("/profile/update")
+    public ResponseEntity<User> updateProfile(@RequestPart(value = "profileDto", required = false) ProfileDto profileDto, @AuthUser User user){
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userService.updateProfile(profileDto, user));
+    }
+
+// TODO : 이미지 수정
+
+//    @Operation(summary = "프로필 이미지 수정", responses = {
 //            @ApiResponse(responseCode = "200", description = "수정 성공"),
 //            @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
 //            @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
@@ -48,7 +62,7 @@ public class UserController {
 //            @Parameter(name="image", description = "프로필 이미지 변경 시"),
 //            @Parameter(name="profileDto", description = "변경하고 싶은 프로필내역")
 //    })
-//    @PutMapping("/profile/update")
+//    @PutMapping("/profile/image/update")
 //    public ResponseEntity<User> updateProfile(@RequestPart(value = "image",required = false) MultipartFile multipartFile, @RequestPart(value = "profileDto", required = false) ProfileDto profileDto, @AuthUser User user){
 //        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
 //        return ResponseEntity.ok(userService.updateProfile(multipartFile, profileDto, user));
@@ -71,23 +85,23 @@ public class UserController {
 //        return ResponseEntity.ok(userService.updateProfile(profileImg, profileDto, user));
 //    }
 
-    @Operation(summary = "프로필 수정 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
-            @ApiResponse(responseCode = "200", description = "프로필 업데이트"),
-            @ApiResponse(responseCode = "409", description = "중복 또는 형식 에러", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
-    }, parameters = {
-            @Parameter(name="nickname", description = "닉네임"),
-            @Parameter(name="gender", description = "성별"),
-            @Parameter(name="phone", description = "전화번호"),
-            @Parameter(name="profileImg", description = "프로필 이미지")
-    })
-    @PutMapping(value = "/profile/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> updateProfile(
-            @RequestParam(value = "nickname", required = false) String nickname,
-            @RequestParam(value = "gender", required = false) Gender gender,
-            @RequestParam(value = "phone", required = false) String phone,
-            @RequestPart(value ="profileImg", required = false) MultipartFile profileImg,
-            @AuthUser User user) throws IOException {
-        return ResponseEntity.ok(userService.updateProfile(nickname, gender, phone, profileImg, user));
-    }
+//    @Operation(summary = "프로필 수정 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
+//            @ApiResponse(responseCode = "200", description = "프로필 업데이트"),
+//            @ApiResponse(responseCode = "409", description = "중복 또는 형식 에러", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+//    }, parameters = {
+//            @Parameter(name="nickname", description = "닉네임"),
+//            @Parameter(name="gender", description = "성별"),
+//            @Parameter(name="phone", description = "전화번호"),
+//            @Parameter(name="profileImg", description = "프로필 이미지")
+//    })
+//    @PutMapping(value = "/profile/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<User> updateProfile(
+//            @RequestParam(value = "nickname", required = false) String nickname,
+//            @RequestParam(value = "gender", required = false) Gender gender,
+//            @RequestParam(value = "phone", required = false) String phone,
+//            @RequestPart(value ="profileImg", required = false) MultipartFile profileImg,
+//            @AuthUser User user) throws IOException {
+//        return ResponseEntity.ok(userService.updateProfile(nickname, gender, phone, profileImg, user));
+//    }
 
 }
