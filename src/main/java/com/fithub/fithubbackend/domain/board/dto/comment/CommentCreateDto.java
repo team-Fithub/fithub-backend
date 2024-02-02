@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.board.dto;
+package com.fithub.fithubbackend.domain.board.dto.comment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

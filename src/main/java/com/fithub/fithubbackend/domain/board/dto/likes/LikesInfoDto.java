@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.board.dto;
+package com.fithub.fithubbackend.domain.board.dto.likes;
 
 import com.fithub.fithubbackend.domain.board.post.domain.Likes;
 import io.swagger.v3.oas.annotations.media.Schema;
