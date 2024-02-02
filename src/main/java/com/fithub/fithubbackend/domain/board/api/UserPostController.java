@@ -1,7 +1,5 @@
 package com.fithub.fithubbackend.domain.board.api;
 
-import com.fithub.fithubbackend.domain.board.application.UserPostBookmarkService;
-import com.fithub.fithubbackend.domain.board.application.UserPostLikesService;
 import com.fithub.fithubbackend.domain.board.application.UserPostService;
 import com.fithub.fithubbackend.domain.board.dto.*;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -30,8 +28,6 @@ import java.util.List;
 public class UserPostController {
 
     private final UserPostService userPostService;
-    private final UserPostBookmarkService userPostBookmarkService;
-    private final UserPostLikesService userPostLikesService;
 
     @Operation(summary = "게시글 생성", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 생성 완료"),
@@ -74,7 +70,7 @@ public class UserPostController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver), 게시글 전체 조회하여 받은 response body의 content을 Request body로 전달", responses = {
+    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     }, parameters = {
             @Parameter(name="postRequestDtos", description = "전체 게시글 조회에서 받은 response body에서 postId을 추출하여 json 형식의 Request body로 전달")
@@ -96,57 +92,4 @@ public class UserPostController {
         return ResponseEntity.ok(userPostService.checkPostLikeAndBookmarkStatus(user, postId));
     }
 
-    @Operation(summary = "게시글 북마크", responses = {
-            @ApiResponse(responseCode = "200", description = "게시글 북마크 성공"),
-            @ApiResponse(responseCode = "409", description = "이미 북마크한 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-    }, parameters = {
-            @Parameter(name = "postId", description = "북마크한 게시글 id")
-    })
-    @PostMapping("/bookmark")
-    public ResponseEntity<Void> createBookMark(@RequestParam(value = "postId") long postId, @AuthUser User user) {
-        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        userPostBookmarkService.addBookmark(user, postId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "게시글 북마크 삭제", responses = {
-            @ApiResponse(responseCode = "200", description = "게시글 북마크 삭제 성공"),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-    }, parameters = {
-            @Parameter(name = "postId", description = "북마크 삭제할 게시글 id")
-    })
-    @DeleteMapping("/bookmark")
-    public ResponseEntity<Void> deleteBookMark(@RequestParam(value = "postId") long postId, @AuthUser User user) {
-        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        userPostBookmarkService.deleteBookmark(user, postId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "게시글 좋아요", responses = {
-            @ApiResponse(responseCode = "200", description = "게시글 좋아요 성공"),
-            @ApiResponse(responseCode = "409", description = "이미 좋아요한 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-    }, parameters = {
-            @Parameter(name = "postId", description = "좋아요한 게시글 id")
-    })
-    @PostMapping("/likes")
-    public ResponseEntity<Void> likesPost(@RequestParam(value = "postId") long postId, @AuthUser User user) {
-        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        userPostLikesService.addLikes(user, postId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "게시글 좋아요 취소", responses = {
-            @ApiResponse(responseCode = "200", description = "게시글 좋아요 취소 성공"),
-            @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-    }, parameters = {
-            @Parameter(name = "postId", description = "좋아요 취소할 게시글 id")
-    })
-    @DeleteMapping("/likes")
-    public ResponseEntity<Void> notLikesPost(@RequestParam(value = "postId") long postId, @AuthUser User user) {
-        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        userPostLikesService.deleteLikes(user, postId);
-        return ResponseEntity.ok().build();
-    }
 }
