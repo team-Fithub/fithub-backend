@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.ReserveReqDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
@@ -69,13 +70,16 @@ public class ReserveInfo extends BaseTimeEntity {
         this.training = training;
         this.reserveDateTime = dto.getReserveDateTime();
         this.status = ReserveStatus.BEFORE;
-        this.impUid = dto.getImpUid();
-        this.merchantUid = dto.getMerchantUid();
-        this.payMethod = dto.getPayMethod();
         this.price = dto.getAmount();
     }
 
     public void updateStatus(ReserveStatus status) {
         this.status = status;
+    }
+
+    public void updatePaymentInfo(PaymentReqDto dto) {
+        this.impUid = dto.getImpUid();
+        this.merchantUid = dto.getMerchantUid();
+        this.payMethod = dto.getPayMethod();
     }
 }
