@@ -41,11 +41,11 @@ public class SecurityConfig {
     private final OAuthFailureHandler oAuthFailureHandler;
 
     private static final String[] PERMIT_ALL_PATTERNS = new String[] {
-            "/", "/auth/**", "/oauth2/**", "/training/**"
+            "/", "/auth/**", "/oauth2/**", "/training/**", "/posts/**"
     };
 
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
-        "/training/**", "/posts/public/**", "/comments/public/**"
+        "/training/**", "/posts/**"
     };
 
     @Bean
