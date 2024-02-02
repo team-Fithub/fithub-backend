@@ -55,38 +55,29 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-//    @Override
-//    @Transactional(rollbackFor = {Exception.class})
-//    public User updateProfile(MultipartFile profileImg, ProfileDto profileDto, User user) {
-//        System.out.println("UserServiceImpl.updateProfile 실행");
-//
-//        try {
-//            if (profileDto != null) {
-//                System.out.println("UserServiceImpl.updateProfile: profileDto 수정");
-//                user.updateProfile(profileDto);
-//            }
-//
-//            if (profileImg != null) {
-//                System.out.println("UserServiceImpl.updateProfile: profileImg 수정");
-//                awsS3Uploader.deleteS3(user.getProfileImg().getPath());
-//                documentRepository.deleteById(user.getProfileImg().getId());
-//                String profileImgPath = awsS3Uploader.imgPath("profiles");
-//                Document document = Document.builder()
-//                        .url(awsS3Uploader.putS3(profileImg, profileImgPath))
-//                        .inputName(profileImg.getOriginalFilename())
-//                        .path(profileImgPath)
-//                        .build();
-//                documentRepository.save(document);
-//                user.updateProfileImg(document);
-//            }
-//
-//            userRepository.save(user);
-//            return user;
-//        } catch (Exception e) {
-//            // 롤백이 필요한 예외가 여기에 포함되어야 합니다.
-//            throw new RuntimeException("프로필 업데이트 중 오류 발생", e);
-//        }
-//    }
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public User updateImage(MultipartFile profileImg, User user) {
+        try {
+            if (profileImg == null) { throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "이미지 데이터가 비어있습니다."); }
+
+            awsS3Uploader.deleteS3(user.getProfileImg().getPath());
+            documentRepository.deleteById(user.getProfileImg().getId());
+            String profileImgPath = awsS3Uploader.imgPath("profiles");
+            Document document = Document.builder()
+                    .url(awsS3Uploader.putS3(profileImg, profileImgPath))
+                    .inputName(profileImg.getOriginalFilename())
+                    .path(profileImgPath)
+                    .build();
+            documentRepository.save(document);
+            user.updateProfileImg(document);
+
+            userRepository.save(user);
+            return user;
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "이미지 업데이트 중 오류가 발생했습니다");
+        }
+    }
 
 //    @Transactional(rollbackFor = {Exception.class})
 //    public User updateProfile(String nickname, Gender gender, String phone, MultipartFile profileImg, User user) {
@@ -116,20 +107,6 @@ public class UserServiceImpl implements UserService {
 //        }
 //    }
 
-    private void handleProfileImageUpdate(MultipartFile profileImg, User user) {
-        awsS3Uploader.deleteS3(user.getProfileImg().getPath());
-        documentRepository.deleteById(user.getProfileImg().getId());
-
-        String profileImgPath = awsS3Uploader.imgPath("profiles");
-        Document document = Document.builder()
-                .url(awsS3Uploader.putS3(profileImg, profileImgPath))
-                .inputName(profileImg.getOriginalFilename())
-                .path(profileImgPath)
-                .build();
-
-        documentRepository.save(document);
-        user.updateProfileImg(document);
-    }
 
     private void duplicateNickname(String nickname) {
         if(userRepository.findByNickname(nickname).isPresent())

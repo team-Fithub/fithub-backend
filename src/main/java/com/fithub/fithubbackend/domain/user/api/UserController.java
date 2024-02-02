@@ -52,21 +52,17 @@ public class UserController {
         return ResponseEntity.ok(userService.updateProfile(profileDto, user));
     }
 
-// TODO : 이미지 수정
 
-//    @Operation(summary = "프로필 이미지 수정", responses = {
-//            @ApiResponse(responseCode = "200", description = "수정 성공"),
-//            @ApiResponse(responseCode = "409", description = "이메일 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-//            @ApiResponse(responseCode = "409", description = "닉네임 중복", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-//    }, parameters = {
-//            @Parameter(name="image", description = "프로필 이미지 변경 시"),
-//            @Parameter(name="profileDto", description = "변경하고 싶은 프로필내역")
-//    })
-//    @PutMapping("/profile/image/update")
-//    public ResponseEntity<User> updateProfile(@RequestPart(value = "image",required = false) MultipartFile multipartFile, @RequestPart(value = "profileDto", required = false) ProfileDto profileDto, @AuthUser User user){
-//        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-//        return ResponseEntity.ok(userService.updateProfile(multipartFile, profileDto, user));
-//    }
+    @Operation(summary = "이미지 수정, swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+    }, parameters = {
+            @Parameter(name="image", description = "프로필 이미지 변경 시")
+    })
+    @PutMapping("/image/update")
+    public ResponseEntity<User> updateImage(@RequestPart(value = "image",required = false) MultipartFile multipartFile, @AuthUser User user){
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userService.updateImage(multipartFile, user));
+    }
 
 //    @Operation(summary = "프로필 수정 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
 //            @ApiResponse(responseCode = "200", description = "프로필 업데이트"),

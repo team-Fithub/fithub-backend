@@ -10,4 +10,5 @@ import java.util.List;
 public interface UserService {
     ProfileDto myProfile(User user);
     User updateProfile(ProfileDto profileDto, User user);
+    User updateImage(MultipartFile profileImg, User user);
 }
