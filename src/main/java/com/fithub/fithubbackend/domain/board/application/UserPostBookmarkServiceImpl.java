@@ -16,13 +16,16 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class BookmarkServiceImpl implements BookmarkService {
+public class UserPostBookmarkServiceImpl implements UserPostBookmarkService {
 
     private final BookmarkRepository bookmarkRepository;
+    private final PostService postService;
 
     @Override
     @Transactional
-    public void addBookmark(User user, Post post) {
+    public void addBookmark(User user, long postId) {
+
+        Post post = postService.getPost(postId);
 
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserAndPost(user, post);
 
@@ -34,7 +37,10 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     @Transactional
-    public void deleteBookmark(User user, Post post) {
+    public void deleteBookmark(User user, long postId) {
+
+        Post post = postService.getPost(postId);
+
         Optional<Bookmark> bookmark = bookmarkRepository.findByUserAndPost(user, post);
 
         if (bookmark.isPresent())
