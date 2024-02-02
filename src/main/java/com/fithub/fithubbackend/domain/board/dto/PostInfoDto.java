@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.board.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fithub.fithubbackend.domain.board.comment.domain.Comment;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -43,10 +44,13 @@ public class PostInfoDto {
     @Schema(description = "게시글 첨부 이미지 url 리스트")
     private List<String> documentUrls;
 
+    @Schema(description = "게시글 댓글 수")
+    private Integer postCommentsCount;
+
     @Builder
     public PostInfoDto(Long postId, String content, Integer views, PostWriterInfoDto writerInfo,
                        List<String> documentUrls, List<String> hashTags, LocalDateTime createdDate,
-                       LocalDateTime modifiedDate) {
+                       LocalDateTime modifiedDate, Integer postCommentsCount) {
         this.postId = postId;
         this.writerInfo = writerInfo;
         this.content = content;
@@ -55,9 +59,15 @@ public class PostInfoDto {
         this.documentUrls = documentUrls;
         this.createdDate = createdDate;
         this.modifiedDate = modifiedDate;
+        this.postCommentsCount = postCommentsCount;
     }
 
     public static PostInfoDto toDto(Post post) {
+
+        Integer commentsCount = 0;
+        for (Comment comment: post.getComments())
+            if (comment.getDeleted() == null && comment.getParent() == null)
+                commentsCount++;
 
         return PostInfoDto.builder()
                 .postId(post.getId())
@@ -68,6 +78,7 @@ public class PostInfoDto {
                 .documentUrls(post.getPostDocuments().stream().map(postDocument -> postDocument.getUrl()).collect(Collectors.toList()))
                 .createdDate(post.getCreatedDate())
                 .modifiedDate(post.getModifiedDate())
+                .postCommentsCount(commentsCount)
                 .build();
     }
 }
