@@ -56,7 +56,7 @@ public class PostController {
     }, parameters = {
             @Parameter(name="postId", description = "게시글 id")
     })
-    @GetMapping("/likes/{postId}")
+    @GetMapping("/{postId}/likes")
     public ResponseEntity<LikedUsersInfoDto> getLikedUsersForPostDetail(@PathVariable(value = "postId") Long postId) {
         return ResponseEntity.ok(postService.getLikedUsersForPostDetail(postId));
     }
@@ -76,7 +76,7 @@ public class PostController {
     }, parameters = {
             @Parameter(name="postId", description = "게시글 id")
     })
-    @GetMapping("/comments/{postId}")
+    @GetMapping("/{postId}/comments")
     public ResponseEntity<Page<ParentCommentInfoDto>> getComments(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
                                                                   @PathVariable(value = "postId") long postId) {
         return ResponseEntity.ok().body(commentService.getCommentsWithPage(pageable, postId));
@@ -88,7 +88,7 @@ public class PostController {
             @Parameter(name="postId", description = "게시글 id"),
             @Parameter(name="commentId", description = "최상위 댓글 id")
     })
-    @GetMapping("/comments/{postId}/{commentId}")
+    @GetMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<List<CommentInfoDto>> getDetailComments(@PathVariable(value = "postId") long postId, @PathVariable(value = "commentId") long commentId) {
         return ResponseEntity.ok().body(commentService.getDetailComments(commentId));
     }
