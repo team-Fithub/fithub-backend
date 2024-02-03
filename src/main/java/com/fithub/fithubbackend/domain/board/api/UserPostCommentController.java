@@ -64,7 +64,7 @@ public class UserPostCommentController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "회원이 작성한 댓글을 가진 게시글 조회. page 사용", responses = {
+    @Operation(summary = "회원이 댓글 남긴 게시글 조회. page 사용", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 조회 성공")
     }, parameters = {
             @Parameter(name="pageable", description = "page (size = 9, sort = \"id\", desc 적용). 페이지 이동 시 page 값만 보내주면 됨. ex) \"page\" : 0 인 경우 1 페이지")
