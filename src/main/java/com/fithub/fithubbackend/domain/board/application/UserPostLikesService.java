@@ -6,10 +6,10 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 
 import java.util.*;
 
-public interface LikesService {
-    void addLikes(User user, Post post);
+public interface UserPostLikesService {
+    void addLikes(User user, long postId);
 
-    void deleteLikes(User user, Post post);
+    void deleteLikes(User user, long postId);
 
     List<Likes> getLikesByPost(Post post);
 

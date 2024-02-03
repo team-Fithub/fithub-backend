@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.board.dto;
+package com.fithub.fithubbackend.domain.board.dto.comment;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fithub.fithubbackend.domain.board.comment.domain.Comment;

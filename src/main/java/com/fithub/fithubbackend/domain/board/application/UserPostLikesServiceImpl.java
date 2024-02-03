@@ -15,15 +15,17 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class LikesServiceImpl implements LikesService {
+public class UserPostLikesServiceImpl implements UserPostLikesService {
 
     private final LikesRepository likesRepository;
+    private final PostService postService;
 
     // TODO 게시글 좋아요 시, 게시글 작성자에게 알림 전송
     @Override
     @Transactional
-    public void addLikes(User user, Post post) {
+    public void addLikes(User user, long postId) {
 
+        Post post = postService.getPost(postId);
         Optional<Likes> likes = likesRepository.findByUserAndPost(user, post);
         if (likes.isPresent())
             throw new CustomException(ErrorCode.DUPLICATE, "이미 좋아요한 게시글입니다.");
@@ -33,7 +35,9 @@ public class LikesServiceImpl implements LikesService {
 
     @Override
     @Transactional
-    public void deleteLikes(User user, Post post) {
+    public void deleteLikes(User user, long postId) {
+
+        Post post = postService.getPost(postId);
         Optional<Likes> likes = likesRepository.findByUserAndPost(user, post);
         if (likes.isPresent())
             post.getLikes().remove(likes.get());
@@ -57,4 +61,5 @@ public class LikesServiceImpl implements LikesService {
             return true;
         return false;
     }
+
 }

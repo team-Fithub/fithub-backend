@@ -1,32 +1,23 @@
 package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.dto.*;
+import com.fithub.fithubbackend.domain.board.dto.likes.LikedUsersInfoDto;
+import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.fithub.fithubbackend.domain.user.domain.User;
 
-import java.util.*;
+import java.util.List;
+
 
 public interface PostService {
-    void createPost(PostCreateDto postCreateDto, User user);
+    Page<PostInfoDto> getAllPosts(Pageable pageable);
 
-    void updatePost(PostUpdateDto postUpdateDto, User user);
+    PostInfoDto getPostDetail(long postId);
 
-    void likesPost(long postId, User user);
+    Post getPost(Long postId);
 
-    void createBookmark(long postId, User user);
+    LikedUsersInfoDto getLikedUsersForPostDetail(Long postId);
 
-    void notLikesPost(long postId, User user);
+    List<LikedUsersInfoDto> getLikedUsersForPosts(List<PostRequestDto> postRequestDtos);
 
-    void deleteBookmark(long postId, User user);
-
-    void deletePost(long postId, User user);
-
-    Page<PostOutlineDto> getAllPosts(Pageable pageable);
-
-    PostOutlineDto getPostDetail(long postId);
-
-    LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId);
-
-    List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(List<PostOutlineDto> postOutlineDtos, User user);
 }
