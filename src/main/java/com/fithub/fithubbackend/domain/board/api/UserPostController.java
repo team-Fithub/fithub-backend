@@ -15,6 +15,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -70,7 +74,7 @@ public class UserPostController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
+    @Operation(summary = "게시글 전체 조회 시 좋아요, 북마크 여부 체크", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
     }, parameters = {
             @Parameter(name="postRequestDtos", description = "전체 게시글 조회에서 받은 response body에서 postId을 추출하여 json 형식의 Request body로 전달")
@@ -82,7 +86,7 @@ public class UserPostController {
         return ResponseEntity.ok(userPostService.checkPostsLikeAndBookmarkStatus(postRequestDtos, user));
     }
 
-    @Operation(summary = "게시글 세부 조회 시 좋아요, 북마크 여부 체크 (로그인한 회원 ver)", responses = {
+    @Operation(summary = "게시글 세부 조회 시 좋아요, 북마크 여부 체크", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
@@ -91,5 +95,18 @@ public class UserPostController {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userPostService.checkPostLikeAndBookmarkStatus(user, postId));
     }
+
+    @Operation(summary = "회원이 작성한 게시글 조회. page 사용", responses = {
+            @ApiResponse(responseCode = "200", description = "게시글 조회 성공")
+    }, parameters = {
+            @Parameter(name="pageable", description = "page (size = 9, sort = \"id\", desc 적용). 페이지 이동 시 page 값만 보내주면 됨. ex) \"page\" : 0 인 경우 1 페이지")
+    })
+    @GetMapping
+    public ResponseEntity<Page<PostInfoDto>> getPostsByUser(@PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
+                                                              @AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userPostService.getPostsByUser(pageable, user));
+    }
+
 
 }
