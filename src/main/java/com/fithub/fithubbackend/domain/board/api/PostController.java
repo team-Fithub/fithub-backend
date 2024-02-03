@@ -1,11 +1,13 @@
 package com.fithub.fithubbackend.domain.board.api;
 
 import com.fithub.fithubbackend.domain.board.application.CommentService;
+import com.fithub.fithubbackend.domain.board.application.PostLikesService;
 import com.fithub.fithubbackend.domain.board.application.PostService;
 import com.fithub.fithubbackend.domain.board.dto.*;
 import com.fithub.fithubbackend.domain.board.dto.comment.CommentInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.comment.ParentCommentInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.likes.LikedUsersInfoDto;
+import com.fithub.fithubbackend.domain.board.dto.likes.LikesInfoDto;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,6 +33,7 @@ public class PostController {
 
     private final PostService postService;
     private final CommentService commentService;
+    private final PostLikesService postLikesService;
 
     @Operation(summary = "게시글 전체 조회, page 사용 (size = 9, sort = \"id\", desc 적용). 페이지 이동 시 page 값만 보내주면 됨. ex) \"page\" : 0 인 경우 1 페이지", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
@@ -51,8 +54,8 @@ public class PostController {
         return ResponseEntity.ok(postService.getPostDetail(postId));
     }
 
-    @Operation(summary = "세부 게시글 좋아요 리스트 조회", responses = {
-            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+    @Operation(summary = "세부 게시글의 좋아요 정보 요약 조회 (개수와 최대 4개의 회원 정보)", responses = {
+            @ApiResponse(responseCode = "200", description = "세부 게시글 좋아요 정보 요약 조회 성공"),
     }, parameters = {
             @Parameter(name="postId", description = "게시글 id")
     })
@@ -61,8 +64,20 @@ public class PostController {
         return ResponseEntity.ok(postService.getLikedUsersForPostDetail(postId));
     }
 
-    @Operation(summary = "전체 게시글 좋아요 리스트 조회", responses = {
-            @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
+    @Operation(summary = "세부 게시글의 전체 좋아요 조회. 페이징 사용", responses = {
+            @ApiResponse(responseCode = "200", description = "세부 게시글 좋아요 정보 조회 성공"),
+    }, parameters = {
+            @Parameter(name="postId", description = "게시글 id"),
+            @Parameter(name="pageable", description = "page (size = 20, sort = \"id\", desc 적용). 페이지 이동 시 page 값만 보내주면 됨. ex) \"page\" : 0 인 경우 1 페이지")
+    })
+    @GetMapping("/{postId}/likes/all")
+    public ResponseEntity<Page<LikesInfoDto>> getAllLikedUsersForPostDetail(@PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable,
+                                                                            @PathVariable(value = "postId") Long postId) {
+        return ResponseEntity.ok(postLikesService.getAllLikedUsersForPostDetail(pageable, postId));
+    }
+
+    @Operation(summary = "전체 게시글의 좋아요 정보 요약 조회 (개수와 최대 4개의 회원 정보)", responses = {
+            @ApiResponse(responseCode = "200", description = "전체 게시글 좋아요 정보 요약 조회 성공"),
     }, parameters = {
             @Parameter(name="postRequestDtos", description = "전체 게시글 조회에서 받은 response body에서 postId을 추출하여 json 형식의 Request body로 전달")
     })
