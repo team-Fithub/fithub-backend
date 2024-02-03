@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.user.application;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
+import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public ProfileDto myProfile(User user) {
         return ProfileDto.builder()
+                .name(user.getName())
                 .nickname(user.getNickname())
                 .email(user.getEmail())
                 .phone(user.getPhone())
@@ -40,16 +42,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public User updateProfile(ProfileDto profileDto, User user) {
+    public ProfileDto updateProfile(ProfileUpdateDto profileUpdateDto, User user) {
         try {
-            // 중복 검사
-            // duplicateNickname(profileDto.getNickname());
-
-            if (profileDto == null) { throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "프로필 데이터가 비어있습니다."); }
-
-            user.updateProfile(profileDto);
-            userRepository.save(user);
-            return user;
+            user.updateProfile(profileUpdateDto);
+            return myProfile(user);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "프로필 업데이트 중 오류가 발생했습니다");
         }
@@ -57,10 +53,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public User updateImage(MultipartFile profileImg, User user) {
+    public ProfileDto updateImage(MultipartFile profileImg, User user) {
         try {
-            if (profileImg == null) { throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "이미지 데이터가 비어있습니다."); }
-
             awsS3Uploader.deleteS3(user.getProfileImg().getPath());
             documentRepository.deleteById(user.getProfileImg().getId());
             String profileImgPath = awsS3Uploader.imgPath("profiles");
@@ -71,42 +65,11 @@ public class UserServiceImpl implements UserService {
                     .build();
             documentRepository.save(document);
             user.updateProfileImg(document);
-
-            userRepository.save(user);
-            return user;
+            return myProfile(user);
         } catch (Exception e) {
             throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "이미지 업데이트 중 오류가 발생했습니다");
         }
     }
-
-//    @Transactional(rollbackFor = {Exception.class})
-//    public User updateProfile(String nickname, Gender gender, String phone, MultipartFile profileImg, User user) {
-//
-//        try {
-//            if (nickname != null) {
-//                duplicateEmailOrNickname(nickname);
-//                user.setNickname(nickname);
-//            }
-//
-//            if (gender != null) {
-//                user.setGender(gender);
-//            }
-//
-//            if (phone != null) {
-//                user.setPhone(phone);
-//            }
-//
-//            if (profileImg != null) {
-//                handleProfileImageUpdate(profileImg, user);
-//            }
-//
-//            userRepository.save(user);
-//            return user;
-//        } catch (Exception e) {
-//            throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, ErrorCode.UPLOAD_PROFILE_ERROR.getMessage());
-//        }
-//    }
-
 
     private void duplicateNickname(String nickname) {
         if(userRepository.findByNickname(nickname).isPresent())
