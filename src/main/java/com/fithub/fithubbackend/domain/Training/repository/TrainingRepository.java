@@ -14,6 +14,6 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
 
     Page<Training> findAllByDeletedFalseAndClosedFalse(Pageable pageable);
     List<Training> findByClosedFalseAndEndDateLessThanEqual(LocalDate now);
-    @Query(value = "SELECT t.price FROM Training t WHERE t.id = :id")
-    Integer findPriceById(@Param("id") Long id);
+    @Query(value = "SELECT t.title FROM Training t WHERE t.id = :id")
+    String findTitleById(@Param("id") Long id);
 }

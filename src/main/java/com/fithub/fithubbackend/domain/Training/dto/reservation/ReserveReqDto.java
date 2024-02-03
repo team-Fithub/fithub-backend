@@ -17,10 +17,6 @@ public class ReserveReqDto {
     private Long trainingId;
 
     @NotNull
-    @Schema(description = "가격")
-    private int amount;
-
-    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Schema(description = "예약한 날짜, 시간")
     private LocalDateTime reserveDateTime;

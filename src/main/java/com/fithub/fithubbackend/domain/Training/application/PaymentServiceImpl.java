@@ -10,7 +10,6 @@ import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
-import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.siot.IamportRestClient.IamportClient;
@@ -33,7 +32,6 @@ public class PaymentServiceImpl implements PaymentService {
     private IamportClient iamportClient;
 
     private final TrainingRepository trainingRepository;
-    private final UserRepository userRepository;
     private final ReserveInfoRepository reserveInfoRepository;
 
     @Value("${imp.api.key}")
@@ -51,18 +49,16 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public Long saveOrder(ReserveReqDto dto, User user) {
         Training training = trainingRepository.findById(dto.getTrainingId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
-
-        ReserveInfo reserveInfo = ReserveInfo.builder().user(user).training(training).build();
-
         if (!training.removeAvailableDateTime(dto.getReserveDateTime())) {
             log.error("예약 실패 - 예약 가능한 시간대가 없음: {}", dto.getReserveDateTime());
-            throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR);
+            throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR, "현재 예약 가능한 시간대가 아닙니다.");
         }
 
         // TODO: 모집이 전부 다 차서 마감되었다는 알림 전송
         if (training.isAllClosed()) {
             training.updateClosed(true);
         }
+        ReserveInfo reserveInfo = ReserveInfo.builder().user(user).training(training).dto(dto).build();
         return reserveInfoRepository.save(reserveInfo).getId();
     }
 
@@ -73,16 +69,15 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment response = iamportClient.paymentByImpUid(dto.getImpUid()).getResponse();
         int paidAmount = response.getAmount().intValue();
-
-        Integer trainingPrice = trainingRepository.findPriceById(dto.getTrainingId());
-        if (trainingPrice == null || trainingPrice != paidAmount) {
-            log.error("결제 금액 상이: 결제 금액 - {}, 트레이닝 금액 - {}", paidAmount, trainingPrice);
+        if (reserveInfo.getPrice() != paidAmount) {
+            log.error("결제 금액 상이: 결제 금액 - {}, 트레이닝 금액 - {}", paidAmount, reserveInfo.getPrice());
             iamportClient.cancelPaymentByImpUid(createCancelData(response));
             reserveInfoRepository.delete(reserveInfo);
             throw new CustomException(ErrorCode.IAMPORT_PRICE_ERROR);
         }
 
         reserveInfo.updatePaymentInfo(dto);
+        String trainingTitle = trainingRepository.findTitleById(dto.getTrainingId());
 
         log.info("결제 내역 - 구매 번호: {}", response.getMerchantUid());
         return PaymentResDto.builder()
@@ -90,6 +85,10 @@ public class PaymentServiceImpl implements PaymentService {
                 .merchantUid(response.getMerchantUid())
                 .payMethod(response.getPayMethod())
                 .amount(response.getAmount().intValue())
+                .trainingId(dto.getTrainingId())
+                .title(trainingTitle)
+                .reservationDateTime(reserveInfo.getReserveDateTime())
+                .paymentDateTime(reserveInfo.getModifiedDate())
                 .build();
     }
 
