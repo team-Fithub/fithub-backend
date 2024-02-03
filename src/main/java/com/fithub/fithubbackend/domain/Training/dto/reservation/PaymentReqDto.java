@@ -7,10 +7,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Schema(description = "트레이닝 예약 결제 검증을 위한 dto")
+@Schema(description = "트레이닝 예약 결제 금액 검증을 위한 dto")
 public class PaymentReqDto {
     @NotNull
-    @Schema(description = "결제하는 트레이닝 id")
+    @Schema(description = "예약 id")
+    private Long reservationId;
+
+    @NotNull
+    @Schema(description = "예약한 트레이닝 id")
     private Long trainingId;
 
     @NotNull

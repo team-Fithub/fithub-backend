@@ -10,7 +10,9 @@ import com.siot.IamportRestClient.exception.IamportResponseException;
 import java.io.IOException;
 
 public interface PaymentService {
+    Long saveOrder(ReserveReqDto dto, User user);
+
     PaymentResDto validate(PaymentReqDto dto) throws IamportResponseException, IOException;
-    void reserveComplete(ReserveReqDto dto, User user);
+
     void cancelPayment(CancelReqDto dto, String email) throws IamportResponseException, IOException;
 }
