@@ -27,6 +27,10 @@ public class PostInfoDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdDate;
 
+    @Schema(description = "게시글 수정일")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime modifiedDate;
+
     @Schema(description = "게시글 내용")
     private String content;
 
@@ -41,7 +45,8 @@ public class PostInfoDto {
 
     @Builder
     public PostInfoDto(Long postId, String content, Integer views, PostWriterInfoDto writerInfo,
-                       List<String> documentUrls, List<String> hashTags,LocalDateTime createdDate) {
+                       List<String> documentUrls, List<String> hashTags, LocalDateTime createdDate,
+                       LocalDateTime modifiedDate) {
         this.postId = postId;
         this.writerInfo = writerInfo;
         this.content = content;
@@ -49,6 +54,7 @@ public class PostInfoDto {
         this.views = views;
         this.documentUrls = documentUrls;
         this.createdDate = createdDate;
+        this.modifiedDate = modifiedDate;
     }
 
     public static PostInfoDto toDto(Post post) {
@@ -61,6 +67,7 @@ public class PostInfoDto {
                 .hashTags(post.getPostHashtags().stream().map(hashtag -> hashtag.getHashtag().getContent()).collect(Collectors.toList()))
                 .documentUrls(post.getPostDocuments().stream().map(postDocument -> postDocument.getUrl()).collect(Collectors.toList()))
                 .createdDate(post.getCreatedDate())
+                .modifiedDate(post.getModifiedDate())
                 .build();
     }
 }

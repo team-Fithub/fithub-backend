@@ -24,7 +24,7 @@ public interface PostService {
 
     Page<PostOutlineDto> getAllPosts(Pageable pageable);
 
-    PostDetailInfoDto getPostDetail(long postId);
+    PostOutlineDto getPostDetail(long postId);
 
     LikesBookmarkStatusDto checkPostLikeAndBookmarkStatus(User user, long postId);
 
