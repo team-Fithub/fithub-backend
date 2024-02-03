@@ -44,17 +44,14 @@ public class ReserveInfo extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ReserveStatus status;
 
-    @NotNull
     @Comment("결제 방법")
     @Column(length = 100)
     private String payMethod;
 
-    @NotNull
     @Comment("주문 번호")
     @Column(length = 100)
     private String impUid;
 
-    @NotNull
     @Comment("구매 번호")
     @Column(length = 100)
     private  String merchantUid;
@@ -70,16 +67,16 @@ public class ReserveInfo extends BaseTimeEntity {
         this.training = training;
         this.reserveDateTime = dto.getReserveDateTime();
         this.status = ReserveStatus.BEFORE;
-        this.price = dto.getAmount();
-    }
-
-    public void updateStatus(ReserveStatus status) {
-        this.status = status;
+        this.price = training.getPrice();
     }
 
     public void updatePaymentInfo(PaymentReqDto dto) {
         this.impUid = dto.getImpUid();
         this.merchantUid = dto.getMerchantUid();
         this.payMethod = dto.getPayMethod();
+    }
+
+    public void updateStatus(ReserveStatus status) {
+        this.status = status;
     }
 }
