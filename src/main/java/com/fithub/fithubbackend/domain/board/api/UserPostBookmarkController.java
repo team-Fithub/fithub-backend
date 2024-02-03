@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "user's post bookmark (회원의 게시글 북마크)", description = "회원이 사용하는 게시글 북마크 관련 api")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/posts/bookmark")
+@RequestMapping("/users/posts/bookmarks")
 public class UserPostBookmarkController {
 
     private final UserPostBookmarkService userPostBookmarkService;

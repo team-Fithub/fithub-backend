@@ -75,7 +75,7 @@ public class UserPostController {
     }, parameters = {
             @Parameter(name="postRequestDtos", description = "전체 게시글 조회에서 받은 response body에서 postId을 추출하여 json 형식의 Request body로 전달")
     })
-    @PostMapping("/status/like-bookmark")
+    @PostMapping("/status/likes-bookmarks")
     public ResponseEntity<List<LikesBookmarkStatusDto>> getAllPostsWithLikesAndBookmark(@RequestBody List<PostRequestDto> postRequestDtos,
                                                                                         @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
@@ -86,7 +86,7 @@ public class UserPostController {
             @ApiResponse(responseCode = "200", description = "게시글 전체 조회 성공"),
             @ApiResponse(responseCode = "404", description = "존재하지 않는 게시글", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
-    @GetMapping("/{postId}/status/like-bookmark")
+    @GetMapping("/{postId}/status/likes-bookmarks")
     public ResponseEntity<LikesBookmarkStatusDto> getAllPostsWithLikesAndBookmark(@AuthUser User user, @PathVariable("postId") long postId) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userPostService.checkPostLikeAndBookmarkStatus(user, postId));
