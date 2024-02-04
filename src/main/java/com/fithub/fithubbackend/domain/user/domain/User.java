@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.user.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fithub.fithubbackend.domain.user.dto.OAuthSignUpDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
+import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.enums.Grade;
@@ -138,12 +139,14 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.gender = oAuthSignUpDto.getGender();
     }
 
-    public void updateProfile(ProfileDto dto) {
+    public void updateProfile(ProfileUpdateDto dto) {
+        if(dto.getName() != null) this.name = dto.getName();
         if(dto.getNickname() != null) this.nickname = dto.getNickname();
-        if(dto.getEmail() != null) this.email = dto.getEmail();
         if(dto.getPhone() != null) this.phone = dto.getPhone();
-        if(dto.getBio() != null) this.nickname = dto.getBio();
+        if(dto.getGender() != null) this.gender = dto.getGender();
+        if(dto.getBio() != null) this.bio = dto.getBio();
     }
+
     public void updateProfileImg(Document profileImg) {
         this.profileImg = profileImg;
     }
