@@ -2,7 +2,8 @@ package com.fithub.fithubbackend.domain.Training.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -98,16 +99,11 @@ public class Training extends BaseTimeEntity {
         this.deleted = false;
     }
 
-    public void updateTraining(TrainingCreateDto dto) {
+    public void updateTraining(TrainingContentUpdateDto dto) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
-        this.location = dto.getLocation();
-        this.quota = dto.getQuota();
         this.price = dto.getPrice();
-        this.startDate = dto.getStartDate();
-        this.endDate = dto.getEndDate();
-        this.startHour = dto.getStartHour();
-        this.endHour = dto.getEndHour();
+        this.quota = dto.getQuota();
     }
 
     public void updateClosed(boolean closed) {
@@ -120,6 +116,10 @@ public class Training extends BaseTimeEntity {
 
     public void addImages(TrainingDocument document) {
         this.images.add(document);
+    }
+
+    public void removeImage(TrainingDocument document) {
+        this.images.remove(document);
     }
     
     public boolean removeAvailableDateTime(LocalDateTime dateTime) {

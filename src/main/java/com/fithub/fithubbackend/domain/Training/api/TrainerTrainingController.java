@@ -2,7 +2,8 @@ package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.TrainerTrainingService;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -43,18 +44,18 @@ public class TrainerTrainingController {
         return ResponseEntity.ok(trainerTrainingService.createTraining(dto, user));
     }
 
-//    @Operation(summary = "트레이닝 수정", responses = {
-//            @ApiResponse(responseCode = "200", description = "수정됨"),
-//            @ApiResponse(responseCode = "400", description = "수정 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
-//            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-//            @ApiResponse(responseCode = "409", description = "마감 처리 된 트레이닝을 수정하려고 함", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-//    })
-//    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<Long> updateTraining(@RequestBody @Valid TrainingCreateDto dto, @RequestParam Long trainingId, @AuthUser User user) {
-//        // TODO: 예약 관련 기능 끝난 후 수정 필요
-//        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-//        return ResponseEntity.ok(trainingService.updateTraining(dto, trainingId, user.getEmail()));
-//    }
+    @Operation(summary = "트레이닝 내용 수정", responses = {
+            @ApiResponse(responseCode = "200", description = "수정됨"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 트레이닝을 작성한 트레이너가 아니라 수정 권한이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "500", description = "이미지 업로드 에러", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> updateTraining(@Valid TrainingContentUpdateDto dto, @RequestParam Long trainingId, @AuthUser User user) {
+        // TODO: 예약 관련 기능 끝난 후 수정 필요
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainerTrainingService.updateTrainingContent(dto, trainingId, user.getEmail()));
+    }
 
     @Operation(summary = "트레이닝 삭제 (soft delete)", parameters = {
             @Parameter(name = "trainingId", description = "삭제할 트레이닝 id")

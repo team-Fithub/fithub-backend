@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.Training.dto;
+package com.fithub.fithubbackend.domain.Training.dto.trainersTraining;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;

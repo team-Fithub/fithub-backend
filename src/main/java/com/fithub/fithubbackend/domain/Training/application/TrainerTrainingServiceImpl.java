@@ -2,12 +2,11 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.*;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingImgUpdateDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
-import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
+import com.fithub.fithubbackend.domain.Training.repository.*;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -37,6 +36,8 @@ import java.util.Optional;
 public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
     private final TrainingRepository trainingRepository;
+    private final TrainingDocumentRepository trainingDocumentRepository;
+
     private final TrainerRepository trainerRepository;
     private final TrainingLikesRepository trainingLikesRepository;
 
@@ -100,30 +101,35 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
     @Override
     @Transactional
-    public Long updateTraining(TrainingCreateDto dto, Long trainingId, String email) {
+    public Long updateTrainingContent(TrainingContentUpdateDto dto, Long trainingId, String email) {
         Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
         permissionValidate(training.getTrainer(), email);
 
-        if (training.isClosed()) {
-            throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "마감된 트레이닝은 수정할 수 없습니다.");
-        }
-        dateValidate(dto.getStartDate(), dto.getEndDate());
-
-        List<AvailableDate> originAvailableDates = new ArrayList<>();
-        if (training.getStartDate() != dto.getStartDate() || training.getEndDate() != dto.getEndDate()
-                || training.getStartHour() != dto.getStartHour() || training.getEndHour() != dto.getEndHour()) {
-            originAvailableDates = training.getAvailableDates();
-        }
-
-        // TODO: 기간, 시간 추가 시는 그냥 더해주면 되고 삭제 시에는 예약이 없는지 확인하는 과정 필요. 삭제 선행 작업: 예약
-        if (training.getStartDate() != dto.getStartDate() || training.getEndDate() != dto.getEndDate()) {
-            List<LocalDate> updateLocalDate = new ArrayList<>();
-            // TODO: 예약 추가된 날을 프론트에서 보내줄 수 있는지 or 그냥 기존처럼 안 되는 날만 보내줘서 따로 확인해야되는지
-        }
-
-
         training.updateTraining(dto);
+        if (dto.getTrainingImgUpdateDto() != null) {
+            deleteOrAddImage(dto.getTrainingImgUpdateDto(), training);
+        }
+
         return training.getId();
+    }
+
+    private void deleteOrAddImage(TrainingImgUpdateDto dto, Training training) {
+        if (dto.isImgAdded()) {
+            saveTrainingImages(dto.getNewImgList(), training);
+        }
+        if (dto.isImgDeleted()) {
+            deleteOriginalImage(dto.getUnModifiedImgList(), training);
+        }
+    }
+
+    private void deleteOriginalImage(List<String> unModifiedImgList, Training training) {
+        List<TrainingDocument> originalImgList = trainingDocumentRepository.findByTrainingId(training.getId());
+        for (TrainingDocument originalImg : originalImgList) {
+            if (!unModifiedImgList.contains(originalImg.getDocument().getUrl())) {
+                training.removeImage(originalImg);
+                awsS3Uploader.deleteS3(originalImg.getDocument().getPath());
+            }
+        }
     }
 
     @Override
