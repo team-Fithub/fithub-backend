@@ -3,6 +3,8 @@ package com.fithub.fithubbackend.domain.board.application;
 import com.fithub.fithubbackend.domain.board.dto.*;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.user.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -18,4 +20,6 @@ public interface UserPostService {
     List<LikesBookmarkStatusDto> checkPostsLikeAndBookmarkStatus(List<PostRequestDto> postRequestDtos, User user);
 
     Post getPost(Long postId);
+
+    Page<PostInfoDto> getPostsByUser(Pageable pageable, User user);
 }

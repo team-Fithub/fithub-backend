@@ -8,6 +8,8 @@ import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.util.FileUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -119,6 +121,13 @@ public class UserPostServiceImpl implements UserPostService {
     @Transactional
     public Post getPost(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PostInfoDto> getPostsByUser(Pageable pageable, User user) {
+        Page<Post> posts = postRepository.findByUser(pageable, user);
+        return posts.map(PostInfoDto::toDto);
     }
 
 }

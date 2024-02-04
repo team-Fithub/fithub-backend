@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.board.application;
 
 import com.fithub.fithubbackend.domain.board.comment.domain.Comment;
+import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.board.dto.comment.CommentCreateDto;
 import com.fithub.fithubbackend.domain.board.dto.comment.CommentUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
@@ -9,6 +10,8 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +71,13 @@ public class UserCommentServiceImpl implements UserCommentService {
         else {
             throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 댓글 작성자가 아님");
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PostInfoDto> getPostsByUserAndComments(Pageable pageable, User user) {
+        Page<Post> posts = commentRepository.findPostsByUserAndComments(pageable, user);
+        return posts.map(PostInfoDto::toDto);
     }
 
     @Transactional
