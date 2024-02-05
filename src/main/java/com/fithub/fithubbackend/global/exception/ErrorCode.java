@@ -11,7 +11,7 @@ public enum ErrorCode {
     NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 데이터입니다."),
     UNCORRECTABLE_DATA(HttpStatus.CONFLICT, "현재 수정할 수 없는 데이터입니다."),
     DUPLICATE(HttpStatus.CONFLICT,"중복된 데이터 입니다."),
-    INVALID_FORM_DATA(HttpStatus.CONFLICT,"유효하지 않은 형식의 데이터 입니다."),
+    INVALID_FORM_DATA(HttpStatus.BAD_REQUEST,"유효하지 않은 형식의 데이터 입니다."),
     TOKEN_NOT_EQUALS(HttpStatus.BAD_REQUEST, "토큰이 일치하지 않습니다."),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "검증되지 않는 토큰입니다."),
     // TODO JWT 토큰 관련 ERROR CODE 수정 필요
