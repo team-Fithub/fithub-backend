@@ -62,7 +62,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
         saveTrainingDateTime(availableDateList, localTimeList, training);
 
-        if (dto.getImages() != null) {
+        if (dto.getImages() != null && !dto.getImages().isEmpty()) {
             saveTrainingImages(dto.getImages(), training);
         }
 
@@ -114,10 +114,10 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     }
 
     private void deleteOrAddImage(TrainingImgUpdateDto dto, Training training) {
-        if (dto.isImgAdded()) {
+        if (dto.isImgAdded() && !dto.getNewImgList().isEmpty()) {
             saveTrainingImages(dto.getNewImgList(), training);
         }
-        if (dto.isImgDeleted()) {
+        if (dto.isImgDeleted() && !dto.getUnModifiedImgList().isEmpty()) {
             deleteOriginalImage(dto.getUnModifiedImgList(), training);
         }
     }
