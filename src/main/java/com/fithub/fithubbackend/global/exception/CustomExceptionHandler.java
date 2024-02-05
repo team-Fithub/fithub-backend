@@ -20,15 +20,15 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDto> handleValidException(MethodArgumentNotValidException exception) {
-        log.info("[CustomExceptionHandler] - @Valid 에러");
         FieldError fieldError = exception.getBindingResult().getFieldError();
         String message = fieldError.getField() + ": " + fieldError.getDefaultMessage();
+        log.info("[CustomExceptionHandler] - @Valid 에러 {}", message);
         return ErrorResponseDto.toResponseEntity(ErrorCode.INVALID_FORM_DATA, message);
     }
 
     @ExceptionHandler(PropertyReferenceException.class)
     public ResponseEntity<ErrorResponseDto> handlePropertyReferenceException(PropertyReferenceException exception) {
-        log.info("[CustomExceptionHandler] - PropertyReferenceException 에러");
+        log.info("[CustomExceptionHandler] - PropertyReferenceException 에러 {}", exception.getMessage());
         return ErrorResponseDto.toResponseEntity(ErrorCode.INVALID_FORM_DATA, exception.getMessage());
     }
 }
