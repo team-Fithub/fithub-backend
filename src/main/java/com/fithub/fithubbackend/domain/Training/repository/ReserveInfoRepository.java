@@ -12,9 +12,6 @@ import java.util.List;
 
 public interface ReserveInfoRepository extends JpaRepository<ReserveInfo, Long> {
     Page<ReserveInfo> findByTrainerId(Long trainerId, Pageable pageable);
-    Page<ReserveInfo> findByUserId(Long userId, Pageable pageable);
-    Page<ReserveInfo> findByUserIdAndStatusIn(Long user_id, List<@NotNull ReserveStatus> status, Pageable pageable);
-
     boolean existsByTrainingIdAndStatusNotIn(Long training_id, List<@NotNull ReserveStatus> status);
 
     List<ReserveInfo> findByReserveDateTimeAndStatus(LocalDateTime now, ReserveStatus status);

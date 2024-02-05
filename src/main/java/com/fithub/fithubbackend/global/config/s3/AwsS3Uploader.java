@@ -8,7 +8,6 @@ import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +42,7 @@ public class AwsS3Uploader {
         return amazonS3Client.getUrl(bucket, fileName).toString(); // 업로드된 파일의 S3 URL 주소 반환
     }
 
-    public void deleteS3(String fileName) {
-        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
+    public void deleteS3(String path) {
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, path));
     }
 }

@@ -1,13 +1,16 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
+import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
-import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveCancelInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
+import com.fithub.fithubbackend.domain.Training.repository.CustomTrainingRepository;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -25,20 +28,31 @@ import java.util.List;
 public class UserTrainingReservationServiceImpl implements UserTrainingReservationService {
 
     private final ReserveInfoRepository reserveInfoRepository;
+    private final TrainingRepository trainingRepository;
     private final TrainingReviewRepository trainingReviewRepository;
+    private final CustomTrainingRepository customTrainingRepository;
 
     @Override
-    public Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable) {
-        Page<ReserveInfo> page = reserveInfoRepository.findByUserIdAndStatusIn(user.getId(),
-                List.of(ReserveStatus.BEFORE, ReserveStatus.START, ReserveStatus.COMPLETE),pageable);
-        return page.map(UsersReserveInfoDto::toDto);
+    public Page<UsersReserveOutlineDto> getTrainingReservationList(User user, ReserveStatus status, Pageable pageable) {
+        return customTrainingRepository.searchUsersReserveInfo(user.getId(), status, pageable);
     }
 
     @Override
-    public Page<UsersReserveCancelInfoDto> getTrainingReservationCancelAndNoShowList(User user, Pageable pageable) {
-        Page<ReserveInfo> page = reserveInfoRepository.findByUserIdAndStatusIn(user.getId(),
-                List.of(ReserveStatus.CANCEL, ReserveStatus.NOSHOW), pageable);
-        return page.map(UsersReserveCancelInfoDto::toDto);
+    public UsersReserveInfoDto getTrainingReservation(Long reservationId) {
+        ReserveInfo reserveInfo = reserveInfoRepository.findById(reservationId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약 내역이 존재하지 않습니다"));
+        Training training = reserveInfo.getTraining();
+        return UsersReserveInfoDto.builder()
+                .reservationId(reserveInfo.getId())
+                .trainingId(training.getId())
+                .title(training.getTitle())
+                .location(training.getLocation())
+                .reserveDateTime(reserveInfo.getReserveDateTime())
+                .price(reserveInfo.getPrice())
+                .impUid(reserveInfo.getImpUid())
+                .status(reserveInfo.getStatus())
+                .paymentDateTime(reserveInfo.getCreatedDate())
+                .modifiedDateTime(reserveInfo.getModifiedDate())
+                .build();
     }
 
     @Override

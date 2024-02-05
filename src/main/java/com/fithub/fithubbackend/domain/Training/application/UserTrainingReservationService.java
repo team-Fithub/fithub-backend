@@ -1,9 +1,10 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
-import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveCancelInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDto;
+import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,8 +12,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface UserTrainingReservationService {
-    Page<UsersReserveInfoDto> getTrainingReservationList(User user, Pageable pageable);
-    Page<UsersReserveCancelInfoDto> getTrainingReservationCancelAndNoShowList(User user, Pageable pageable);
+    Page<UsersReserveOutlineDto> getTrainingReservationList(User user, ReserveStatus status, Pageable pageable);
+    UsersReserveInfoDto getTrainingReservation(Long reservationId);
 
     List<UsersTrainingReviewDto> getAllReviews(User user);
     UsersTrainingReviewDto getReviewForReservation(User user, Long reserveId);
