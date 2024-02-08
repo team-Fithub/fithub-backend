@@ -36,11 +36,11 @@ public class ReserveInfo extends BaseTimeEntity {
     @JsonIgnoreProperties({"trainer"})
     private Training training;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OrderBy(value = "date")
     private AvailableDate availableDate;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OrderBy(value = "time")
     private AvailableTime availableTime;
 
