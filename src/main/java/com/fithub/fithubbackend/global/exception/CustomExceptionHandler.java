@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.global.exception;
 
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.ResponseEntity;
@@ -31,5 +32,19 @@ public class CustomExceptionHandler {
         log.info("[CustomExceptionHandler] - PropertyReferenceException 에러 {}", exception.getMessage());
         return ErrorResponseDto.toResponseEntity(ErrorCode.INVALID_FORM_DATA, exception.getMessage());
     }
+
+    @ExceptionHandler(IamportResponseException.class)
+    public ResponseEntity<ErrorResponseDto> handleIamportResponseException(IamportResponseException exception) {
+        log.info("[CustomExceptionHandler] - IamportResponseException 에러 {}", exception.getMessage());
+        return ResponseEntity
+                .status(exception.getHttpStatusCode())
+                .body(ErrorResponseDto.builder()
+                        .status(exception.getHttpStatusCode())
+                        .code("IAMPORT_ERROR")
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
 }
 
