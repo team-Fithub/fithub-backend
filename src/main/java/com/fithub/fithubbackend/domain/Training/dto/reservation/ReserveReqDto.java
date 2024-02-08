@@ -1,12 +1,9 @@
 package com.fithub.fithubbackend.domain.Training.dto.reservation;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,7 +14,10 @@ public class ReserveReqDto {
     private Long trainingId;
 
     @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "예약한 날짜, 시간")
-    private LocalDateTime reserveDateTime;
+    @Schema(description = "예약한 날짜 id")
+    private Long reservationDateId;
+
+    @NotNull
+    @Schema(description = "예약한 시간 id")
+    private Long reservationTimeId;
 }
