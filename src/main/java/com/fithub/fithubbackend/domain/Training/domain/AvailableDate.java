@@ -52,28 +52,6 @@ public class AvailableDate {
         training.getAvailableDates().add(this);
     }
 
-    public boolean removeTime(LocalTime time) {
-        for (AvailableTime availableTime : this.getAvailableTimes()) {
-            if (availableTime.getTime().equals(time)) {
-                if (!availableTime.isEnabled()) return false;
-                availableTime.closeTime();
-                long enabledCnt = this.getAvailableTimes().stream().filter(AvailableTime::isEnabled).count();
-                if (enabledCnt == 0) closeDate();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void addTime(LocalTime time) {
-        for (AvailableTime availableTime : this.getAvailableTimes()) {
-            if (availableTime.getTime().equals(time)) {
-                availableTime.openTime();
-                return;
-            }
-        }
-    }
-
     public void closeCurrentTime(LocalTime now) {
         for (AvailableTime time : this.getAvailableTimes()) {
             if (time.isEnabled() && time.getTime().getHour() == now.getHour()) {
