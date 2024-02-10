@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
+import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
@@ -8,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface TrainerTrainingService {
+
+    Page<TrainersTrainingOutlineDto> getTrainersTrainingList(Long userId, boolean closed, Pageable pageable);
     Long createTraining(TrainingCreateDto dto, User user);
     Long updateTrainingContent(TrainingContentUpdateDto dto, Long trainingId, String email);
     void deleteTraining(Long id, String email);

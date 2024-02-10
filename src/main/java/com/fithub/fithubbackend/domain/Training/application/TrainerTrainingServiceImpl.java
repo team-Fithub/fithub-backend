@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.*;
+import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
@@ -49,10 +50,16 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     private final String imagePath =  "training";
 
     @Override
+    public Page<TrainersTrainingOutlineDto> getTrainersTrainingList(Long userId, boolean closed, Pageable pageable) {
+        Trainer trainer = findTrainerByUserId(userId);
+        Page<Training> trainersTrainingList = trainingRepository.findAllByDeletedFalseAndTrainerIdAndClosed(trainer.getId(), closed, pageable);
+        return trainersTrainingList.map(t -> TrainersTrainingOutlineDto.builder().training(t).build());
+    }
+
+    @Override
     @Transactional
     public Long createTraining(TrainingCreateDto dto, User user) {
-        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이너"));
-
+        Trainer trainer = findTrainerByUserId(user.getId());
         dateValidate(dto.getStartDate(), dto.getEndDate());
 
         Training training = Training.builder().dto(dto).trainer(trainer).build();
@@ -68,6 +75,11 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
         trainingRepository.save(training);
         return training.getId();
+    }
+
+    private Trainer findTrainerByUserId (Long userId) {
+        return trainerRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PERMISSION_DENIED, "해당 회원은 트레이너가 아님"));
     }
 
     private void saveTrainingDateTime(List<LocalDate> availableDateList, List<LocalTime> localTimeList, Training training) {

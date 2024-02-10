@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.TrainerTrainingService;
+import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
@@ -33,9 +34,27 @@ public class TrainerTrainingController {
 
     private final TrainerTrainingService trainerTrainingService;
 
+    @Operation(summary = "트레이너의 트레이닝 목록 (page)", parameters = {
+            @Parameter(name = "closed", description = "마감된 트레이닝 목록 조회 원하면 true로 주기"),
+            @Parameter(name = "pageable", description = "기본 정렬은 id desc, size = 9 / 정렬 값 변경은 응답 dto 값 중 하나로 가능")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 회원은 트레이너가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @GetMapping
+    public ResponseEntity<Page<TrainersTrainingOutlineDto>> getTrainersTrainingList(@AuthUser User user,
+                                                                                    @RequestParam(required = false) boolean closed,
+                                                                                    @PageableDefault(sort="id", size = 9, direction = Sort.Direction.DESC) Pageable pageable) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainerTrainingService.getTrainersTrainingList(user.getId(), closed, pageable));
+    }
+
+
     @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능, 이미지는 모두 images로 주면 됨", responses = {
             @ApiResponse(responseCode = "200", description = "생성됨"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 회원은 트레이너가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "예약 가능 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
