@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -124,17 +125,36 @@ public class TrainerTrainingController {
     }
 
     @Operation(summary = "트레이너의 예약 리스트 조회", parameters = {
+            @Parameter(name = "status", description = "예약 상태, 진행전,중을 불러올 때는 없어야 됨", example = "COMPLETE, CANCEL, NOSHOW"),
             @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id (생성 순), 예약된 트레이닝 날짜 순은 reserveDateTime으로 주면 됨)")
     }, responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "해당 회원은 트레이너가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 회원은 트레이너가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
-    @GetMapping("/reservations")
+    @GetMapping("/reservations/all")
     public ResponseEntity<Page<TrainersReserveInfoDto>> getReservationList(@AuthUser User user,
+                                                                           @RequestParam(required = false) ReserveStatus status,
                                                                            @PageableDefault(sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        return ResponseEntity.ok(trainerTrainingService.getReservationList(user, pageable));
+        return ResponseEntity.ok(trainerTrainingService.getReservationList(user.getId(), status, pageable));
+    }
+
+    @Operation(summary = "트레이너의 트레이닝 하나에 대한 예약 리스트 조회", parameters = {
+            @Parameter(name = "status", description = "예약 상태, 진행전,중을 불러올 때는 없어야 됨", example = "COMPLETE, CANCEL, NOSHOW"),
+            @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id (생성 순), 예약된 트레이닝 날짜 순은 reserveDateTime으로 주면 됨)")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 회원은 트레이너가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @GetMapping("/reservations")
+    public ResponseEntity<Page<TrainersReserveInfoDto>> getReservationListForTrainingId(@AuthUser User user,
+                                                                           @RequestParam Long trainingId,
+                                                                           @RequestParam(required = false) ReserveStatus status,
+                                                                           @PageableDefault(sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainerTrainingService.getReservationListForTrainingId(user.getId(), trainingId, status, pageable));
     }
 
     @Operation(summary = "트레이너의 예약 노쇼 처리", parameters = {

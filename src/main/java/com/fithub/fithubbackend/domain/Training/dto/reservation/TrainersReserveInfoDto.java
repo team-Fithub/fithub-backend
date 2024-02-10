@@ -1,23 +1,27 @@
 package com.fithub.fithubbackend.domain.Training.dto.reservation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Builder
 @Schema(description = "트레이너의 트레이닝 예약 정보 확인")
 public class TrainersReserveInfoDto {
     @Schema(description = "트레이닝 id")
-    private Long id;
+    private Long trainingId;
 
     @Schema(description = "트레이닝 제목")
     private String title;
+
+    @Schema(description = "트레이닝 예약자 primary key id")
+    private Long userId;
 
     @Schema(description = "트레이닝 예약자 이름")
     private String userName;
@@ -35,16 +39,18 @@ public class TrainersReserveInfoDto {
 
     @Schema(description = "트레이닝 결제 금액")
     private int price;
-    
-   public static TrainersReserveInfoDto toDto(ReserveInfo reserveInfo) {
-            return TrainersReserveInfoDto.builder()
-                    .id(reserveInfo.getId())
-                    .title(reserveInfo.getTraining().getTitle())
-                    .userName(reserveInfo.getUser().getName())
-                    .trainingDateTime(reserveInfo.getReserveDateTime())
-                    .createdDateTime(reserveInfo.getCreatedDate())
-                    .status(reserveInfo.getStatus())
-                    .price(reserveInfo.getPrice())
-                    .build();
+
+    @QueryProjection
+    public TrainersReserveInfoDto(Long trainingId, String title, Long userId, String userName,
+                                  ReserveStatus status, int price,
+                                  LocalDateTime trainingDateTime, LocalDateTime createdDateTime) {
+        this.trainingId = trainingId;
+        this.title = title;
+        this.userId = userId;
+        this.userName = userName;
+        this.trainingDateTime = trainingDateTime;
+        this.status = status;
+        this.price = price;
+        this.createdDateTime = createdDateTime;
     }
 }

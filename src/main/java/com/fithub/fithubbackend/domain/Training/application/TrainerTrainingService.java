@@ -4,6 +4,7 @@ import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +19,8 @@ public interface TrainerTrainingService {
     void closeTraining(Long id, User user);
     void openTraining(Long id, User user);
 
-    Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable);
+    Page<TrainersReserveInfoDto> getReservationList(Long userId, ReserveStatus status, Pageable pageable);
+    Page<TrainersReserveInfoDto> getReservationListForTrainingId(Long userId, Long trainingId, ReserveStatus status, Pageable pageable);
 
     void updateReservationStatusNoShow(String email, Long reservationId);
 }
