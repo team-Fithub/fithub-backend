@@ -82,7 +82,8 @@ public class CustomTrainingRepository {
 
         Long count = jpaQueryFactory.select(reserveInfo.count())
                 .from(reserveInfo)
-                .where(statusCondition(status))
+                .where(user.id.eq(userId),
+                        statusCondition(status))
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, count);
