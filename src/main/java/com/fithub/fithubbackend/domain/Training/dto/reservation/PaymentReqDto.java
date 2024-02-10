@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.Training.dto;
+package com.fithub.fithubbackend.domain.Training.dto.reservation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

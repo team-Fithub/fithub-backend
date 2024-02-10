@@ -41,11 +41,11 @@ public class SecurityConfig {
     private final OAuthFailureHandler oAuthFailureHandler;
 
     private static final String[] PERMIT_ALL_PATTERNS = new String[] {
-            "/", "/auth/**", "/oauth2/**"
+            "/", "/auth/**", "/oauth2/**", "/training/**"
     };
 
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
-        "/users/training/all", "/users/training", "/users/training/reviews", "/posts/public/**"
+        "/training/**", "/posts/public/**"
     };
 
     @Bean
@@ -102,7 +102,7 @@ public class SecurityConfig {
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowedMethods(List.of("*"));
-        corsConfiguration.setExposedHeaders(List.of("X-AUTH-TOKEN"));
+        corsConfiguration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
