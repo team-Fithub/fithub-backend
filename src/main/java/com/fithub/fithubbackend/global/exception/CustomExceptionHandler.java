@@ -6,6 +6,7 @@ import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -45,6 +46,20 @@ public class CustomExceptionHandler {
                         .build()
                 );
     }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+        log.info("[CustomExceptionHandler] - MissingServletRequestParameterException 에러 {}", exception.getMessage());
+        return ResponseEntity
+                .status(exception.getStatusCode())
+                .body(ErrorResponseDto.builder()
+                        .status(exception.getStatusCode().value())
+                        .code("BAD_REQUEST")
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
 
 }
 
