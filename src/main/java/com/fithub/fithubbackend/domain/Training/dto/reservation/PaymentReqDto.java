@@ -14,14 +14,6 @@ public class PaymentReqDto {
     private Long reservationId;
 
     @NotNull
-    @Schema(description = "예약한 트레이닝 id")
-    private Long trainingId;
-
-    @NotNull
-    @Schema(description = "상점 id kc는 html5_inicis 아니면 inicis")
-    private String pg;
-
-    @NotNull
     @Schema(description = "결제 방법")
     private String payMethod;
 

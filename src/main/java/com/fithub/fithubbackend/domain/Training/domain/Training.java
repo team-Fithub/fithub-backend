@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +53,9 @@ public class Training extends BaseTimeEntity {
     private String location;
 
     @NotNull
+    private int participants;
+
+    @NotNull
     @ColumnDefault("1")
     @Min(1)
     private int quota;
@@ -87,6 +89,7 @@ public class Training extends BaseTimeEntity {
         this.content = dto.getContent();
         this.closed = false;
         this.location = dto.getLocation();
+        this.participants = 0;
         this.quota = dto.getQuota();
         this.price = dto.getPrice();
         this.startDate = dto.getStartDate();
@@ -120,43 +123,5 @@ public class Training extends BaseTimeEntity {
 
     public void removeImage(TrainingDocument document) {
         this.images.remove(document);
-    }
-    
-    public boolean removeAvailableDateTime(LocalDateTime dateTime) {
-        LocalDate reserveDate = dateTime.toLocalDate();
-        LocalTime reserveTime = dateTime.toLocalTime();
-        for (AvailableDate availableDate : this.getAvailableDates()) {
-            if (availableDate.getDate().equals(reserveDate)) {
-                if (!availableDate.isEnabled()) return false;
-                return availableDate.removeTime(reserveTime);
-            }
-        }
-        return false;
-    }
-
-    public void addAvailableDateTime(LocalDateTime dateTime) {
-        LocalDate reserveDate = dateTime.toLocalDate();
-        LocalTime reserveTime = dateTime.toLocalTime();
-        for (AvailableDate availableDate : this.getAvailableDates()) {
-            if (availableDate.getDate().equals(reserveDate)) {
-                availableDate.addTime(reserveTime);
-                if (!availableDate.isEnabled()) availableDate.openDate();
-                return;
-            }
-        }
-    }
-
-    public boolean isAllClosed() {
-        for (AvailableDate availableDate : this.getAvailableDates()) {
-            if (availableDate.isEnabled()) return false;
-        }
-        return true;
-    }
-
-    public AvailableDate getToday(LocalDate today) {
-        for (AvailableDate date : this.getAvailableDates()) {
-            if (date.getDate().equals(today)) return date;
-        }
-        return null;
     }
 }

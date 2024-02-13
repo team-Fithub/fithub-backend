@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface TrainingReviewRepository extends JpaRepository<TrainingReview, Long> {
     List<TrainingReview> findByUserIdOrderByIdDesc(Long userId);
-    List<TrainingReview> findByTrainingId(Long trainingId);
+    List<TrainingReview> findByLockedFalseAndTrainingId(Long trainingId);
 
     Optional<TrainingReview> findByReserveInfoId(Long reserveInfoId);
 }

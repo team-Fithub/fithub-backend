@@ -71,7 +71,8 @@ public class CustomTrainingRepository {
                                 reserveInfo.modifiedDate
                         )
                 ).from(reserveInfo)
-                .where(statusCondition(status))
+                .where(user.id.eq(userId),
+                        statusCondition(status))
                 .join(reserveInfo.user, user)
                 .join(reserveInfo.training, training)
                 .offset(pageable.getOffset())
@@ -81,7 +82,8 @@ public class CustomTrainingRepository {
 
         Long count = jpaQueryFactory.select(reserveInfo.count())
                 .from(reserveInfo)
-                .where(statusCondition(status))
+                .where(user.id.eq(userId),
+                        statusCondition(status))
                 .fetchOne();
 
         return new PageImpl<>(content, pageable, count);

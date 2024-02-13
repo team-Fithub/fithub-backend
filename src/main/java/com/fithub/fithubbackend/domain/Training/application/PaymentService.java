@@ -2,7 +2,6 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.dto.reservation.CancelReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentReqDto;
-import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentResDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.ReserveReqDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.siot.IamportRestClient.exception.IamportResponseException;
@@ -12,7 +11,7 @@ import java.io.IOException;
 public interface PaymentService {
     Long saveOrder(ReserveReqDto dto, User user);
 
-    PaymentResDto validate(PaymentReqDto dto) throws IamportResponseException, IOException;
+    Long validate(PaymentReqDto dto) throws IamportResponseException, IOException;
 
-    void cancelPayment(CancelReqDto dto, String email) throws IamportResponseException, IOException;
+    void cancelPayment(Long userId, CancelReqDto dto) throws IamportResponseException, IOException;
 }

@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.*;
+import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
@@ -43,16 +44,23 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
     private final ReserveInfoRepository reserveInfoRepository;
     private final TrainingReviewRepository trainingReviewRepository;
+    private final CustomReserveInfoRepository customReserveInfoRepository;
 
     private final AwsS3Uploader awsS3Uploader;
 
     private final String imagePath =  "training";
 
     @Override
+    public Page<TrainersTrainingOutlineDto> getTrainersTrainingList(Long userId, boolean closed, Pageable pageable) {
+        Trainer trainer = findTrainerByUserId(userId);
+        Page<Training> trainersTrainingList = trainingRepository.findAllByDeletedFalseAndTrainerIdAndClosed(trainer.getId(), closed, pageable);
+        return trainersTrainingList.map(t -> TrainersTrainingOutlineDto.builder().training(t).build());
+    }
+
+    @Override
     @Transactional
     public Long createTraining(TrainingCreateDto dto, User user) {
-        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이너"));
-
+        Trainer trainer = findTrainerByUserId(user.getId());
         dateValidate(dto.getStartDate(), dto.getEndDate());
 
         Training training = Training.builder().dto(dto).trainer(trainer).build();
@@ -102,7 +110,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     @Override
     @Transactional
     public Long updateTrainingContent(TrainingContentUpdateDto dto, Long trainingId, String email) {
-        Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
+        Training training = findTrainingById(trainingId);
         permissionValidate(training.getTrainer(), email);
 
         training.updateTraining(dto);
@@ -135,7 +143,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     @Override
     @Transactional
     public void deleteTraining(Long id, String email) {
-        Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
+        Training training = findTrainingById(id);
         permissionValidate(training.getTrainer(), email);
 
         if (reserveInfoRepository.existsByTrainingIdAndStatusNotIn(id,
@@ -152,7 +160,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     @Override
     @Transactional
     public void closeTraining(Long id, User user) {
-        Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
+        Training training = findTrainingById(id);
         permissionValidate(training.getTrainer(), user.getEmail());
         training.updateClosed(true);
     }
@@ -160,7 +168,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     @Override
     @Transactional
     public void openTraining(Long id, User user) {
-        Training training = trainingRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
+        Training training = findTrainingById(id);
         permissionValidate(training.getTrainer(), user.getEmail());
         // 트레이닝 예약 가능한 마지막 날이 현재보다 이전이면 오픈 불가능
         if (!training.getEndDate().isAfter(LocalDate.now())) {
@@ -171,11 +179,15 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<TrainersReserveInfoDto> getReservationList(User user, Pageable pageable) {
-        Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 트레이너가 아닙니다."));
+    public Page<TrainersReserveInfoDto> getReservationList(Long userId, ReserveStatus status, Pageable pageable) {
+        Trainer trainer = findTrainerByUserId(userId);
+        return customReserveInfoRepository.searchTrainersReserveInfo(trainer.getId(), status, pageable);
+    }
 
-        Page<ReserveInfo> reserveInfoPage = reserveInfoRepository.findByTrainerId(trainer.getId(), pageable);
-        return reserveInfoPage.map(TrainersReserveInfoDto::toDto);
+    @Override
+    public Page<TrainersReserveInfoDto> getReservationListForTrainingId(Long userId, Long trainingId, ReserveStatus status, Pageable pageable) {
+        Trainer trainer = findTrainerByUserId(userId);
+        return customReserveInfoRepository.searchTrainersReserveInfo(trainer.getId(), trainingId, status, pageable);
     }
 
     @Override
@@ -197,6 +209,16 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         if (!reserveInfo.getStatus().equals(ReserveStatus.COMPLETE)) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 예약은 진행 전 / 진행 중 / 취소 상태이므로 노쇼 처리할 수 없습니다. 완료 처리된 예약만 노쇼 처리가 가능합니다.");
         }
+    }
+
+    private Trainer findTrainerByUserId (Long userId) {
+        return trainerRepository.findByUserId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PERMISSION_DENIED, "해당 회원은 트레이너가 아님"));
+    }
+
+    private Training findTrainingById(Long trainingId) {
+        return trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 트레이닝을 찾을 수 없습니다."));
     }
 
     private List<LocalDate> getAvailableDateList(LocalDate startLocalDate, LocalDate endLocalDate, List<LocalDate> unableDates) {

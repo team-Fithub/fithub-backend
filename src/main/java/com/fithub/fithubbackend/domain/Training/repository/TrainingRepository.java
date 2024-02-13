@@ -13,6 +13,8 @@ import java.util.List;
 public interface TrainingRepository extends JpaRepository<Training, Long> {
 
     Page<Training> findAllByDeletedFalseAndClosedFalse(Pageable pageable);
+    Page<Training> findAllByDeletedFalseAndTrainerIdAndClosed(Long trainerId, boolean closed, Pageable pageable);
+
     List<Training> findByClosedFalseAndEndDateLessThanEqual(LocalDate now);
     @Query(value = "SELECT t.title FROM Training t WHERE t.id = :id")
     String findTitleById(@Param("id") Long id);

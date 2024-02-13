@@ -54,7 +54,7 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public List<TrainingReviewDto> getTrainingReviews(Long id) {
-        List<TrainingReview> trainingReviewList = trainingReviewRepository.findByTrainingId(id);
+        List<TrainingReview> trainingReviewList = trainingReviewRepository.findByLockedFalseAndTrainingId(id);
         return trainingReviewList.stream().map(TrainingReviewDto::toDto).toList();
     }
 

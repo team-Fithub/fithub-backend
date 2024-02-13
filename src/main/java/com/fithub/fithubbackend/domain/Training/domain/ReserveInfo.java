@@ -2,7 +2,6 @@ package com.fithub.fithubbackend.domain.Training.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.PaymentReqDto;
-import com.fithub.fithubbackend.domain.Training.dto.reservation.ReserveReqDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -37,6 +36,14 @@ public class ReserveInfo extends BaseTimeEntity {
     @JsonIgnoreProperties({"trainer"})
     private Training training;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @OrderBy(value = "date")
+    private AvailableDate availableDate;
+
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OrderBy(value = "time")
+    private AvailableTime availableTime;
+
     @NotNull
     private LocalDateTime reserveDateTime;
 
@@ -61,11 +68,13 @@ public class ReserveInfo extends BaseTimeEntity {
     private int price;
 
     @Builder
-    public ReserveInfo(User user, Training training, ReserveReqDto dto) {
+    public ReserveInfo(User user, Training training, AvailableDate date, AvailableTime time) {
         this.user = user;
         this.trainer = training.getTrainer();
         this.training = training;
-        this.reserveDateTime = dto.getReserveDateTime();
+        this.availableDate = date;
+        this.availableTime = time;
+        this.reserveDateTime = LocalDateTime.of(availableDate.getDate(), availableTime.getTime());
         this.status = ReserveStatus.BEFORE;
         this.price = training.getPrice();
     }
@@ -78,5 +87,10 @@ public class ReserveInfo extends BaseTimeEntity {
 
     public void updateStatus(ReserveStatus status) {
         this.status = status;
+    }
+
+    public void openDateTime() {
+        this.getAvailableTime().openTime();
+        this.getAvailableDate().openDate();
     }
 }

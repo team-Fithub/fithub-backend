@@ -1,10 +1,12 @@
 package com.fithub.fithubbackend.global.exception;
 
+import com.siot.IamportRestClient.exception.IamportResponseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -31,5 +33,33 @@ public class CustomExceptionHandler {
         log.info("[CustomExceptionHandler] - PropertyReferenceException 에러 {}", exception.getMessage());
         return ErrorResponseDto.toResponseEntity(ErrorCode.INVALID_FORM_DATA, exception.getMessage());
     }
+
+    @ExceptionHandler(IamportResponseException.class)
+    public ResponseEntity<ErrorResponseDto> handleIamportResponseException(IamportResponseException exception) {
+        log.info("[CustomExceptionHandler] - IamportResponseException 에러 {}", exception.getMessage());
+        return ResponseEntity
+                .status(exception.getHttpStatusCode())
+                .body(ErrorResponseDto.builder()
+                        .status(exception.getHttpStatusCode())
+                        .code("IAMPORT_ERROR")
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestParameterException(MissingServletRequestParameterException exception) {
+        log.info("[CustomExceptionHandler] - MissingServletRequestParameterException 에러 {}", exception.getMessage());
+        return ResponseEntity
+                .status(exception.getStatusCode())
+                .body(ErrorResponseDto.builder()
+                        .status(exception.getStatusCode().value())
+                        .code("BAD_REQUEST")
+                        .message(exception.getMessage())
+                        .build()
+                );
+    }
+
+
 }
 
