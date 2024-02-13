@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +30,16 @@ public class UserTrainingLikeServiceImpl implements UserTrainingLikeService {
             throw new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다.");
         }
         return trainingLikesRepository.existsByTrainingIdAndUserId(trainingId, user.getId());
+    }
+
+    @Override
+    public List<Boolean> checkGivenTrainingListIsLiked(List<Long> trainingIdList, User user) {
+        List<Boolean> likesStatusList = new ArrayList<>();
+        for (Long id : trainingIdList) {
+            boolean liked = trainingLikesRepository.existsByTrainingIdAndUserId(id, user.getId());
+            likesStatusList.add(liked);
+        }
+        return likesStatusList;
     }
 
     @Override
