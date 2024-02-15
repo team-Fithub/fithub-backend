@@ -122,26 +122,26 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void signOut(SignOutDto signOutDto, HttpServletResponse response, HttpServletRequest request) {
+    public void signOut(HttpServletResponse response, HttpServletRequest request) {
+
+        String accessToken = headerUtil.resolveAccessToken(request);
+
+        if (accessToken == null)
+            throw new CustomException(ErrorCode.NOT_FOUND, "헤더에 access Token 존재하지 않음");
 
         try {
-            jwtTokenProvider.validateToken(signOutDto.getAccessToken());
-        } catch (JwtException e) {
-            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN, "검증되지 않는 토큰이므로 로그아웃 실패");
+            jwtTokenProvider.validateToken(accessToken);
+            Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+
+            if (redisUtil.getData(authentication.getName()) != null)
+                redisUtil.deleteData(authentication.getName());
+
+            Long expiration = jwtTokenProvider.getExpiration(accessToken);
+            redisUtil.setData(accessToken, "logout", expiration);
+
+        } catch (JwtException jwtException) {
+            throw new CustomException(ErrorCode.INVALID_TOKEN, "검증되지 않는 access Token");
         }
-
-        Authentication authentication = jwtTokenProvider.getAuthentication(signOutDto.getAccessToken());
-
-        if (redisUtil.getData(authentication.getName()) != null) {
-            redisUtil.deleteData(signOutDto.getEmail());
-        }
-        else {
-            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN, "redis에 토큰이 존재하지 않습니다.");
-        }
-
-        Long expiration = jwtTokenProvider.getExpiration(signOutDto.getAccessToken());
-        redisUtil.setData(signOutDto.getAccessToken(), "logout", expiration);
-
     }
 
     @Override

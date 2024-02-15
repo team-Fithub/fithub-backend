@@ -59,13 +59,12 @@ public class AuthController {
 
     @Operation(summary = "로그아웃", responses = {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
-            @ApiResponse(responseCode = "405", description = "만료되거나 redis에 저장되지 않는 refresh Token", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "검증되지 않는 access Token", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "헤더에 access Token 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @DeleteMapping("/sign-out")
-    public ResponseEntity signOut(@CookieValue(name = "accessToken") String cookieAccessToken,
-                                  @AuthUser User user, HttpServletResponse response, HttpServletRequest request){
-        SignOutDto signOutDto = SignOutDto.builder().accessToken(cookieAccessToken).email(user.getEmail()).build();
-        authService.signOut(signOutDto, response, request);
+    public ResponseEntity signOut(HttpServletResponse response, HttpServletRequest request){
+        authService.signOut(response, request);
         return new ResponseEntity<>("로그아웃 성공", HttpStatus.OK);
     }
 
