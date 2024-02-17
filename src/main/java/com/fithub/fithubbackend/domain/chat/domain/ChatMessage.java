@@ -18,7 +18,7 @@ public class ChatMessage extends BaseTimeEntity {
     private Long messageId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    private User user;
+    private User sender;
 
     @ManyToOne(optional = false)
     private ChatRoom chatRoom;
@@ -30,12 +30,12 @@ public class ChatMessage extends BaseTimeEntity {
     private boolean check;
 
     public void setUser(User user) {
-        this.user = user;
+        this.sender = user;
     }
 
     @Builder
-    public ChatMessage(User user, ChatRoom chatRoom, String message) {
-        this.user = user;
+    public ChatMessage(User sender, ChatRoom chatRoom, String message) {
+        this.sender = sender;
         this.chatRoom = chatRoom;
         this.message = message;
     }
