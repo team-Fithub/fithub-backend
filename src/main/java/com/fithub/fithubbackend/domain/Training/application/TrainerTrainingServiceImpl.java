@@ -187,7 +187,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     @Override
     public Page<TrainersReserveInfoDto> getReservationListForTrainingId(Long userId, Long trainingId, ReserveStatus status, Pageable pageable) {
         Trainer trainer = findTrainerByUserId(userId);
-        return customReserveInfoRepository.searchTrainersReserveInfo(trainer.getId(), trainingId, status, pageable);
+        return customReserveInfoRepository.searchTrainersReserveInfoForTrainingId(trainer.getId(), trainingId, status, pageable);
     }
 
     @Override

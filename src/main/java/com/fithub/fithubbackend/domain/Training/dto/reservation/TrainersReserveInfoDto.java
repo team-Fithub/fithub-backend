@@ -14,6 +14,10 @@ import java.time.LocalDateTime;
 @Builder
 @Schema(description = "트레이너의 트레이닝 예약 정보 확인")
 public class TrainersReserveInfoDto {
+
+    @Schema(description = "트레이닝 예약 id")
+    private Long reservationId;
+
     @Schema(description = "트레이닝 id")
     private Long trainingId;
 
@@ -41,9 +45,10 @@ public class TrainersReserveInfoDto {
     private int price;
 
     @QueryProjection
-    public TrainersReserveInfoDto(Long trainingId, String title, Long userId, String userName,
+    public TrainersReserveInfoDto(Long reservationId, Long trainingId, String title, Long userId, String userName,
                                   ReserveStatus status, int price,
                                   LocalDateTime trainingDateTime, LocalDateTime createdDateTime) {
+        this.reservationId = reservationId;
         this.trainingId = trainingId;
         this.title = title;
         this.userId = userId;

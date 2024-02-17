@@ -40,7 +40,7 @@ public class UserTrainingLikesController {
     }
 
     @Operation(summary = "주어진 목록의 트레이닝 찜 여부 조회", parameters = {
-            @Parameter(name = "trainingId", description = "조회할 트레이닝의 primary key(id)")
+            @Parameter(name = "trainingIdList", description = "조회할 트레이닝의 primary key(id) 리스트", example = "[1,2,3]")
     }, responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),

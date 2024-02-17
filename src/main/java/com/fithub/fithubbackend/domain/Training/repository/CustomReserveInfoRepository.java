@@ -31,6 +31,7 @@ public class CustomReserveInfoRepository {
     public Page<TrainersReserveInfoDto> searchTrainersReserveInfo(Long trainerId, ReserveStatus status, Pageable pageable) {
         List<TrainersReserveInfoDto> content = jpaQueryFactory.select(
                         new QTrainersReserveInfoDto(
+                                reserveInfo.id,
                                 reserveInfo.training.id,
                                 reserveInfo.training.title,
                                 reserveInfo.user.id,
@@ -59,9 +60,10 @@ public class CustomReserveInfoRepository {
         return new PageImpl<>(content, pageable, count);
     }
 
-    public Page<TrainersReserveInfoDto> searchTrainersReserveInfo(Long trainerId, Long trainingId, ReserveStatus status, Pageable pageable) {
+    public Page<TrainersReserveInfoDto> searchTrainersReserveInfoForTrainingId(Long trainerId, Long trainingId, ReserveStatus status, Pageable pageable) {
         List<TrainersReserveInfoDto> content = jpaQueryFactory.select(
                         new QTrainersReserveInfoDto(
+                                reserveInfo.id,
                                 reserveInfo.training.id,
                                 reserveInfo.training.title,
                                 reserveInfo.user.id,
