@@ -5,6 +5,8 @@ import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveI
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainingDateReservationNumDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingDateUpdateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingTimeUpdateDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,9 @@ public interface TrainerTrainingService {
     Long updateTrainingContent(TrainingContentUpdateDto dto, Long trainingId, String email);
 
     List<TrainingDateReservationNumDto> getNumberOfReservations(Long trainingId);
+
+    Long updateTrainingDate(String email, Long trainingId, TrainingDateUpdateDto dto);
+    Long updateTrainingTime(String email, Long trainingId, TrainingTimeUpdateDto dto);
 
     void deleteTraining(Long id, String email);
 

@@ -6,6 +6,7 @@ import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveI
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainingDateReservationNumDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingDateUpdateDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.domain.AuthUser;
@@ -79,7 +80,7 @@ public class TrainerTrainingController {
         return ResponseEntity.ok(trainerTrainingService.updateTrainingContent(dto, trainingId, user.getEmail()));
     }
 
-    @Operation(summary = "트레이닝 날짜, 시간 수정을 위해 그 날짜들에 있는 예약 수 받아오기", responses = {
+    @Operation(summary = "트레이닝 날짜, 시간 수정을 위해 그 날짜들에 있는 진행 전 예약 수 받아오기", responses = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
@@ -87,6 +88,18 @@ public class TrainerTrainingController {
     public ResponseEntity<List<TrainingDateReservationNumDto>> getNumberOfReservations(@RequestParam Long trainingId, @AuthUser User user) {
         if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(trainerTrainingService.getNumberOfReservations(trainingId));
+    }
+
+    @Operation(summary = "트레이닝 날짜 수정", responses = {
+            @ApiResponse(responseCode = "200", description = "성공. 다시 /reservations/count 조회하거나 트레이닝으로 돌아가기"),
+            @ApiResponse(responseCode = "400", description = "수정하려는 날짜 중에(date.getDate()) 일에 진행 전 예약이 존재하여 수정할 수 없습니다.", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @PutMapping("/update/date")
+    public ResponseEntity<Long> updateTrainingDates(@RequestParam Long trainingId, @RequestBody TrainingDateUpdateDto dto,
+                                                                              @AuthUser User user) {
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainerTrainingService.updateTrainingDate(user.getEmail(), trainingId, dto));
     }
 
     @Operation(summary = "트레이닝 삭제 (soft delete)", parameters = {

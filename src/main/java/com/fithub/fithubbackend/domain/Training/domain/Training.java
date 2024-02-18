@@ -125,4 +125,13 @@ public class Training extends BaseTimeEntity {
     public void removeImage(TrainingDocument document) {
         this.images.remove(document);
     }
+
+    public void removeDate(AvailableDate date) {
+        this.availableDates.remove(date);
+    }
+
+    public void updateStartAndEndDate(LocalDate startDate, LocalDate endDate) {
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }
