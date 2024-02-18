@@ -9,12 +9,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
 @Entity
+@Where(clause = "deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AvailableDate {
@@ -36,6 +38,8 @@ public class AvailableDate {
     @OneToMany(mappedBy = "availableDate", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"availableDate"})
     private List<AvailableTime> availableTimes;
+
+    private boolean deleted;
 
     @Builder
     public AvailableDate (LocalDate date, boolean enabled) {
@@ -74,5 +78,10 @@ public class AvailableDate {
 
     public void openDate() {
         this.enabled = true;
+    }
+
+    public void deleteDate() {
+        this.deleted = true;
+        this.availableTimes.forEach(AvailableTime::deleteTime);
     }
 }

@@ -7,10 +7,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalTime;
 
 @Entity
+@Where(clause = "deleted = false")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AvailableTime {
@@ -29,6 +31,8 @@ public class AvailableTime {
     @ColumnDefault("true")
     private boolean enabled;
 
+    private boolean deleted;
+
     @Builder
     public AvailableTime (LocalTime time, AvailableDate date, boolean enabled) {
         this.time = time;
@@ -42,5 +46,9 @@ public class AvailableTime {
 
     public void openTime() {
         this.enabled = true;
+    }
+
+    public void deleteTime() {
+        this.deleted = true;
     }
 }
