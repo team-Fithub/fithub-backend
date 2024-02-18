@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.Training.api;
 import com.fithub.fithubbackend.domain.Training.application.TrainerTrainingService;
 import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainingDateReservationNumDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
@@ -26,6 +27,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "trainer's training (트레이너의 트레이닝)", description = "트레이너가 사용하는 트레이닝 관련 api (트레이너 권한 필요)")
 @RestController
@@ -51,7 +54,6 @@ public class TrainerTrainingController {
         return ResponseEntity.ok(trainerTrainingService.getTrainersTrainingList(user.getId(), closed, pageable));
     }
 
-
     @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능, 이미지는 모두 images로 주면 됨", responses = {
             @ApiResponse(responseCode = "200", description = "생성됨"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
@@ -71,10 +73,20 @@ public class TrainerTrainingController {
             @ApiResponse(responseCode = "500", description = "이미지 업로드 에러", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> updateTraining(@Valid TrainingContentUpdateDto dto, @RequestParam Long trainingId, @AuthUser User user) {
+    public ResponseEntity<Long> updateTrainingContent(@Valid TrainingContentUpdateDto dto, @RequestParam Long trainingId, @AuthUser User user) {
         // TODO: 예약 관련 기능 끝난 후 수정 필요
         if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(trainerTrainingService.updateTrainingContent(dto, trainingId, user.getEmail()));
+    }
+
+    @Operation(summary = "트레이닝 날짜, 시간 수정을 위해 그 날짜들에 있는 예약 수 받아오기", responses = {
+            @ApiResponse(responseCode = "200", description = "성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @GetMapping("/reservations/count")
+    public ResponseEntity<List<TrainingDateReservationNumDto>> getNumberOfReservations(@RequestParam Long trainingId, @AuthUser User user) {
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainerTrainingService.getNumberOfReservations(trainingId));
     }
 
     @Operation(summary = "트레이닝 삭제 (soft delete)", parameters = {

@@ -33,7 +33,7 @@ public class AvailableDate {
     @ColumnDefault("true")
     private boolean enabled;
 
-    @OneToMany(mappedBy = "availableDate", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "availableDate", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnoreProperties({"availableDate"})
     private List<AvailableTime> availableTimes;
 

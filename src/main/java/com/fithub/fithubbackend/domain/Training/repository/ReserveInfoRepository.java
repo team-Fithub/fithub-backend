@@ -15,4 +15,6 @@ public interface ReserveInfoRepository extends JpaRepository<ReserveInfo, Long> 
     boolean existsByTrainingIdAndStatusNotIn(Long training_id, List<@NotNull ReserveStatus> status);
 
     List<ReserveInfo> findByReserveDateTimeAndStatus(LocalDateTime now, ReserveStatus status);
+
+    Long countByAvailableDateIdAndStatus(Long availableDateId, ReserveStatus status);
 }

@@ -2,10 +2,10 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.*;
 import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingAvailableTimeDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
-import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
-import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingImgUpdateDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainingDateReservationNumDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.*;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.*;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
@@ -119,6 +119,28 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         }
 
         return training.getId();
+    }
+
+    @Override
+    public List<TrainingDateReservationNumDto> getNumberOfReservations(Long trainingId) {
+        Training training = findTrainingById(trainingId);
+        List<AvailableDate> availableDates = training.getAvailableDates();
+
+        List<TrainingDateReservationNumDto> list = new ArrayList<>();
+        for (AvailableDate date : availableDates) {
+            Long reservationNum = reserveInfoRepository.countByAvailableDateIdAndStatus(date.getId(), ReserveStatus.BEFORE);
+            list.add(createTrainingDateReservationNumDto(date, reservationNum));
+        }
+        return list;
+    }
+
+    private TrainingDateReservationNumDto createTrainingDateReservationNumDto(AvailableDate date, Long reservationNum) {
+        return TrainingDateReservationNumDto.builder()
+                .id(date.getId())
+                .date(date.getDate())
+                .availableTimes(date.getAvailableTimes().stream().map(TrainingAvailableTimeDto::toDto).toList())
+                .reservationNum(reservationNum)
+                .build();
     }
 
     private void deleteOrAddImage(TrainingImgUpdateDto dto, Training training) {

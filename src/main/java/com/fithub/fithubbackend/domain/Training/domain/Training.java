@@ -78,6 +78,7 @@ public class Training extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnoreProperties({"training"})
+    @OrderBy(value = "date")
     private List<AvailableDate> availableDates;
 
     @NotNull
