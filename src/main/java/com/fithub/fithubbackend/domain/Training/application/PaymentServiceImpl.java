@@ -70,6 +70,10 @@ public class PaymentServiceImpl implements PaymentService {
             throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR, "해당 시간은 이미 예약되었습니다.");
         }
 
+        if (!availableTime.getAvailableDate().equals(availableDate)) {
+            throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR, "예약 하려는 날짜에 해당하는 시간이 아닙니다.");
+        }
+
         closeReservationDateTime(availableTime, availableDate);
         updateTrainingStatus(training, availableDate.getId());
 
