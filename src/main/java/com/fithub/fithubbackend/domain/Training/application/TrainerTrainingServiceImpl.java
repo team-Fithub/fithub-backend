@@ -176,6 +176,12 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         List<TrainingLikes> trainingLikesList = trainingLikesRepository.findByTrainingId(id);
         trainingLikesRepository.deleteAll(trainingLikesList);
 
+        List<TrainingDocument> trainingImgList = trainingDocumentRepository.findByTrainingId(id);
+        for (TrainingDocument trainingImg : trainingImgList) {
+            awsS3Uploader.deleteS3(trainingImg.getDocument().getPath());
+        }
+        trainingDocumentRepository.deleteAll(trainingImgList);
+
         training.updateDeleted(true);
     }
 
