@@ -12,17 +12,22 @@ public class PostWriterInfoDto {
     @Schema(description = "작성자 닉네임")
     private String nickname;
 
+    @Schema(description = "작성자 이메일")
+    private String email;
+
     @Schema(description = "게시글 작성자 프로필 url")
     private String profileUrl;
 
     @Builder
-    public PostWriterInfoDto(String nickname, String profileUrl) {
+    public PostWriterInfoDto(String nickname, String email, String profileUrl) {
         this.nickname = nickname;
+        this.email = email;
         this.profileUrl = profileUrl;
     }
 
     public static PostWriterInfoDto toDto(User user) {
         return PostWriterInfoDto.builder()
+                .email(user.getEmail())
                 .nickname(user.getNickname())
                 .profileUrl(user.getProfileImg().getUrl())
                 .build();
