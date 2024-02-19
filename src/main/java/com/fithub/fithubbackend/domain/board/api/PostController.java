@@ -108,4 +108,18 @@ public class PostController {
         return ResponseEntity.ok().body(commentService.getDetailComments(commentId));
     }
 
+    @Operation(summary = "게시글 검색", parameters = {
+            @Parameter(name = "keyword", description = "검색 키워드"),
+            @Parameter(name = "scope", description = " 검색 범위 ex) content(기본), writer, hashtags"),
+            @Parameter(name = "page", description = "페이지 번호 (기본 0 : 가장 첫 페이지), 필수 값"),
+            @Parameter(name = "size", description = "한 페이지에 노출할 데이터 건수 (기본 9, 생략 가능)"),
+            @Parameter(name = "sort", description = "페이지 정렬 방식 (기본 id desc : 최신순, 생략 가능) ex) likes(좋아요 순), comments(댓글 순) 지정 가능"),
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "검색 완료"),
+    })
+    @PostMapping("/search")
+    public ResponseEntity<Page<PostInfoDto>> searchPostsByKeyword(@RequestBody PostSearchFilterDto filter) {
+        return ResponseEntity.ok().body(postService.searchPostsByKeyword(filter));
+    }
+
 }

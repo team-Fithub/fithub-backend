@@ -62,6 +62,13 @@ public class PostServiceImpl implements PostService {
         return likedUsersInfoDtos;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PostInfoDto> searchPostsByKeyword(PostSearchFilterDto filter) {
+        Page<Post> posts = postRepository.searchPostsByKeyword(filter);
+        return posts.map(PostInfoDto::toDto);
+    }
+
     @Transactional
     public Post getPost(Long postId) {
         return postRepository.findById(postId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 게시글"));
