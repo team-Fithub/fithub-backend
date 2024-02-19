@@ -36,7 +36,7 @@ public class PaymentController {
     @Operation(summary = "결제 전 예약 시간이 예약 가능한지 확인, 저장 api", responses = {
             @ApiResponse(responseCode = "200", description = "예약하려던 시간이 예약 가능해서 예약 정보가 저장됨, 임시로 저장된 예약 정보 id 반환"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "400", description = "DATE_OR_TIME_ERROR: 결제한 트레이닝의 시간대가 예약 불가능해짐, BAD_REQUEST: 마감한 트레이닝은 예약 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "DATE_OR_TIME_ERROR: 결제한 트레이닝의 시간대가 예약 불가능해짐 / 예약 하려는 날짜에 해당하는 시간이 아닙니다, BAD_REQUEST: 마감한 트레이닝은 예약 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "예약할 트레이닝이 존재하지 않는 트레이닝", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PostMapping("/order")

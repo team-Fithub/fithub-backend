@@ -2,10 +2,10 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.*;
 import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
+import com.fithub.fithubbackend.domain.Training.dto.TrainingAvailableTimeDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
-import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
-import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
-import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingImgUpdateDto;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainingDateReservationNumDto;
+import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.*;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.*;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
@@ -41,6 +41,8 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
     private final TrainerRepository trainerRepository;
     private final TrainingLikesRepository trainingLikesRepository;
+
+    private final AvailableDateRepository availableDateRepository;
 
     private final ReserveInfoRepository reserveInfoRepository;
     private final TrainingReviewRepository trainingReviewRepository;
@@ -121,6 +123,81 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         return training.getId();
     }
 
+    @Override
+    public List<TrainingDateReservationNumDto> getNumberOfReservations(Long trainingId) {
+        Training training = findTrainingById(trainingId);
+        List<AvailableDate> availableDates = training.getAvailableDates();
+
+        List<TrainingDateReservationNumDto> list = new ArrayList<>();
+        for (AvailableDate date : availableDates) {
+            Long reservationNum = reserveInfoRepository.countByAvailableDateIdAndStatus(date.getId(), ReserveStatus.BEFORE);
+            list.add(createTrainingDateReservationNumDto(date, reservationNum));
+        }
+        return list;
+    }
+
+    private TrainingDateReservationNumDto createTrainingDateReservationNumDto(AvailableDate date, Long reservationNum) {
+        return TrainingDateReservationNumDto.builder()
+                .id(date.getId())
+                .date(date.getDate())
+                .availableTimes(date.getAvailableTimes().stream().map(TrainingAvailableTimeDto::toDto).toList())
+                .reservationNum(reservationNum)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Long updateTrainingDate(String email, Long trainingId, TrainingDateUpdateDto dto) {
+        Training training = findTrainingById(trainingId);
+        permissionValidate(training.getTrainer(), email);
+
+        List<LocalDate> newAvailableDateList = getAvailableDateList(dto.getStartDate(), dto.getEndDate(), dto.getUnableDates());
+        List<LocalTime> localTimeList = getAvailableTimeList(training.getStartHour(), training.getEndHour());
+
+        List<AvailableDate> currentDateList = training.getAvailableDates();
+
+        updateCurrentDates(currentDateList, newAvailableDateList, training);
+        saveTrainingDateTime(newAvailableDateList, localTimeList, training);
+
+        training.updateStartAndEndDate(dto.getStartDate(), dto.getEndDate());
+        return trainingId;
+    }
+
+    public void updateCurrentDates(List<AvailableDate> currentDateList, List<LocalDate> newAvailableDateList, Training training) {
+        List<AvailableDate> datesToRemove = new ArrayList<>();
+
+        for (AvailableDate date : currentDateList) {
+            if (newAvailableDateList.contains(date.getDate())) {
+                newAvailableDateList.remove(date.getDate());
+            } else {
+                datesToRemove.add(date);
+            }
+        }
+
+        for (AvailableDate date : datesToRemove) {
+            handleDeleteData(date, training);
+        }
+    }
+
+    public void handleDeleteData(AvailableDate date, Training training) {
+        ReserveStatus status = reserveInfoRepository.findStatusByAvailableDateId(date.getId());
+        if (status == ReserveStatus.BEFORE) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, date.getDate() + "일에 진행 전 예약이 존재하여 수정할 수 없습니다.");
+        }
+
+        if (status == null) {
+            training.removeDate(date);
+            availableDateRepository.delete(date);
+        } else {
+            date.deleteDate();
+        }
+    }
+
+    @Override
+    public Long updateTrainingTime(String email, Long trainingId, TrainingTimeUpdateDto dto) {
+        return null;
+    }
+
     private void deleteOrAddImage(TrainingImgUpdateDto dto, Training training) {
         if (dto.isImgAdded() && !dto.getNewImgList().isEmpty()) {
             saveTrainingImages(dto.getNewImgList(), training);
@@ -153,6 +230,12 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
         List<TrainingLikes> trainingLikesList = trainingLikesRepository.findByTrainingId(id);
         trainingLikesRepository.deleteAll(trainingLikesList);
+
+        List<TrainingDocument> trainingImgList = trainingDocumentRepository.findByTrainingId(id);
+        for (TrainingDocument trainingImg : trainingImgList) {
+            awsS3Uploader.deleteS3(trainingImg.getDocument().getPath());
+        }
+        trainingDocumentRepository.deleteAll(trainingImgList);
 
         training.updateDeleted(true);
     }
