@@ -28,7 +28,7 @@ public class TrainingCreateDto {
     @Schema(description = "트레이닝 소개글")
     private String content;
 
-    private List<MultipartFile> images;
+    private List<MultipartFile> images = new ArrayList<>();
 
     @NotBlank
     @Schema(description = "트레이닝이 진행 장소")

@@ -199,11 +199,11 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     }
 
     private void deleteOrAddImage(TrainingImgUpdateDto dto, Training training) {
-        if (dto.isImgAdded() && !dto.getNewImgList().isEmpty()) {
-            saveTrainingImages(dto.getNewImgList(), training);
-        }
         if (dto.isImgDeleted() && !dto.getUnModifiedImgList().isEmpty()) {
             deleteOriginalImage(dto.getUnModifiedImgList(), training);
+        }
+        if (dto.isImgAdded() && !dto.getNewImgList().isEmpty()) {
+            saveTrainingImages(dto.getNewImgList(), training);
         }
     }
 
