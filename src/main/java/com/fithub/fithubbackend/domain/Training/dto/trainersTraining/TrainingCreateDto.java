@@ -2,7 +2,6 @@ package com.fithub.fithubbackend.domain.Training.dto.trainersTraining;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -33,10 +32,6 @@ public class TrainingCreateDto {
     @NotBlank
     @Schema(description = "트레이닝이 진행 장소")
     private String location;
-
-    @Min(1)
-    @Schema(description = "모집 인원")
-    private int quota;
 
     @Schema(description = "가격")
     private int price;

@@ -18,9 +18,6 @@ public class TrainingContentUpdateDto {
     @NotNull
     private int price;
 
-    @NotNull
-    private int quota;
-
     @Schema(description = "트레이닝 이미지를 수정했다면 값을 넣어주면 됨. 수정 없으면 안 줘야 됨")
     private TrainingImgUpdateDto trainingImgUpdateDto;
 }
