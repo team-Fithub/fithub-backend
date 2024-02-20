@@ -4,9 +4,6 @@ import com.fithub.fithubbackend.domain.user.application.UserService;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
-import com.fithub.fithubbackend.domain.user.dto.SignUpResponseDto;
-import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -16,15 +13,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/users")
@@ -48,9 +40,10 @@ public class UserController {
             @Parameter(name="profileUpdateDto", description = "프로필내역")
     })
     @PutMapping("/profile/update")
-    public ResponseEntity<ProfileDto> updateProfile(@RequestPart(value = "profileUpdateDto") ProfileUpdateDto profileUpdateDto, @AuthUser User user){
+    public ResponseEntity<String> updateProfile(@RequestBody ProfileUpdateDto profileUpdateDto, @AuthUser User user){
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        return ResponseEntity.ok(userService.updateProfile(profileUpdateDto, user));
+        userService.updateProfile(profileUpdateDto, user);
+        return ResponseEntity.ok().body("완료");
     }
 
 
@@ -60,9 +53,10 @@ public class UserController {
             @Parameter(name="image", description = "프로필 이미지 변경 시")
     })
     @PutMapping("/image/update")
-    public ResponseEntity<ProfileDto> updateImage(@RequestPart(value = "image") MultipartFile multipartFile, @AuthUser User user){
+    public ResponseEntity<String> updateImage(@RequestPart(value = "image") MultipartFile multipartFile, @AuthUser User user){
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        return ResponseEntity.ok(userService.updateImage(multipartFile, user));
+        userService.updateImage(multipartFile, user);
+        return ResponseEntity.ok().body("완료");
     }
 
 
