@@ -21,5 +21,5 @@ public interface ReserveInfoRepository extends JpaRepository<ReserveInfo, Long> 
     Long countByAvailableDateIdAndStatus(Long availableDateId, ReserveStatus status);
 
     @Query("SELECT r.status FROM ReserveInfo r WHERE r.availableDate.id = :availableDateId")
-    ReserveStatus findStatusByAvailableDateId(@Param("availableDateId") Long availableDateId);
+    List<ReserveStatus> findStatusByAvailableDateId(@Param("availableDateId") Long availableDateId);
 }
