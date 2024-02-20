@@ -17,7 +17,6 @@ public class TrainersTrainingOutlineDto {
     private String location;
 
     private int participants;
-    private int quota;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
@@ -35,7 +34,6 @@ public class TrainersTrainingOutlineDto {
         this.price = training.getPrice();
         this.location = training.getLocation();
         this.participants = training.getParticipants();
-        this.quota = training.getQuota();
         this.startDate = training.getStartDate();
         this.endDate = training.getEndDate();
         this.closed = training.isClosed();
