@@ -9,6 +9,7 @@ import com.fithub.fithubbackend.domain.trainer.domain.*;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerCertificationRequestRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
+import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
@@ -31,6 +32,8 @@ public class AdminServiceImpl implements AdminService {
     private final TrainerRepository trainerRepository;
 
     private final TrainerCertificationRejectLogRepository rejectLogRepository;
+
+    private final AwsS3Uploader awsS3Uploader;
 
     @Override
     @Transactional
@@ -73,8 +76,11 @@ public class AdminServiceImpl implements AdminService {
 
         List<Document> documentToDeleted = new ArrayList<>();
         for (TrainerLicenseTempImg trainerLicenseTempImg : licenseTempImgList) {
-            documentToDeleted.add(trainerLicenseTempImg.getDocument());
+            Document document = trainerLicenseTempImg.getDocument();
+            documentToDeleted.add(document);
+            awsS3Uploader.deleteS3(document.getPath());
         }
+
         trainerCareerTempRepository.deleteAll(trainerCertificationRequest.getCareerTempList());
         trainerLicenseTempImgRepository.deleteAll(trainerCertificationRequest.getLicenseTempImgList());
         documentRepository.deleteAll(documentToDeleted);
