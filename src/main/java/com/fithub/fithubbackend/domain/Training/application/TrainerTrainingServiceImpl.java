@@ -239,7 +239,11 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         }
         trainingDocumentRepository.deleteAll(trainingImgList);
 
-        training.updateDeleted(true);
+        if (reserveInfoRepository.existsByTrainingId(id)) {
+            training.executeDelete();
+        } else {
+            trainingRepository.delete(training);
+        }
     }
 
     @Override

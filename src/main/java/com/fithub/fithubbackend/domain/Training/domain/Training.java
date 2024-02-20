@@ -76,7 +76,7 @@ public class Training extends BaseTimeEntity {
     @NotNull
     private LocalTime endHour;
 
-    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonIgnoreProperties({"training"})
     @OrderBy(value = "date")
     private List<AvailableDate> availableDates;
@@ -114,8 +114,10 @@ public class Training extends BaseTimeEntity {
         this.closed = closed;
     }
 
-    public void updateDeleted(boolean deleted) {
-        this.deleted = deleted;
+    public void executeDelete() {
+        this.deleted = true;
+        this.closed = true;
+        this.getAvailableDates().forEach(AvailableDate::deleteDate);
     }
 
     public void addImages(TrainingDocument document) {
