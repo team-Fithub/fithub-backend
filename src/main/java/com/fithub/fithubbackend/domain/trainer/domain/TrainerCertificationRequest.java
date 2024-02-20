@@ -49,5 +49,12 @@ public class TrainerCertificationRequest extends BaseTimeEntity {
 
     public void requestReject() {
         this.rejected = true;
+        clearCareerAndImg();
     }
+
+    public void clearCareerAndImg() {
+        this.careerTempList.clear();
+        this.licenseTempImgList.clear();
+    }
+
 }
