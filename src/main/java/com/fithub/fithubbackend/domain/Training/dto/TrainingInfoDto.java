@@ -23,8 +23,6 @@ public class TrainingInfoDto {
 
     private List<TrainingDocumentDto> images;
 
-    private int quota;
-
     private int price;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -42,7 +40,6 @@ public class TrainingInfoDto {
                 .title(training.getTitle())
                 .content(training.getContent())
                 .location(training.getLocation())
-                .quota(training.getQuota())
                 .price(training.getPrice())
                 .startDate(training.getStartDate())
                 .endDate(training.getEndDate())

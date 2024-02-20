@@ -7,7 +7,6 @@ import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCre
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -56,11 +55,6 @@ public class Training extends BaseTimeEntity {
     private int participants;
 
     @NotNull
-    @ColumnDefault("1")
-    @Min(1)
-    private int quota;
-
-    @NotNull
     @ColumnDefault("0")
     private int price;
 
@@ -91,7 +85,6 @@ public class Training extends BaseTimeEntity {
         this.closed = false;
         this.location = dto.getLocation();
         this.participants = 0;
-        this.quota = dto.getQuota();
         this.price = dto.getPrice();
         this.startDate = dto.getStartDate();
         this.endDate = dto.getEndDate();
@@ -107,7 +100,6 @@ public class Training extends BaseTimeEntity {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.price = dto.getPrice();
-        this.quota = dto.getQuota();
     }
 
     public void updateClosed(boolean closed) {
