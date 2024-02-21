@@ -14,6 +14,9 @@ import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +33,7 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
     private final AwsS3Uploader s3Uploader;
 
     @Override
-    public void saveTrainerCertificateRequest(TrainerCertificationRequestDto requestDto, User user) {
+    public void saveTrainerCertificateRequest(TrainerCertificationRequestDto requestDto, User user) throws ParseException {
         if (trainerRepository.existsByUserId(user.getId())) {
             throw new CustomException(ErrorCode.DUPLICATE, "트레이너 인증이 완료된 회원입니다.");
         }
@@ -59,8 +62,13 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
 
         List<TrainerCareerRequestDto> careerList = requestDto.getCareerList();
         for (TrainerCareerRequestDto dto : careerList) {
+            Double latitude = dto.getLatitude();
+            Double longitude = dto.getLongitude();
+            Point point = latitude != null && longitude != null ?
+                    (Point) new WKTReader().read(String.format("POINT(%s %s)", latitude, longitude))
+                    : null;
             TrainerCareerTemp trainerCareerTemp = TrainerCareerTemp.builder()
-                    .dto(dto).build();
+                    .dto(dto).point(point).build();
             trainerCareerTemp.updateRequest(trainerCertificationRequest);
         }
 
