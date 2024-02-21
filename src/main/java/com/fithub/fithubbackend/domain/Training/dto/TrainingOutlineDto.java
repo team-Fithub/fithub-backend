@@ -15,7 +15,8 @@ public class TrainingOutlineDto {
     private TrainerInfoDto trainerInfoDto;
     private String title;
     private int price;
-    private String location;
+    private String address;
+    private Double dist;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
@@ -29,10 +30,14 @@ public class TrainingOutlineDto {
                 .trainerInfoDto(TrainerInfoDto.toDto(training.getTrainer()))
                 .title(training.getTitle())
                 .price(training.getPrice())
-                .location(training.getLocation())
+                .address(training.getAddress())
                 .startDate(training.getStartDate())
                 .endDate(training.getEndDate())
                 .closed(training.isClosed())
                 .build();
+    }
+
+    public void updateDist(Double dist) {
+        this.dist = dist;
     }
 }

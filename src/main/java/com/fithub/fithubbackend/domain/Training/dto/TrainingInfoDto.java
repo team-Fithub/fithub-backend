@@ -19,7 +19,7 @@ public class TrainingInfoDto {
 
     private String title;
     private String content;
-    private String location;
+    private String address;
 
     private List<TrainingDocumentDto> images;
 
@@ -39,7 +39,7 @@ public class TrainingInfoDto {
                 .trainerInfoDto(TrainerInfoDto.toDto(training.getTrainer()))
                 .title(training.getTitle())
                 .content(training.getContent())
-                .location(training.getLocation())
+                .address(training.getAddress())
                 .price(training.getPrice())
                 .startDate(training.getStartDate())
                 .endDate(training.getEndDate())

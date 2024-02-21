@@ -64,7 +64,7 @@ public class CustomTrainingRepository {
                                 reserveInfo.id,
                                 reserveInfo.training.id,
                                 reserveInfo.training.title,
-                                reserveInfo.training.location,
+                                reserveInfo.training.address,
                                 reserveInfo.reserveDateTime,
                                 reserveInfo.status,
                                 reserveInfo.createdDate,
