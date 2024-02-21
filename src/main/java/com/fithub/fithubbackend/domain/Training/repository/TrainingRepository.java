@@ -16,6 +16,10 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     Page<Training> findAllByDeletedFalseAndTrainerIdAndClosed(Long trainerId, boolean closed, Pageable pageable);
 
     List<Training> findByClosedFalseAndEndDateLessThanEqual(LocalDate now);
-    @Query(value = "SELECT t.title FROM Training t WHERE t.id = :id")
-    String findTitleById(@Param("id") Long id);
+
+    @Query(value = "SELECT * FROM Training AS t WHERE t.deleted = false AND t.closed = false AND MBRContains(ST_LINESTRINGFROMTEXT(:pointFormat), t.point)", nativeQuery = true)
+    List<Training> findByPoint(@Param("pointFormat")String pointFormat, Pageable pageable);
+
+    @Query(value = "SELECT ST_DISTANCE_SPHERE(POINT(:lon, :lat), t.point) AS dist FROM Training t WHERE t.id = :id", nativeQuery = true)
+    Double findDistByPoint(@Param("lon") Double lon, @Param("lat") Double lat, @Param("id") Long id);
 }

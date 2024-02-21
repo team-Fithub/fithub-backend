@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.TrainingService;
+import com.fithub.fithubbackend.domain.Training.dto.Location;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewDto;
@@ -67,5 +68,16 @@ public class TrainingController {
     public ResponseEntity<Page<TrainingOutlineDto>> searchTrainingByConditions(@RequestBody TrainingSearchConditionDto conditions
             , @PageableDefault(size = 9, sort = "id",  direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(trainingService.searchTrainingByConditions(conditions, pageable));
+    }
+
+    @Operation(summary = "트레이닝 지정 위치로 검색", parameters = {
+            @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id desc(최신 생성 순) 변경 안 할거면 sort 부분은 지우기, title, startDate, endDate, price 지정 가능)")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "500", description = "좌표 파싱중에 에러 발생. 좌표 다시 설정해서 보내주기"),
+    })
+    @PostMapping("/search/location")
+    public ResponseEntity<List<TrainingOutlineDto>> searchTrainingByConditions(@RequestBody Location location) {
+        return ResponseEntity.ok(trainingService.searchTrainingByLocation(location.getLatitude(), location.getLongitude()));
     }
 }
