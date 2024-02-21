@@ -14,9 +14,19 @@ import java.time.LocalDate;
 @Schema(description = "트레이너 인증 요청 시 작성하는 경력 사항")
 public class TrainerCareerRequestDto {
     @NotBlank
-    @Schema(description = "근무지")
+    @Schema(description = "회사명")
     private String company;
 
+    @NotNull
+    @Schema(description = "회사 주소")
+    private String address;
+
+    @Schema(description = "경도")
+    private Double longitude;
+
+    @Schema(description = "위도")
+    private Double latitude;
+    
     @NotBlank
     @Schema(description = "담당 업무")
     private String work;
@@ -26,7 +36,6 @@ public class TrainerCareerRequestDto {
     @Schema(description = "입사년월")
     private LocalDate startDate;
 
-    @NotNull
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Schema(description = "퇴사년월")
     private LocalDate endDate;

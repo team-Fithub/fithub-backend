@@ -65,6 +65,8 @@ dependencies {
 	// portone (결제 api)
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
 
+	implementation group: 'org.hibernate', name: 'hibernate-spatial', version: '5.6.14.Final'
+
 	// querydsl
 	implementation "com.querydsl:querydsl-jpa:${queryDslVersion}:jakarta"
 	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"

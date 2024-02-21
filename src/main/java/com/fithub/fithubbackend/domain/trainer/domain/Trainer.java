@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Comment;
+import org.locationtech.jts.geom.Point;
 
 import java.util.List;
 
@@ -39,6 +40,8 @@ public class Trainer extends BaseTimeEntity {
     @Comment("현재 일하는 장소")
     private String address;
 
+    private Point point;
+
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TrainerCareer> trainerCareerList;
 
@@ -53,8 +56,9 @@ public class Trainer extends BaseTimeEntity {
         this.profileUrl = user.getProfileImg().getUrl();
     }
 
-    public void updateAddress(String address) {
-        this.address = address;
+    public void updateAddress(TrainerCareer career) {
+        this.address = career.getAddress();
+        this.point = career.getPoint();
     }
     
     public void updateCareerList(List<TrainerCareer> trainerCareerList) {

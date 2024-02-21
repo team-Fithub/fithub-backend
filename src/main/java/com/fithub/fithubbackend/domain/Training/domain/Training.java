@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,6 +33,12 @@ public class Training extends BaseTimeEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JsonIgnore
     private Trainer trainer;
+
+    @NotNull
+    private String address;
+
+    @Column(columnDefinition = "point")
+    private Point point;
 
     @NotNull
     @Size(min = 2, max = 100)
@@ -79,7 +86,7 @@ public class Training extends BaseTimeEntity {
     private boolean deleted;
 
     @Builder
-    public Training(TrainingCreateDto dto, Trainer trainer) {
+    public Training(TrainingCreateDto dto, Trainer trainer, Point point) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.closed = false;
@@ -91,6 +98,8 @@ public class Training extends BaseTimeEntity {
         this.startHour = dto.getStartHour();
         this.endHour = dto.getEndHour();
         this.trainer = trainer;
+        this.address = trainer.getAddress();
+        this.point = point;
         this.availableDates = new ArrayList<>();
         this.images = new ArrayList<>();
         this.deleted = false;
