@@ -18,6 +18,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -33,7 +34,8 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
     private final AwsS3Uploader s3Uploader;
 
     @Override
-    public void saveTrainerCertificateRequest(TrainerCertificationRequestDto requestDto, User user) throws ParseException {
+    @Transactional
+    public void saveTrainerCertificateRequest(TrainerCertificationRequestDto requestDto, User user) {
         if (trainerRepository.existsByUserId(user.getId())) {
             throw new CustomException(ErrorCode.DUPLICATE, "트레이너 인증이 완료된 회원입니다.");
         }
@@ -64,12 +66,16 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
         for (TrainerCareerRequestDto dto : careerList) {
             Double latitude = dto.getLatitude();
             Double longitude = dto.getLongitude();
-            Point point = latitude != null && longitude != null ?
-                    (Point) new WKTReader().read(String.format("POINT(%s %s)", latitude, longitude))
-                    : null;
-            TrainerCareerTemp trainerCareerTemp = TrainerCareerTemp.builder()
-                    .dto(dto).point(point).build();
-            trainerCareerTemp.updateRequest(trainerCertificationRequest);
+            try {
+                Point point = latitude != null && longitude != null ?
+                        (Point) new WKTReader().read(String.format("POINT(%s %s)", longitude, latitude))
+                        : null;
+                TrainerCareerTemp trainerCareerTemp = TrainerCareerTemp.builder()
+                        .dto(dto).point(point).build();
+                trainerCareerTemp.updateRequest(trainerCertificationRequest);
+            } catch (ParseException e) {
+                throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
+            }
         }
 
         trainerCertificationRequestRepository.save(trainerCertificationRequest);
