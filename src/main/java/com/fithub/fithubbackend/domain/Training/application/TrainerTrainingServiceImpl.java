@@ -65,6 +65,10 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         Trainer trainer = findTrainerByUserId(user.getId());
         dateValidate(dto.getStartDate(), dto.getEndDate());
 
+        if (trainer.getPoint() == null) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "현재 트레이너가 근무지가 없어 생성이 불가능합니다.");
+        }
+
         Training training = Training.builder().dto(dto).trainer(trainer).build();
 
         List<LocalDate> availableDateList = getAvailableDateList(dto.getStartDate(), dto.getEndDate(), dto.getUnableDates());

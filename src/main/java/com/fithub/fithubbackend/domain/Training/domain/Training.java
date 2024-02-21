@@ -56,12 +56,6 @@ public class Training extends BaseTimeEntity {
     private boolean closed;
 
     @NotNull
-    private String location;
-
-    @NotNull
-    private int participants;
-
-    @NotNull
     @ColumnDefault("0")
     private int price;
 
@@ -86,12 +80,10 @@ public class Training extends BaseTimeEntity {
     private boolean deleted;
 
     @Builder
-    public Training(TrainingCreateDto dto, Trainer trainer, Point point) {
+    public Training(TrainingCreateDto dto, Trainer trainer) {
         this.title = dto.getTitle();
         this.content = dto.getContent();
         this.closed = false;
-        this.location = dto.getLocation();
-        this.participants = 0;
         this.price = dto.getPrice();
         this.startDate = dto.getStartDate();
         this.endDate = dto.getEndDate();
@@ -99,7 +91,7 @@ public class Training extends BaseTimeEntity {
         this.endHour = dto.getEndHour();
         this.trainer = trainer;
         this.address = trainer.getAddress();
-        this.point = point;
+        this.point = trainer.getPoint();
         this.availableDates = new ArrayList<>();
         this.images = new ArrayList<>();
         this.deleted = false;
