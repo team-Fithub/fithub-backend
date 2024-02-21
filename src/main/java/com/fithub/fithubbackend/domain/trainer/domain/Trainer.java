@@ -37,7 +37,7 @@ public class Trainer extends BaseTimeEntity {
     private String profileUrl;
 
     @Comment("현재 일하는 장소")
-    private String location;
+    private String address;
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TrainerCareer> trainerCareerList;
@@ -53,8 +53,8 @@ public class Trainer extends BaseTimeEntity {
         this.profileUrl = user.getProfileImg().getUrl();
     }
 
-    public void updateLocation(String location) {
-        this.location = location;
+    public void updateAddress(String address) {
+        this.address = address;
     }
     
     public void updateCareerList(List<TrainerCareer> trainerCareerList) {
