@@ -12,14 +12,14 @@ public class TrainerInfoDto {
     private Long trainerId;
     private String name;
     private String trainerProfileImg;
-    private String location;
+    private String address;
 
     public static TrainerInfoDto toDto(Trainer trainer) {
         return TrainerInfoDto.builder()
                 .trainerId(trainer.getId())
                 .name(trainer.getName())
                 .trainerProfileImg(trainer.getProfileUrl())
-                .location(trainer.getLocation())
+                .address(trainer.getAddress())
                 .build();
     }
 }

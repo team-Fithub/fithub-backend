@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.Training.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -15,7 +16,10 @@ public class TrainingOutlineDto {
     private TrainerInfoDto trainerInfoDto;
     private String title;
     private int price;
-    private String location;
+    private String address;
+
+    @Schema(description = "보내준 위치와의 거리. 위치로 트레이닝 검색할 때만 값이 들어가있음")
+    private Double dist;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
@@ -29,10 +33,14 @@ public class TrainingOutlineDto {
                 .trainerInfoDto(TrainerInfoDto.toDto(training.getTrainer()))
                 .title(training.getTitle())
                 .price(training.getPrice())
-                .location(training.getLocation())
+                .address(training.getAddress())
                 .startDate(training.getStartDate())
                 .endDate(training.getEndDate())
                 .closed(training.isClosed())
                 .build();
+    }
+
+    public void updateDist(Double dist) {
+        this.dist = dist;
     }
 }

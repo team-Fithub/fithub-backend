@@ -14,7 +14,7 @@ public class TrainersTrainingOutlineDto {
     private Long trainingId;
     private String title;
     private int price;
-    private String location;
+    private String address;
 
     private int participants;
 
@@ -32,8 +32,7 @@ public class TrainersTrainingOutlineDto {
         this.trainingId = training.getId();
         this.title = training.getTitle();
         this.price = training.getPrice();
-        this.location = training.getLocation();
-        this.participants = training.getParticipants();
+        this.address = training.getAddress();
         this.startDate = training.getStartDate();
         this.endDate = training.getEndDate();
         this.closed = training.isClosed();

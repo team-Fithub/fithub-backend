@@ -14,7 +14,11 @@ import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -30,6 +34,7 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
     private final AwsS3Uploader s3Uploader;
 
     @Override
+    @Transactional
     public void saveTrainerCertificateRequest(TrainerCertificationRequestDto requestDto, User user) {
         if (trainerRepository.existsByUserId(user.getId())) {
             throw new CustomException(ErrorCode.DUPLICATE, "트레이너 인증이 완료된 회원입니다.");
@@ -59,9 +64,18 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
 
         List<TrainerCareerRequestDto> careerList = requestDto.getCareerList();
         for (TrainerCareerRequestDto dto : careerList) {
-            TrainerCareerTemp trainerCareerTemp = TrainerCareerTemp.builder()
-                    .dto(dto).build();
-            trainerCareerTemp.updateRequest(trainerCertificationRequest);
+            Double latitude = dto.getLatitude();
+            Double longitude = dto.getLongitude();
+            try {
+                Point point = latitude != null && longitude != null ?
+                        (Point) new WKTReader().read(String.format("POINT(%s %s)", longitude, latitude))
+                        : null;
+                TrainerCareerTemp trainerCareerTemp = TrainerCareerTemp.builder()
+                        .dto(dto).point(point).build();
+                trainerCareerTemp.updateRequest(trainerCertificationRequest);
+            } catch (ParseException e) {
+                throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
+            }
         }
 
         trainerCertificationRequestRepository.save(trainerCertificationRequest);

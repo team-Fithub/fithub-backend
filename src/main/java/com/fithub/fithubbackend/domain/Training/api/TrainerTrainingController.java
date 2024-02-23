@@ -57,6 +57,7 @@ public class TrainerTrainingController {
 
     @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능, 이미지는 모두 images로 주면 됨", responses = {
             @ApiResponse(responseCode = "200", description = "생성됨"),
+            @ApiResponse(responseCode = "400", description = "현재 재직중인 회사가 없어 트레이닝 생성 불가능(트레이닝에는 주소,위도,경도 필요)", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "403", description = "해당 회원은 트레이너가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "예약 가능 날짜에 현재보다 이전 날짜가 들어있음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),

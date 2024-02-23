@@ -60,7 +60,7 @@ public class AdminServiceImpl implements AdminService {
         trainer.updateTrainerLicenseImg(trainerLicenseImgList);
 
         Optional<TrainerCareer> company = trainerCareerList.stream().filter(TrainerCareer::isWorking).findFirst();
-        company.ifPresent(trainerCareer -> trainer.updateLocation(trainerCareer.getCompany()));
+        company.ifPresent(trainer::updateAddress);
 
         trainer.grantPermission();
         trainerRepository.save(trainer);

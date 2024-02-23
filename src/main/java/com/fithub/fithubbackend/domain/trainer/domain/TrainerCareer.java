@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.locationtech.jts.geom.Point;
+
 
 import java.time.LocalDate;
 
@@ -26,13 +28,20 @@ public class TrainerCareer extends BaseTimeEntity {
     @NotNull
     @Size(min = 2)
     private String company;
+
+    @NotNull
+    private String address;
+
+    @Column(columnDefinition = "point")
+    private Point point;
+
     @NotNull
     @Size(min = 2)
     private String work;
 
     @NotNull
     private LocalDate startDate;
-    @NotNull
+
     private LocalDate endDate;
 
     @ColumnDefault("false")
@@ -43,9 +52,11 @@ public class TrainerCareer extends BaseTimeEntity {
     public TrainerCareer(Trainer trainer, TrainerCareerTemp trainerCareerTemp) {
         this.trainer = trainer;
         this.company = trainerCareerTemp.getCompany();
+        this.address = trainerCareerTemp.getAddress();
+        this.point = trainerCareerTemp.getPoint();
         this.work = trainerCareerTemp.getWork();
         this.startDate = trainerCareerTemp.getStartDate();
-        this.endDate = trainerCareerTemp.getEndDate();
+        this.endDate = trainerCareerTemp.getEndDate() != null ? trainerCareerTemp.getEndDate() : null;
         this.working = trainerCareerTemp.isWorking();
     }
 }
