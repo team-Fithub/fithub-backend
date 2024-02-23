@@ -1,6 +1,6 @@
 package com.fithub.fithubbackend.domain.board.application;
 
-import com.fithub.fithubbackend.domain.board.dto.PostDocumentUpdateDto;
+import com.fithub.fithubbackend.domain.board.dto.PostUpdateDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.post.domain.PostDocument;
 import com.fithub.fithubbackend.domain.board.repository.PostDocumentRepository;
@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,41 +40,27 @@ public class PostDocumentServiceImpl implements PostDocumentService {
 
     @Override
     @Transactional
-    public void updateDocument(List<PostDocumentUpdateDto> postDocumentUpdateDto, Post post) {
+    public void updateDocument(PostUpdateDto postUpdateDto, Post post) {
 
-        List<String> awsS3Urls = postDocumentRepository.findUrlsByPost(post);
-
-        List<String> newAws3Urls = postDocumentUpdateDto.stream()
-                .filter(image -> image.getAwsS3Url() != null)
-                .map(image -> image.getAwsS3Url())
-                .collect(Collectors.toList());
-
-        List<String> needToDelete = awsS3Urls.stream().filter(url -> !newAws3Urls.contains(url)).collect(Collectors.toList());
-
-        if (needToDelete != null && !needToDelete.isEmpty()) {
-            needToDelete.forEach(imageUrl -> {
-                PostDocument postDocument = postDocumentRepository.findByUrl(imageUrl);
+        if (postUpdateDto.isImageDeleted())
+            postUpdateDto.getDeletedImages().forEach(awsS3Url -> {
+                PostDocument postDocument = postDocumentRepository.findByUrl(awsS3Url);
                 awsS3Uploader.deleteS3(postDocument.getPath());
                 post.getPostDocuments().remove(postDocument);
             });
-        }
 
-        List<MultipartFile> extractMultipartFile = postDocumentUpdateDto.stream()
-                .filter(image -> image.getImage() != null)
-                .map(PostDocumentUpdateDto::getImage)
-                .collect(Collectors.toList());
-
-        FileUtils.isValidDocument(extractMultipartFile);
-
-        extractMultipartFile.forEach(
-                image -> {
-                    try {
-                        createDocument(image, post);
-                    } catch (IOException e) {
-                        throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
+        if (postUpdateDto.isImageAdded()) {
+            FileUtils.isValidDocument(postUpdateDto.getNewImages());
+            postUpdateDto.getNewImages().forEach(
+                    newImage -> {
+                        try {
+                            createDocument(newImage, post);
+                        } catch (IOException e) {
+                            throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
+                        }
                     }
-                }
-        );
+            );
+        }
 
     }
 }
