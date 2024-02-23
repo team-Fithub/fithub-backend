@@ -46,7 +46,7 @@ public class UserTrainingLikesController {
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "404", description = "찜 여부를 조회할 트레이닝이 존재하지 않음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
-    @GetMapping("/check/list")
+    @PostMapping("/check/list")
     public ResponseEntity<List<Boolean>> checkGivenTrainingListIsLiked(@RequestBody List<Long> trainingIdList, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userTrainingLikeService.checkGivenTrainingListIsLiked(trainingIdList, user));

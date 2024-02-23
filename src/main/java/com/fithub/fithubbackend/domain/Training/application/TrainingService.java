@@ -2,8 +2,8 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.dto.TrainingInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingOutlineDto;
-import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.dto.TrainingSearchConditionDto;
+import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,5 +15,5 @@ public interface TrainingService {
     List<TrainingReviewDto> getTrainingReviews(Long id);
 
     Page<TrainingOutlineDto> searchTrainingByConditions(TrainingSearchConditionDto conditions, Pageable pageable);
-
+    List<TrainingOutlineDto> searchTrainingByLocation(Double latitude, Double longitude);
 }

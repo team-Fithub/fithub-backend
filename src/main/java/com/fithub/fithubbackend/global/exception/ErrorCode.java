@@ -35,7 +35,8 @@ public enum ErrorCode {
     DATE_OR_TIME_ERROR(HttpStatus.BAD_REQUEST, "불가능한 날짜 또는 시간대입니다."),
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
 
-    BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+    BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+    POINT_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "좌표 변환 중 에러가 발생했습니다. 좌표를 다시 설정해주세요");
     private final HttpStatus httpStatus;
     private final String message;
 }

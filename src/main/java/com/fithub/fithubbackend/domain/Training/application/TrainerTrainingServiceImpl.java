@@ -65,6 +65,10 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         Trainer trainer = findTrainerByUserId(user.getId());
         dateValidate(dto.getStartDate(), dto.getEndDate());
 
+        if (trainer.getPoint() == null) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "현재 트레이너가 근무지가 없어 생성이 불가능합니다.");
+        }
+
         Training training = Training.builder().dto(dto).trainer(trainer).build();
 
         List<LocalDate> availableDateList = getAvailableDateList(dto.getStartDate(), dto.getEndDate(), dto.getUnableDates());
@@ -180,12 +184,14 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     }
 
     public void handleDeleteData(AvailableDate date, Training training) {
-        ReserveStatus status = reserveInfoRepository.findStatusByAvailableDateId(date.getId());
-        if (status == ReserveStatus.BEFORE) {
-            throw new CustomException(ErrorCode.BAD_REQUEST, date.getDate() + "일에 진행 전 예약이 존재하여 수정할 수 없습니다.");
+        List<ReserveStatus> statusList = reserveInfoRepository.findStatusByAvailableDateId(date.getId());
+        for (ReserveStatus status : statusList) {
+            if (status == ReserveStatus.BEFORE) {
+                throw new CustomException(ErrorCode.BAD_REQUEST, date.getDate() + "일에 진행 전 예약이 존재하여 수정할 수 없습니다.");
+            }
         }
 
-        if (status == null) {
+        if (statusList.isEmpty()) {
             training.removeDate(date);
             availableDateRepository.delete(date);
         } else {
@@ -199,11 +205,11 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     }
 
     private void deleteOrAddImage(TrainingImgUpdateDto dto, Training training) {
-        if (dto.isImgAdded() && !dto.getNewImgList().isEmpty()) {
-            saveTrainingImages(dto.getNewImgList(), training);
-        }
         if (dto.isImgDeleted() && !dto.getUnModifiedImgList().isEmpty()) {
             deleteOriginalImage(dto.getUnModifiedImgList(), training);
+        }
+        if (dto.isImgAdded() && !dto.getNewImgList().isEmpty()) {
+            saveTrainingImages(dto.getNewImgList(), training);
         }
     }
 
@@ -237,7 +243,11 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         }
         trainingDocumentRepository.deleteAll(trainingImgList);
 
-        training.updateDeleted(true);
+        if (reserveInfoRepository.existsByTrainingId(id)) {
+            training.executeDelete();
+        } else {
+            trainingRepository.delete(training);
+        }
     }
 
     @Override

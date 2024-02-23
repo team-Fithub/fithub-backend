@@ -40,7 +40,7 @@ public class ReserveInfo extends BaseTimeEntity {
     @OrderBy(value = "date")
     private AvailableDate availableDate;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY)
     @OrderBy(value = "time")
     private AvailableTime availableTime;
 
@@ -92,5 +92,6 @@ public class ReserveInfo extends BaseTimeEntity {
     public void openDateTime() {
         this.getAvailableTime().openTime();
         this.getAvailableDate().openDate();
+        this.availableTime = null;
     }
 }

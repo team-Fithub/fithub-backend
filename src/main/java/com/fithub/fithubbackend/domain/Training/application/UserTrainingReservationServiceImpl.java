@@ -45,7 +45,7 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
                 .reservationId(reserveInfo.getId())
                 .trainingId(training.getId())
                 .title(training.getTitle())
-                .location(training.getLocation())
+                .address(training.getAddress())
                 .reserveDateTime(reserveInfo.getReserveDateTime())
                 .price(reserveInfo.getPrice())
                 .impUid(reserveInfo.getImpUid())

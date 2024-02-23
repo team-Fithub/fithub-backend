@@ -81,7 +81,11 @@ public class AvailableDate {
     }
 
     public void deleteDate() {
+        closeDate();
         this.deleted = true;
-        this.availableTimes.forEach(AvailableTime::deleteTime);
+        this.availableTimes.forEach(a -> {
+            a.closeTime();
+            a.deleteTime();
+        });
     }
 }

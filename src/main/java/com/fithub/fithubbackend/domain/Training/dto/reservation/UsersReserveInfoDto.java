@@ -26,7 +26,7 @@ public class UsersReserveInfoDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reserveDateTime;
 
-    private String location;
+    private String address;
 
     private int price;
 
