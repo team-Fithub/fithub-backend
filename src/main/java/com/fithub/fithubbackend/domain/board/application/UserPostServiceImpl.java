@@ -55,7 +55,7 @@ public class UserPostServiceImpl implements UserPostService {
 
         if (isWriter(user, post)) {
             if (postUpdateDto.isImageChanged())
-                postDocumentService.updateDocument(postUpdateDto.getEditedImages(), post);
+                postDocumentService.updateDocument(postUpdateDto, post);
 
             post.updatePost(postUpdateDto.getContent());
             postHashtagService.updateHashtag(postUpdateDto.getHashTags(), post);
