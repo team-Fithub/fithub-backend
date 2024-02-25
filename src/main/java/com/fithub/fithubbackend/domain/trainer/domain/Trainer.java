@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.trainer.domain;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
+import com.fithub.fithubbackend.global.domain.Document;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -67,6 +68,14 @@ public class Trainer extends BaseTimeEntity {
 
     public void updateTrainerLicenseImg(List<TrainerLicenseImg> trainerLicenseImgList) {
         this.trainerLicenseImgList = trainerLicenseImgList;
+    }
+
+    public void linkedToUserName(String name) {
+        this.name = name;
+    }
+
+    public void linkedToUserProfileImg(Document document) {
+        this.profileUrl = document.getUrl();
     }
 
     public void grantPermission() {
