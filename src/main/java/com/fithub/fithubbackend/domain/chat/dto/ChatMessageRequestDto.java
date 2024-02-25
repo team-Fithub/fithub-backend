@@ -19,5 +19,9 @@ public class ChatMessageRequestDto {
                 .chatRoom(this.chatRoom)
                 .build();
     }
+
+    public void setChatRoom(ChatRoom chatRoomEntity) {
+        this.chatRoom = chatRoomEntity;
+    }
 }
 
