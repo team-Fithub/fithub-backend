@@ -33,7 +33,7 @@ import java.util.List;
 
 @Tag(name = "trainer's training (트레이너의 트레이닝)", description = "트레이너가 사용하는 트레이닝 관련 api (트레이너 권한 필요)")
 @RestController
-@RequestMapping("/trainer/training")
+@RequestMapping("/trainers/training")
 @RequiredArgsConstructor
 public class TrainerTrainingController {
 

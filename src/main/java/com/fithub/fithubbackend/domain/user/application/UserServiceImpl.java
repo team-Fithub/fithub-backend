@@ -1,5 +1,7 @@
 package com.fithub.fithubbackend.domain.user.application;
 
+import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
+import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
@@ -16,12 +18,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final TrainerRepository trainerRepository;
     private final DocumentRepository documentRepository;
     private final AwsS3Uploader awsS3Uploader;
 
@@ -49,6 +54,8 @@ public class UserServiceImpl implements UserService {
         try {
             user.updateProfile(profileUpdateDto);
             userRepository.save(user);
+            Optional<Trainer> optionalTrainer = trainerRepository.findByUserId(user.getId());
+            optionalTrainer.ifPresent(t -> t.linkedToUserName(user.getName()));
         } catch (Exception e) {
             throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "프로필 업데이트 중 오류가 발생했습니다");
         }
@@ -71,6 +78,8 @@ public class UserServiceImpl implements UserService {
             documentRepository.save(document);
             user.updateProfileImg(document);
             userRepository.save(user);
+            Optional<Trainer> optionalTrainer = trainerRepository.findByUserId(user.getId());
+            optionalTrainer.ifPresent(t -> t.linkedToUserProfileImg(document));
         } catch (Exception e) {
             throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "이미지 업데이트 중 오류가 발생했습니다");
         }
