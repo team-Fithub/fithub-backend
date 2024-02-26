@@ -67,6 +67,7 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
+    @Transactional
     public Long createTrainerLicenseImg(Long userId, MultipartFile file) {
         Trainer trainer = findTrainerByUserId(userId);
         String path = s3Uploader.imgPath("trainer_license_temp");
@@ -77,6 +78,23 @@ public class TrainerServiceImpl implements TrainerService {
                 .build();
         TrainerLicenseImg trainerLicenseImg = TrainerLicenseImg.builder().trainer(trainer).document(document).build();
         return trainerLicenseImgRepository.save(trainerLicenseImg).getId();
+    }
+
+    @Override
+    @Transactional
+    public void updateTrainerCareer(Long userId, Long careerId, TrainerCareerRequestDto dto) {
+        Trainer trainer = findTrainerByUserId(userId);
+        TrainerCareer career = findCareerById(careerId);
+
+        if (!career.getTrainer().getId().equals(trainer.getId())) {
+            throw new CustomException(ErrorCode.PERMISSION_DENIED);
+        }
+
+        Point point = career.getPoint();
+        if (point.getX() != dto.getLongitude() && point.getY() != dto.getLatitude()) {
+            point = parsePoint(dto.getLatitude(), dto.getLongitude());
+        }
+        career.updateCareer(dto, point);
     }
 
     private Point parsePoint(Double latitude, Double longitude) {
@@ -92,6 +110,11 @@ public class TrainerServiceImpl implements TrainerService {
     private Trainer findTrainerByUserId (Long userId) {
         return trainerRepository.findByUserId(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PERMISSION_DENIED, "해당 회원은 트레이너가 아님"));
+    }
+
+    private TrainerCareer findCareerById(Long careerId) {
+        return trainerCareerRepository.findById(careerId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 경력을 찾을 수 없습니다."));
     }
 
 }

@@ -50,4 +50,11 @@ public class TrainerController {
         if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(trainerService.createTrainerLicenseImg(user.getId(), file));
     }
+
+    @PutMapping("/careers")
+    public ResponseEntity<String> updateTrainerCareer(@AuthUser User user, @RequestParam Long careerId, @RequestBody TrainerCareerRequestDto dto) {
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainerService.updateTrainerCareer(user.getId(), careerId, dto);
+        return ResponseEntity.ok().body("완료");
+    }
 }
