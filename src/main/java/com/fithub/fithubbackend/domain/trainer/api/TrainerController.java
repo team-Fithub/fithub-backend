@@ -12,6 +12,7 @@ import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,5 +43,11 @@ public class TrainerController {
     public ResponseEntity<Long> createTrainerCareer(@AuthUser User user, @RequestBody TrainerCareerRequestDto dto) {
         if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(trainerService.createTrainerCareer(user.getId(), dto));
+    }
+
+    @PostMapping("/licenses")
+    public ResponseEntity<Long> createTrainerLicenseImg(@AuthUser User user, @RequestPart MultipartFile file) {
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainerService.createTrainerLicenseImg(user.getId(), file));
     }
 }

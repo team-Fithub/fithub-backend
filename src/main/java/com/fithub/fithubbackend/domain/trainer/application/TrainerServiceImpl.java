@@ -10,6 +10,8 @@ import com.fithub.fithubbackend.domain.trainer.dto.TrainerSpecDto;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerCareerRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerLicenseImgRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
+import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
+import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ public class TrainerServiceImpl implements TrainerService {
     private final TrainerRepository trainerRepository;
     private final TrainerCareerRepository trainerCareerRepository;
     private final TrainerLicenseImgRepository trainerLicenseImgRepository;
+    private final AwsS3Uploader s3Uploader;
 
     @Override
     public TrainerSpecDto getTrainersSpec(Long userId) {
@@ -60,6 +64,19 @@ public class TrainerServiceImpl implements TrainerService {
                 .careerBuild();
 
         return trainerCareerRepository.save(trainerCareer).getId();
+    }
+
+    @Override
+    public Long createTrainerLicenseImg(Long userId, MultipartFile file) {
+        Trainer trainer = findTrainerByUserId(userId);
+        String path = s3Uploader.imgPath("trainer_license_temp");
+        Document document = Document.builder()
+                .inputName(file.getOriginalFilename())
+                .url(s3Uploader.putS3(file, path))
+                .path(path)
+                .build();
+        TrainerLicenseImg trainerLicenseImg = TrainerLicenseImg.builder().trainer(trainer).document(document).build();
+        return trainerLicenseImgRepository.save(trainerLicenseImg).getId();
     }
 
     private Point parsePoint(Double latitude, Double longitude) {
