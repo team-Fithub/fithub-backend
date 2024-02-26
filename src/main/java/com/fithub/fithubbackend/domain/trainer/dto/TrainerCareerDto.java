@@ -23,8 +23,6 @@ public class TrainerCareerDto {
     @NotNull
     private String address;
 
-//    private Point point;
-
     @NotNull
     private String work;
 
@@ -41,7 +39,6 @@ public class TrainerCareerDto {
         this.careerId = career.getId();
         this.company = career.getCompany();
         this.address = career.getAddress();
-//        this.point = career.getPoint() != null ? career.getPoint() : null;
         this.startDate = career.getStartDate();
         this.endDate = career.getEndDate() != null ? career.getEndDate() : null;
         this.work = career.getWork();

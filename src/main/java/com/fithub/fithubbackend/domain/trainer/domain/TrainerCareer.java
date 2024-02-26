@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.trainer.domain;
 
+import com.fithub.fithubbackend.domain.trainer.dto.TrainerCareerRequestDto;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -58,5 +59,17 @@ public class TrainerCareer extends BaseTimeEntity {
         this.startDate = trainerCareerTemp.getStartDate();
         this.endDate = trainerCareerTemp.getEndDate() != null ? trainerCareerTemp.getEndDate() : null;
         this.working = trainerCareerTemp.isWorking();
+    }
+
+    @Builder(builderMethodName = "careerBuilder", buildMethodName = "careerBuild")
+    public TrainerCareer(Trainer trainer, TrainerCareerRequestDto dto, Point point) {
+        this.trainer = trainer;
+        this.company = dto.getCompany();
+        this.address = dto.getAddress();
+        this.point = point;
+        this.work = dto.getWork();
+        this.working = dto.isWorking();
+        this.startDate = dto.getStartDate();
+        this.endDate = dto.getEndDate() != null ? dto.getEndDate() : null;
     }
 }
