@@ -97,6 +97,19 @@ public class TrainerServiceImpl implements TrainerService {
         career.updateCareer(dto, point);
     }
 
+    @Override
+    @Transactional
+    public void deleteTrainerCareer(Long userId, Long careerId) {
+        Trainer trainer = findTrainerByUserId(userId);
+        TrainerCareer career = findCareerById(careerId);
+
+        if (!career.getTrainer().getId().equals(trainer.getId())) {
+            throw new CustomException(ErrorCode.PERMISSION_DENIED);
+        }
+
+        trainerCareerRepository.delete(career);
+    }
+
     private Point parsePoint(Double latitude, Double longitude) {
         try {
             return latitude != null && longitude != null ?

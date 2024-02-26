@@ -16,4 +16,6 @@ public interface TrainerService {
     Long createTrainerLicenseImg(Long userId, MultipartFile file);
 
     void updateTrainerCareer(Long userId, Long careerId, TrainerCareerRequestDto dto);
+
+    void deleteTrainerCareer(Long userId, Long careerId);
 }

@@ -57,4 +57,11 @@ public class TrainerController {
         trainerService.updateTrainerCareer(user.getId(), careerId, dto);
         return ResponseEntity.ok().body("완료");
     }
+
+    @DeleteMapping("/careers")
+    public ResponseEntity<String> deleteTrainerCareer(@AuthUser User user, @RequestParam Long careerId) {
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainerService.deleteTrainerCareer(user.getId(), careerId);
+        return ResponseEntity.ok().body("완료");
+    }
 }
