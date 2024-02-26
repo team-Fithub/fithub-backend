@@ -64,4 +64,11 @@ public class TrainerController {
         trainerService.deleteTrainerCareer(user.getId(), careerId);
         return ResponseEntity.ok().body("완료");
     }
+
+    @DeleteMapping("/licenses")
+    public ResponseEntity<String> deleteTrainerLicenseImg(@AuthUser User user, @RequestParam Long licenseId) {
+        if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        trainerService.deleteTrainerLicenseImg(user.getId(), licenseId);
+        return ResponseEntity.ok().body("완료");
+    }
 }

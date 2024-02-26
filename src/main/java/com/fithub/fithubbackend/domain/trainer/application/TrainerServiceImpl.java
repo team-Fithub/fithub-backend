@@ -110,6 +110,20 @@ public class TrainerServiceImpl implements TrainerService {
         trainerCareerRepository.delete(career);
     }
 
+    @Override
+    @Transactional
+    public void deleteTrainerLicenseImg(Long userId, Long licenseId) {
+        Trainer trainer = findTrainerByUserId(userId);
+        TrainerLicenseImg licenseImg = findLicenseImgById(licenseId);
+
+        if (!licenseImg.getTrainer().getId().equals(trainer.getId())) {
+            throw new CustomException(ErrorCode.PERMISSION_DENIED);
+        }
+
+        s3Uploader.deleteS3(licenseImg.getDocument().getPath());
+        trainerLicenseImgRepository.delete(licenseImg);
+    }
+
     private Point parsePoint(Double latitude, Double longitude) {
         try {
             return latitude != null && longitude != null ?
@@ -128,6 +142,11 @@ public class TrainerServiceImpl implements TrainerService {
     private TrainerCareer findCareerById(Long careerId) {
         return trainerCareerRepository.findById(careerId)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 경력을 찾을 수 없습니다."));
+    }
+
+    private TrainerLicenseImg findLicenseImgById(Long licenseId) {
+        return trainerLicenseImgRepository.findById(licenseId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 자격증 이미지를 찾을 수 없습니다."));
     }
 
 }

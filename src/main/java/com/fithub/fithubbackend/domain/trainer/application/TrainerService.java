@@ -18,4 +18,5 @@ public interface TrainerService {
     void updateTrainerCareer(Long userId, Long careerId, TrainerCareerRequestDto dto);
 
     void deleteTrainerCareer(Long userId, Long careerId);
+    void deleteTrainerLicenseImg(Long userId, Long licenseId);
 }
