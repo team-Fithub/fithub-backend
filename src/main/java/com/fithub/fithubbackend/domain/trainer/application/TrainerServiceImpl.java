@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class TrainerServiceImpl implements TrainerService {
@@ -63,6 +65,14 @@ public class TrainerServiceImpl implements TrainerService {
                 .point(point)
                 .careerBuild();
 
+        if (dto.isWorking()) {
+            Optional<TrainerCareer> currentWorkingCareer = trainerCareerRepository.findByWorkingTrueAndTrainerId(trainer.getId());
+            if (currentWorkingCareer.isPresent()) {
+                TrainerCareer current = currentWorkingCareer.get();
+                current.quitCompany();
+            }
+            trainer.updateAddress(trainerCareer);
+        }
         return trainerCareerRepository.save(trainerCareer).getId();
     }
 
