@@ -78,12 +78,11 @@ public class TrainerCareer extends BaseTimeEntity {
         this.address = dto.getAddress();
         this.point = point;
         this.work = dto.getWork();
-        this.working = dto.isWorking();
         this.startDate = dto.getStartDate();
         this.endDate = dto.getEndDate() != null ? dto.getEndDate() : null;
     }
 
-    public void JoinCompany() {
+    public void joinCompany() {
         this.working = true;
     }
 
