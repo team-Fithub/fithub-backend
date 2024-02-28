@@ -1,19 +1,15 @@
 package com.fithub.fithubbackend.domain.board.application;
 
-import com.fithub.fithubbackend.domain.board.post.domain.Likes;
-import com.fithub.fithubbackend.domain.board.post.domain.Post;
+import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
-
-import java.util.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface UserPostLikesService {
     void addLikes(User user, long postId);
 
     void deleteLikes(User user, long postId);
 
-    List<Likes> getLikesByPost(Post post);
-
-    List<Likes> getLikesByUser(User user);
-
     boolean isLiked(User user, Long postId);
+    Page<PostInfoDto> getLikedPosts(User user, Pageable pageable);
 }
