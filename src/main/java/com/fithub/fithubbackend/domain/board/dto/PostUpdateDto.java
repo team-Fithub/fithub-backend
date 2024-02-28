@@ -36,7 +36,7 @@ public class PostUpdateDto {
     @Schema(description = "추가된 게시글 이미지 파일")
     private List<MultipartFile> newImages;
 
-    @Schema(description = "삭제된 게시글 이미지 aws s3의 url")
-    private List<String> deletedImages;
+    @Schema(description = "삭제 되지 않는 게시글 이미지 aws s3의 url")
+    private List<String> existingImages;
 
 }

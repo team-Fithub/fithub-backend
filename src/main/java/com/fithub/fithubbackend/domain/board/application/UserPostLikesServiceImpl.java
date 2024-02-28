@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.board.application;
 
+import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Likes;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.repository.LikesRepository;
@@ -7,10 +8,11 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,22 +46,17 @@ public class UserPostLikesServiceImpl implements UserPostLikesService {
     }
 
     @Override
-    @Transactional
-    public List<Likes> getLikesByPost(Post post) {
-        return likesRepository.findByPostOrderByCreatedDateAsc(post);
-    }
-
-    @Override
-    @Transactional
-    public List<Likes> getLikesByUser(User user) {
-        return likesRepository.findByUserOrderByCreatedDateDesc(user);
-    }
-
-    @Override
     public boolean isLiked(User user, Long postId) {
         if (likesRepository.existsByUserAndPostId(user, postId))
             return true;
         return false;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PostInfoDto> getLikedPosts(User user, Pageable pageable) {
+        Page<Post> posts = likesRepository.findPostsByUser(user, pageable);
+        return posts.map(PostInfoDto::toDto);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.board.application;
 
+import com.fithub.fithubbackend.domain.board.dto.PostInfoDto;
 import com.fithub.fithubbackend.domain.board.post.domain.Bookmark;
 import com.fithub.fithubbackend.domain.board.post.domain.Post;
 import com.fithub.fithubbackend.domain.board.repository.BookmarkRepository;
@@ -8,6 +9,8 @@ import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,18 +50,17 @@ public class UserPostBookmarkServiceImpl implements UserPostBookmarkService {
             post.getBookmarks().remove(bookmark.get());
     }
 
-
-    @Override
-    @Description("회원의 북마크 기록 조회 (내림차순)")
-    @Transactional
-    public List<Bookmark> getBookmarksByUser(User user) {
-        return bookmarkRepository.findByUserOrderByCreatedDateDesc(user);
-    }
-
     @Override
     public boolean isBookmarked(User user, Long postId) {
         if (bookmarkRepository.existsByUserAndPostId(user, postId))
             return true;
         return false;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<PostInfoDto> getBookmarkedPosts(User user, Pageable pageable) {
+        Page<Post> posts = bookmarkRepository.findPostsByUser(user, pageable);
+        return posts.map(PostInfoDto::toDto);
     }
 }
