@@ -1,5 +1,7 @@
 package com.fithub.fithubbackend.domain.trainer.application;
 
+import com.fithub.fithubbackend.domain.Training.domain.Training;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.domain.TrainerCareer;
 import com.fithub.fithubbackend.domain.trainer.domain.TrainerLicenseImg;
@@ -22,12 +24,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class TrainerServiceImpl implements TrainerService {
     private final TrainerRepository trainerRepository;
     private final TrainerCareerRepository trainerCareerRepository;
     private final TrainerLicenseImgRepository trainerLicenseImgRepository;
+
+    private final TrainingRepository trainingRepository;
+
     private final AwsS3Uploader s3Uploader;
 
     @Override
@@ -63,6 +71,9 @@ public class TrainerServiceImpl implements TrainerService {
                 .point(point)
                 .careerBuild();
 
+        if (dto.isWorking()) {
+            changeCurrentAddressToThis(trainer, trainerCareer);
+        }
         return trainerCareerRepository.save(trainerCareer).getId();
     }
 
@@ -95,6 +106,35 @@ public class TrainerServiceImpl implements TrainerService {
             point = parsePoint(dto.getLatitude(), dto.getLongitude());
         }
         career.updateCareer(dto, point);
+
+        changeAddressOrQuitCompany(trainer, career, dto.isWorking());
+    }
+
+    private void changeAddressOrQuitCompany(Trainer trainer, TrainerCareer trainerCareer, boolean working) {
+        if (!trainerCareer.isWorking() && working) {
+            changeCurrentAddressToThis(trainer, trainerCareer);
+            trainerCareer.joinCompany();
+        } else if (trainerCareer.isWorking() && !working) {
+            if (trainingRepository.existsByDeletedFalseAndClosedFalseAndTrainerId(trainer.getId())) {
+                throw new CustomException(ErrorCode.BAD_REQUEST, "진행중인 트레이닝 모집이 있어 근무지가 필요합니다. 현재 재직중인 회사가 없다면 트레이닝 삭제 후 근무지 수정을 진행해야됩니다.");
+            }
+            trainerCareer.quitCompany();
+        }
+    }
+
+    private void changeCurrentAddressToThis(Trainer trainer, TrainerCareer trainerCareer) {
+        Optional<TrainerCareer> currentWorkingCareer = trainerCareerRepository.findByWorkingTrueAndTrainerId(trainer.getId());
+        currentWorkingCareer.ifPresent(TrainerCareer::quitCompany);
+
+        trainer.updateAddress(trainerCareer);
+        updateAddressOfOpenTraining(trainer.getId(), trainerCareer);
+    }
+
+    private void updateAddressOfOpenTraining(Long trainerId, TrainerCareer trainerCareer) {
+        List<Training> trainingList = trainingRepository.findByDeletedFalseAndClosedFalseAndTrainerId(trainerId);
+        for (Training training : trainingList) {
+            training.updateAddress(trainerCareer);
+        }
     }
 
     @Override

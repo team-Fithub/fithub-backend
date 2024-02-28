@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingContentUpdateDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.TrainingCreateDto;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
+import com.fithub.fithubbackend.domain.trainer.domain.TrainerCareer;
 import com.fithub.fithubbackend.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -128,5 +129,10 @@ public class Training extends BaseTimeEntity {
     public void updateStartAndEndDate(LocalDate startDate, LocalDate endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
+    }
+
+    public void updateAddress(TrainerCareer trainerCareer) {
+        this.address = trainerCareer.getAddress();
+        this.point = trainerCareer.getPoint();
     }
 }

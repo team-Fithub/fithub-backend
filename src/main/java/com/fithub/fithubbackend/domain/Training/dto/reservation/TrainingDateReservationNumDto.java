@@ -1,12 +1,10 @@
 package com.fithub.fithubbackend.domain.Training.dto.reservation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingAvailableTimeDto;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,7 +16,6 @@ public class TrainingDateReservationNumDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
+    @Schema(description = "해당 날에 잡혀있는 진행 전 예약")
     private Long reservationNum;
-
-    private List<TrainingAvailableTimeDto> availableTimes = new ArrayList<>();
 }
