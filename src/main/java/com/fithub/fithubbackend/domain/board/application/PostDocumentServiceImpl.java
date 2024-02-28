@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,12 +43,17 @@ public class PostDocumentServiceImpl implements PostDocumentService {
     @Transactional
     public void updateDocument(PostUpdateDto postUpdateDto, Post post) {
 
-        if (postUpdateDto.isImageDeleted())
-            postUpdateDto.getDeletedImages().forEach(awsS3Url -> {
-                PostDocument postDocument = postDocumentRepository.findByUrl(awsS3Url);
-                awsS3Uploader.deleteS3(postDocument.getPath());
-                post.getPostDocuments().remove(postDocument);
+        if (postUpdateDto.isImageDeleted()) {
+            List<PostDocument> postDocuments = postDocumentRepository.findByPost(post);
+            List<String> awsS3Urls = postUpdateDto.getExistingImages();
+
+            postDocuments.forEach(postDocument -> {
+                if (!awsS3Urls.contains(postDocument.getUrl())) {
+                    awsS3Uploader.deleteS3(postDocument.getPath());
+                    post.getPostDocuments().remove(postDocument);
+                }
             });
+        }
 
         if (postUpdateDto.isImageAdded()) {
             FileUtils.isValidDocument(postUpdateDto.getNewImages());
