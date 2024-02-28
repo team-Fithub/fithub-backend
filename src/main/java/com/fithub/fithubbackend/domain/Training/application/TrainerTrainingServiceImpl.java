@@ -2,7 +2,6 @@ package com.fithub.fithubbackend.domain.Training.application;
 
 import com.fithub.fithubbackend.domain.Training.domain.*;
 import com.fithub.fithubbackend.domain.Training.dto.TrainersTrainingOutlineDto;
-import com.fithub.fithubbackend.domain.Training.dto.TrainingAvailableTimeDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.TrainingDateReservationNumDto;
 import com.fithub.fithubbackend.domain.Training.dto.trainersTraining.*;
@@ -144,7 +143,6 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         return TrainingDateReservationNumDto.builder()
                 .id(date.getId())
                 .date(date.getDate())
-                .availableTimes(date.getAvailableTimes().stream().map(TrainingAvailableTimeDto::toDto).toList())
                 .reservationNum(reservationNum)
                 .build();
     }

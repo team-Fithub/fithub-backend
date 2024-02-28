@@ -81,7 +81,7 @@ public class TrainerTrainingController {
         return ResponseEntity.ok(trainerTrainingService.updateTrainingContent(dto, trainingId, user.getEmail()));
     }
 
-    @Operation(summary = "트레이닝 날짜, 시간 수정을 위해 그 날짜들에 있는 진행 전 예약 수 받아오기", responses = {
+    @Operation(summary = "트레이닝 날짜 수정을 위해 그 날짜들에 있는 진행 전 예약 수 받아오기", responses = {
             @ApiResponse(responseCode = "200", description = "성공"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
