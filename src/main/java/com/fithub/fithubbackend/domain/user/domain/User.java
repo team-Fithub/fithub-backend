@@ -2,7 +2,6 @@ package com.fithub.fithubbackend.domain.user.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fithub.fithubbackend.domain.user.dto.OAuthSignUpDto;
-import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
 import com.fithub.fithubbackend.domain.user.dto.SignUpDto;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
@@ -194,5 +193,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public boolean isTrainer() {
+        return this.roles.contains("ROLE_TRAINER");
     }
 }

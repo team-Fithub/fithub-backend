@@ -45,6 +45,7 @@ public class UserServiceImpl implements UserService {
                 .bio(user.getBio())
                 .gender(user.getGender())
                 .grade(user.getGrade())
+                .trainer(user.isTrainer())
                 .build();
     }
 
