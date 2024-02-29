@@ -12,11 +12,15 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TrainerTrainingService {
 
     Page<TrainersTrainingOutlineDto> getTrainersTrainingList(Long userId, boolean closed, Pageable pageable);
+
+    List<LocalDate> getDateListOfOtherTraining(Long userId);
+
     Long createTraining(TrainingCreateDto dto, User user);
     Long updateTrainingContent(TrainingContentUpdateDto dto, Long trainingId, String email);
 

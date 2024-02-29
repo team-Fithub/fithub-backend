@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "trainer's training (트레이너의 트레이닝)", description = "트레이너가 사용하는 트레이닝 관련 api (트레이너 권한 필요)")
@@ -53,6 +54,18 @@ public class TrainerTrainingController {
                                                                                     @PageableDefault(sort="id", size = 9, direction = Sort.Direction.DESC) Pageable pageable) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(trainerTrainingService.getTrainersTrainingList(user.getId(), closed, pageable));
+    }
+
+    @Operation(summary = "트레이닝이 있는 날짜 리스트 가져오기", description = "트레이닝 생성 시, 이미 트레이닝이 있는 날짜들은 중복이 있을 수 있으니 제외하기 위해 트레이닝이 있는 날짜를 받아옴" ,
+            responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 회원은 트레이너가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    })
+    @GetMapping("/date-list/impossible")
+    public ResponseEntity<List<LocalDate>> getDateListOfOtherTraining(@AuthUser User user) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(trainerTrainingService.getDateListOfOtherTraining(user.getId()));
     }
 
     @Operation(summary = "트레이닝 생성, swagger에서 테스트 불가능, 이미지는 모두 images로 주면 됨", responses = {

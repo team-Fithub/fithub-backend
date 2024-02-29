@@ -26,10 +26,8 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +54,18 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         Trainer trainer = findTrainerByUserId(userId);
         Page<Training> trainersTrainingList = trainingRepository.findAllByDeletedFalseAndTrainerIdAndClosed(trainer.getId(), closed, pageable);
         return trainersTrainingList.map(t -> TrainersTrainingOutlineDto.builder().training(t).build());
+    }
+
+    @Override
+    public List<LocalDate> getDateListOfOtherTraining(Long userId) {
+        Trainer trainer = findTrainerByUserId(userId);
+        List<Training> trainingList = trainingRepository.findByDeletedFalseAndClosedFalseAndTrainerId(trainer.getId());
+
+        List<LocalDate> dateList = trainingList.stream()
+                .flatMap(t -> t.getAvailableDates().stream().map(AvailableDate::getDate))
+                .sorted()
+                .collect(Collectors.toList());
+        return dateList;
     }
 
     @Override
