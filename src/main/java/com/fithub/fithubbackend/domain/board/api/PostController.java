@@ -108,18 +108,18 @@ public class PostController {
         return ResponseEntity.ok().body(commentService.getDetailComments(commentId));
     }
 
-    @Operation(summary = "게시글 검색", parameters = {
+    @Operation(summary = "게시글 검색 (swagger에서 api 테스트 X. pageable을 request Body 전달 받기 때문. pageable를 파라미터로 전달해야 함.)", parameters = {
             @Parameter(name = "keyword", description = "검색 키워드"),
             @Parameter(name = "scope", description = " 검색 범위 ex) content(기본), writer, hashtags"),
-            @Parameter(name = "page", description = "페이지 번호 (기본 0 : 가장 첫 페이지), 필수 값"),
-            @Parameter(name = "size", description = "한 페이지에 노출할 데이터 건수 (기본 9, 생략 가능)"),
-            @Parameter(name = "sort", description = "페이지 정렬 방식 (기본 id desc : 최신순, 생략 가능) ex) likes(좋아요 순), comments(댓글 순) 지정 가능"),
+            @Parameter(name = "pageable", description = "page(size = 9, sort = \"id\", desc 적용). 파라미터로 전달. 페이지 이동 시 page 값만 보내주면 됨. ex) \"page\" : 0 인 경우 1 페이지"),
+            @Parameter(name = "pageable의 sort", description = "페이지 정렬 방식 (기본 id,desc : 최신순, 생략 가능) ex) likes,desc (좋아요 순), comments,desc (댓글 순) 지정 가능."),
     }, responses = {
             @ApiResponse(responseCode = "200", description = "검색 완료"),
     })
     @PostMapping("/search")
-    public ResponseEntity<Page<PostInfoDto>> searchPostsByKeyword(@RequestBody PostSearchFilterDto filter) {
-        return ResponseEntity.ok().body(postService.searchPostsByKeyword(filter));
+    public ResponseEntity<Page<PostInfoDto>> searchPostsByKeyword(@RequestBody PostSearchFilterDto filter,
+                                                                  @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok().body(postService.searchPostsByKeyword(filter, pageable));
     }
 
 }

@@ -20,5 +20,5 @@ public interface PostService {
 
     List<LikedUsersInfoDto> getLikedUsersForPosts(List<PostRequestDto> postRequestDtos);
 
-    Page<PostInfoDto> searchPostsByKeyword(PostSearchFilterDto filter);
+    Page<PostInfoDto> searchPostsByKeyword(PostSearchFilterDto filter, Pageable pageable);
 }

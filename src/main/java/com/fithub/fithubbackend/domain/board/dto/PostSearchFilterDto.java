@@ -15,7 +15,4 @@ public class PostSearchFilterDto {
     @Schema(description = "검색 범위 (내용, 작성자, 해시태그)", example = "content")
     private String scope = "content";
 
-    @Schema(description = "페이징")
-    private PageableDto pageable;
-
 }

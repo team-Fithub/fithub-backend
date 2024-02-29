@@ -64,8 +64,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostInfoDto> searchPostsByKeyword(PostSearchFilterDto filter) {
-        Page<Post> posts = postRepository.searchPostsByKeyword(filter);
+    public Page<PostInfoDto> searchPostsByKeyword(PostSearchFilterDto filter, Pageable pageable) {
+        Page<Post> posts = postRepository.searchPostsByKeyword(filter, pageable);
         return posts.map(PostInfoDto::toDto);
     }
 
