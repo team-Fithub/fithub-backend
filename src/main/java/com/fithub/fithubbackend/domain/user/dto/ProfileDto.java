@@ -2,7 +2,6 @@ package com.fithub.fithubbackend.domain.user.dto;
 
 import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.enums.Grade;
-import com.fithub.fithubbackend.global.domain.Document;
 import lombok.*;
 
 @Getter
@@ -18,4 +17,6 @@ public class ProfileDto {
     private String bio;
     private String profileImg;
     private Grade grade;
+
+    private boolean trainer;
 }
