@@ -74,11 +74,25 @@ public class TrainingServiceImpl implements TrainingService {
         Location northEast = GeometryUtil.calculate(latitude, longitude, 2.0, Direction.NORTHEAST.getBearing());
         Location southWest = GeometryUtil.calculate(latitude, longitude, 2.0, Direction.SOUTHWEST.getBearing());
 
-        String pointFormat = String.format(
+        String pointFormat = formatPoint(northEast, southWest);
+
+        List<Training> trainingList = findTrainingByLocation(pointFormat);
+
+        return trainingList.stream().map(t -> {
+            TrainingOutlineDto dto = TrainingOutlineDto.toDto(t);
+            dto.updateDist(calcDist(latitude, longitude, t.getId()));
+            return dto;
+        }).toList();
+    }
+
+    private String formatPoint(Location northEast, Location southWest) {
+        return String.format(
                 "'LINESTRING(%f %f, %f %f)'",
                 northEast.getLongitude(), northEast.getLatitude(), southWest.getLongitude(), southWest.getLatitude()
         );
+    }
 
+    private List<Training> findTrainingByLocation(String pointFormat) {
         Query query = entityManager.createNativeQuery(
                 "" +
                         "SELECT * \n" +
@@ -89,22 +103,20 @@ public class TrainingServiceImpl implements TrainingService {
                         "ORDER BY t.id"
                 , Training.class
         );
-        List<Training> trainingList = query.getResultList();
+        return query.getResultList();
+    }
 
-        return trainingList.stream().map(t -> {
-            TrainingOutlineDto dto = TrainingOutlineDto.toDto(t);
-            try {
-                Point point = latitude != null && longitude != null ?
-                        (Point) new WKTReader().read(String.format("POINT(%s %s)", longitude, latitude))
-                        : null;
-                if (point != null) {
-                    Double dist = trainingRepository.findDistByPoint(point.getX(), point.getY(), t.getId());
-                    dto.updateDist(dist);
-                }
-            } catch (ParseException e) {
-                throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
-            }
-            return dto;
-        }).toList();
+    private Double calcDist(Double latitude, Double longitude, Long trainingId) {
+        Point point;
+        try {
+            point = (Point) new WKTReader().read(String.format("POINT(%s %s)", longitude, latitude));
+        } catch (ParseException e) {
+            throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
+        }
+
+        if (point != null) {
+            return trainingRepository.findDistByPoint(point.getX(), point.getY(), trainingId);
+        }
+        return null;
     }
 }
