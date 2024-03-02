@@ -116,7 +116,7 @@ public class TrainerServiceImpl implements TrainerService {
             trainerCareer.joinCompany();
         } else if (trainerCareer.isWorking() && !working) {
             if (trainingRepository.existsByDeletedFalseAndClosedFalseAndTrainerId(trainer.getId())) {
-                throw new CustomException(ErrorCode.BAD_REQUEST, "진행중인 트레이닝 모집이 있어 근무지가 필요합니다. 현재 재직중인 회사가 없다면 트레이닝 삭제 후 근무지 수정을 진행해야됩니다.");
+                throw new CustomException(ErrorCode.BAD_REQUEST, "진행중인 트레이닝 모집이 있어 근무지가 필요합니다. 해당 주소로 진행중인 트레이닝 삭제 후 근무지 수정을 진행해야됩니다.");
             }
             trainerCareer.quitCompany();
         }
@@ -145,6 +145,12 @@ public class TrainerServiceImpl implements TrainerService {
 
         if (!career.getTrainer().getId().equals(trainer.getId())) {
             throw new CustomException(ErrorCode.PERMISSION_DENIED);
+        }
+
+        if (trainer.getAddress().equals(career.getAddress())) {
+            if (trainingRepository.existsByDeletedFalseAndClosedFalseAndTrainerId(trainer.getId())) {
+                throw new CustomException(ErrorCode.BAD_REQUEST, "진행중인 트레이닝 모집이 있어 근무지가 필요합니다. 해당 주소로 진행중인 트레이닝 삭제 후 근무지 삭제를 진행해야됩니다.");
+            }
         }
 
         trainerCareerRepository.delete(career);
