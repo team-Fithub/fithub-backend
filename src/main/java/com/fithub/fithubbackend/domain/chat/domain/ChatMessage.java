@@ -26,8 +26,8 @@ public class ChatMessage extends BaseTimeEntity {
     @Column(name = "MESSAGE")
     private String message;
 
-    @Column(name = "CHECK")
-    private boolean check;
+    @Column(name = "CHECKED")
+    private boolean checked;
 
     public void setUser(User user) {
         this.sender = user;

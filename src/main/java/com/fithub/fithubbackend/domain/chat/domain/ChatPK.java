@@ -5,21 +5,23 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 
 @Embeddable
 @Getter
-@NoArgsConstructor
+@Setter
 @EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChatPK implements Serializable {
+    @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ROOM_ID", nullable = false)
     private ChatRoom chatRoom;
 
+    @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ID", nullable = false)
     private User user;

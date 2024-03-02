@@ -18,7 +18,7 @@ public class ChatRoom extends BaseTimeEntity {
     @Column(name = "ROOM_ID")
     private Long roomId;
 
-    @OneToMany(mappedBy = "chattingRoom", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
     private List<ChatMessage> chatMessageList;
 
     @Builder
