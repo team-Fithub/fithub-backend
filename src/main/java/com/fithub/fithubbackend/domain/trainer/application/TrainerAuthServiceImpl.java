@@ -8,7 +8,6 @@ import com.fithub.fithubbackend.domain.trainer.dto.TrainerCertificationRequestDt
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerCertificationRequestRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
-import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -29,8 +28,6 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
     private final TrainerRepository trainerRepository;
     private final TrainerCertificationRequestRepository trainerCertificationRequestRepository;
 
-    private final UserRepository userRepository;
-
     private final AwsS3Uploader s3Uploader;
 
     @Override
@@ -41,43 +38,53 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
         }
 
         if (trainerCertificationRequestRepository.existsByRejectedFalseAndUserId(user.getId())) {
-            throw new CustomException(ErrorCode.DUPLICATE, "반려되지 않은 트레이너 인증 요청이 존재하는 회원입니다.");
+            throw new CustomException(ErrorCode.DUPLICATE, "승인 대기 중인 요청이 존재합니다.");
         }
 
-        TrainerCertificationRequest trainerCertificationRequest = TrainerCertificationRequest.builder()
+        TrainerCertificationRequest request = TrainerCertificationRequest.builder()
                 .user(user).licenseNames(requestDto.getLicenseNames()).build();
 
-        List<MultipartFile> licenseFileList = requestDto.getLicenseFileList();
-        if (licenseFileList != null && !licenseFileList.isEmpty()) {
-            for (MultipartFile file : licenseFileList) {
-                String path = s3Uploader.imgPath("trainer_license_temp");
-                Document document = Document.builder()
-                        .inputName(file.getOriginalFilename())
-                        .url(s3Uploader.putS3(file, path))
-                        .path(path)
-                        .build();
-                TrainerLicenseTempImg trainerLicenseTempImg = TrainerLicenseTempImg.builder()
-                        .document(document).build();
-                trainerLicenseTempImg.updateRequest(trainerCertificationRequest);
-            }
-        }
+        saveTrainerLicenseTempImg(requestDto.getLicenseFileList(), request);
+        saveTrainerCareer(requestDto.getCareerList(), request);
 
-        List<TrainerCareerRequestDto> careerList = requestDto.getCareerList();
+        trainerCertificationRequestRepository.save(request);
+    }
+
+    private void saveTrainerLicenseTempImg(List<MultipartFile> licenseList, TrainerCertificationRequest request) {
+        for (MultipartFile file : licenseList) {
+            TrainerLicenseTempImg trainerLicenseTempImg = TrainerLicenseTempImg.builder()
+                    .document(createDocument(file)).build();
+            trainerLicenseTempImg.updateRequest(request);
+        }
+    }
+
+    private Document createDocument(MultipartFile file) {
+        String path = s3Uploader.imgPath("trainer_license_temp");
+        return  Document.builder()
+                .inputName(file.getOriginalFilename())
+                .url(s3Uploader.putS3(file, path))
+                .path(path)
+                .build();
+    }
+
+    private void saveTrainerCareer(List<TrainerCareerRequestDto> careerList, TrainerCertificationRequest request) {
         for (TrainerCareerRequestDto dto : careerList) {
             Double latitude = dto.getLatitude();
             Double longitude = dto.getLongitude();
-            try {
-                Point point = latitude != null && longitude != null ?
-                        (Point) new WKTReader().read(String.format("POINT(%s %s)", longitude, latitude))
-                        : null;
-                TrainerCareerTemp trainerCareerTemp = TrainerCareerTemp.builder()
-                        .dto(dto).point(point).build();
-                trainerCareerTemp.updateRequest(trainerCertificationRequest);
-            } catch (ParseException e) {
-                throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
-            }
-        }
 
-        trainerCertificationRequestRepository.save(trainerCertificationRequest);
+            TrainerCareerTemp trainerCareerTemp = TrainerCareerTemp.builder()
+                    .dto(dto).point(parsePoint(latitude, longitude)).build();
+            trainerCareerTemp.updateRequest(request);
+        }
+    }
+
+    private Point parsePoint(Double latitude, Double longitude) {
+        try {
+            return latitude != null && longitude != null ?
+                    (Point) new WKTReader().read(String.format("POINT(%s %s)", longitude, latitude))
+                    : null;
+        } catch (ParseException e) {
+            throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
+        }
     }
 }

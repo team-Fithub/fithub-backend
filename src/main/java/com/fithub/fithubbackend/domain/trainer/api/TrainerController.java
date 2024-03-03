@@ -84,6 +84,7 @@ public class TrainerController {
 
     @Operation(summary = "트레이너 경력 하나 수정", responses = {
             @ApiResponse(responseCode = "200", description = "수정 완료"),
+            @ApiResponse(responseCode = "400", description = "진행중인 트레이닝 모집이 있어 근무지가 필요합니다. 해당 주소로 진행중인 트레이닝 삭제 후 근무지 수정을 진행해야됩니다.", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "403", description = "경력을 수정할 권한이 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "500", description = "좌표 파싱 에러", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
@@ -97,6 +98,7 @@ public class TrainerController {
 
     @Operation(summary = "트레이너 경력 하나 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "삭제 완료"),
+            @ApiResponse(responseCode = "400", description = "진행중인 트레이닝 모집이 있어 근무지가 필요합니다. 해당 주소로 진행중인 트레이닝 삭제 후 근무지 삭제를 진행해야됩니다.", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "403", description = "삭제 권한 없음", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })

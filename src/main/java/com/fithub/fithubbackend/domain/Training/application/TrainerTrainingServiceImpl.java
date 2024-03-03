@@ -61,11 +61,10 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         Trainer trainer = findTrainerByUserId(userId);
         List<Training> trainingList = trainingRepository.findByDeletedFalseAndClosedFalseAndTrainerId(trainer.getId());
 
-        List<LocalDate> dateList = trainingList.stream()
+        return trainingList.stream()
                 .flatMap(t -> t.getAvailableDates().stream().map(AvailableDate::getDate))
                 .sorted()
                 .collect(Collectors.toList());
-        return dateList;
     }
 
     @Override
@@ -79,11 +78,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         }
 
         Training training = Training.builder().dto(dto).trainer(trainer).build();
-
-        List<LocalDate> availableDateList = getAvailableDateList(dto.getStartDate(), dto.getEndDate(), dto.getUnableDates());
-        List<LocalTime> localTimeList = getAvailableTimeList(dto.getStartHour(), dto.getEndHour());
-
-        saveTrainingDateTime(availableDateList, localTimeList, training);
+        saveDateTimeToTraining(training, dto);
 
         if (dto.getImages() != null && !dto.getImages().isEmpty()) {
             saveTrainingImages(dto.getImages(), training);
@@ -93,13 +88,19 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         return training.getId();
     }
 
-    private void saveTrainingDateTime(List<LocalDate> availableDateList, List<LocalTime> localTimeList, Training training) {
+    private void saveDateTimeToTraining(Training training, TrainingCreateDto dto) {
+        List<LocalDate> availableDateList = getAvailableDateList(dto.getStartDate(), dto.getEndDate(), dto.getUnableDates());
+        List<LocalTime> localTimeList = getAvailableTimeList(dto.getStartHour(), dto.getEndHour());
+
+        linkDateTimeToTraining(availableDateList, localTimeList, training);
+    }
+
+    private void linkDateTimeToTraining(List<LocalDate> availableDateList, List<LocalTime> localTimeList, Training training) {
         for (LocalDate date : availableDateList) {
-            AvailableDate availableDate = AvailableDate.builder()
-                    .date(date)
-                    .enabled(true)
-                    .build();
-            List<AvailableTime> availableTimeList = localTimeList.stream().map(t -> AvailableTime.builder().date(availableDate).time(t).enabled(true).build()).toList();
+            AvailableDate availableDate = AvailableDate.builder().date(date).enabled(true).build();
+            List<AvailableTime> availableTimeList = localTimeList.stream()
+                    .map(t -> AvailableTime.builder().date(availableDate).time(t).enabled(true).build()).toList();
+
             availableDate.updateAvailableTimes(availableTimeList);
             availableDate.addTraining(training);
         }
@@ -108,18 +109,21 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     private void saveTrainingImages(List<MultipartFile> images, Training training) {
         FileUtils.isValidDocument(images);
         for (MultipartFile file : images) {
-            String path = awsS3Uploader.imgPath(imagePath);
-            Document document = Document.builder()
-                    .inputName(file.getOriginalFilename())
-                    .url(awsS3Uploader.putS3(file, path))
-                    .path(path)
-                    .build();
             TrainingDocument trainingDoc = TrainingDocument.builder()
                     .training(training)
-                    .document(document)
+                    .document(createDocument(file))
                     .build();
             training.addImages(trainingDoc);
         }
+    }
+
+    private Document createDocument(MultipartFile file) {
+        String path = awsS3Uploader.imgPath(imagePath);
+        return Document.builder()
+                .inputName(file.getOriginalFilename())
+                .url(awsS3Uploader.putS3(file, path))
+                .path(path)
+                .build();
     }
 
     @Override
@@ -141,12 +145,11 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         Training training = findTrainingById(trainingId);
         List<AvailableDate> availableDates = training.getAvailableDates();
 
-        List<TrainingDateReservationNumDto> list = new ArrayList<>();
-        for (AvailableDate date : availableDates) {
-            Long reservationNum = reserveInfoRepository.countByAvailableDateIdAndStatus(date.getId(), ReserveStatus.BEFORE);
-            list.add(createTrainingDateReservationNumDto(date, reservationNum));
-        }
-        return list;
+        return availableDates.stream()
+                .map(date -> {
+                    Long reservationNum = reserveInfoRepository.countByAvailableDateIdAndStatus(date.getId(), ReserveStatus.BEFORE);
+                    return createTrainingDateReservationNumDto(date, reservationNum);
+                }).toList();
     }
 
     private TrainingDateReservationNumDto createTrainingDateReservationNumDto(AvailableDate date, Long reservationNum) {
@@ -168,14 +171,14 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
         List<AvailableDate> currentDateList = training.getAvailableDates();
 
-        updateCurrentDates(currentDateList, newAvailableDateList, training);
-        saveTrainingDateTime(newAvailableDateList, localTimeList, training);
+        updateNewDateListAndDeleteDate(currentDateList, newAvailableDateList, training);
+        linkDateTimeToTraining(newAvailableDateList, localTimeList, training);
 
         training.updateStartAndEndDate(dto.getStartDate(), dto.getEndDate());
         return trainingId;
     }
 
-    public void updateCurrentDates(List<AvailableDate> currentDateList, List<LocalDate> newAvailableDateList, Training training) {
+    public void updateNewDateListAndDeleteDate(List<AvailableDate> currentDateList, List<LocalDate> newAvailableDateList, Training training) {
         List<AvailableDate> datesToRemove = new ArrayList<>();
 
         for (AvailableDate date : currentDateList) {
@@ -191,19 +194,23 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         }
     }
 
-    public void handleDeleteData(AvailableDate date, Training training) {
+    private void handleDeleteData(AvailableDate date, Training training) {
         List<ReserveStatus> statusList = reserveInfoRepository.findStatusByAvailableDateId(date.getId());
-        for (ReserveStatus status : statusList) {
-            if (status == ReserveStatus.BEFORE) {
-                throw new CustomException(ErrorCode.BAD_REQUEST, date.getDate() + "일에 진행 전 예약이 존재하여 수정할 수 없습니다.");
-            }
-        }
+        checkListContainsBefore(statusList, date.getDate());
 
         if (statusList.isEmpty()) {
             training.removeDate(date);
             availableDateRepository.delete(date);
         } else {
             date.deleteDate();
+        }
+    }
+
+    private void checkListContainsBefore(List<ReserveStatus> statusList, LocalDate date) {
+        for (ReserveStatus status : statusList) {
+            if (status == ReserveStatus.BEFORE) {
+                throw new CustomException(ErrorCode.BAD_REQUEST, date + "일에 진행 전 예약이 존재하여 수정할 수 없습니다.");
+            }
         }
     }
 
@@ -235,23 +242,33 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     @Transactional
     public void deleteTraining(Long id, String email) {
         Training training = findTrainingById(id);
-        permissionValidate(training.getTrainer(), email);
 
+        permissionValidate(training.getTrainer(), email);
+        checkNonDeletableStatusExistsInReservation(id);
+
+        trainingLikesRepository.deleteAll(trainingLikesRepository.findByTrainingId(id));
+        deleteTrainingDocument(id);
+
+        executeDeleteTraining(training);
+    }
+
+    private void checkNonDeletableStatusExistsInReservation(Long id) {
         if (reserveInfoRepository.existsByTrainingIdAndStatusNotIn(id,
                 List.of(ReserveStatus.CANCEL, ReserveStatus.NOSHOW, ReserveStatus.COMPLETE))) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 트레이닝에 완료 또는 취소되지 않은 예약이 존재해 삭제 작업이 불가능합니다.");
         }
+    }
 
-        List<TrainingLikes> trainingLikesList = trainingLikesRepository.findByTrainingId(id);
-        trainingLikesRepository.deleteAll(trainingLikesList);
-
-        List<TrainingDocument> trainingImgList = trainingDocumentRepository.findByTrainingId(id);
+    private void deleteTrainingDocument(Long trainingId) {
+        List<TrainingDocument> trainingImgList = trainingDocumentRepository.findByTrainingId(trainingId);
         for (TrainingDocument trainingImg : trainingImgList) {
             awsS3Uploader.deleteS3(trainingImg.getDocument().getPath());
         }
         trainingDocumentRepository.deleteAll(trainingImgList);
+    }
 
-        if (reserveInfoRepository.existsByTrainingId(id)) {
+    private void executeDeleteTraining(Training training) {
+        if (reserveInfoRepository.existsByTrainingId(training.getId())) {
             training.executeDelete();
         } else {
             trainingRepository.delete(training);
@@ -302,14 +319,18 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
         reserveInfo.updateStatus(ReserveStatus.NOSHOW);
 
-        Optional<TrainingReview> optionalTrainingReview = trainingReviewRepository.findByReserveInfoId(reserveInfo.getId());
-        optionalTrainingReview.ifPresent(TrainingReview::lock);
+        lockReviewIfPresent(reserveInfo.getId());
     }
 
     private void isReserveInfoStatusComplete(ReserveInfo reserveInfo) {
         if (!reserveInfo.getStatus().equals(ReserveStatus.COMPLETE)) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 예약은 진행 전 / 진행 중 / 취소 상태이므로 노쇼 처리할 수 없습니다. 완료 처리된 예약만 노쇼 처리가 가능합니다.");
         }
+    }
+
+    private void lockReviewIfPresent(Long reserveInfoId) {
+        Optional<TrainingReview> optionalTrainingReview = trainingReviewRepository.findByReserveInfoId(reserveInfoId);
+        optionalTrainingReview.ifPresent(TrainingReview::lock);
     }
 
     private Trainer findTrainerByUserId (Long userId) {

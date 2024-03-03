@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,60 +38,79 @@ public class AdminServiceImpl implements AdminService {
     @Transactional
     // TODO: 승인됐다는 알림 보내기?
     public void acceptTrainerCertificateRequest(Long requestId) {
-        TrainerCertificationRequest trainerCertificationRequest = trainerCertificationRequestRepository.findById(requestId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "트레이너 인증 요청을 찾을 수 없습니다."));
-        Trainer trainer = Trainer.builder()
-                .user(trainerCertificationRequest.getUser())
-                .build();
+        TrainerCertificationRequest request = findCertRequestById(requestId);
+        Trainer trainer = Trainer.builder().user(request.getUser()).build();
 
-        List<TrainerCareer> trainerCareerList = trainerCertificationRequest.getCareerTempList().stream().map(c -> TrainerCareer.builder()
-                        .trainer(trainer)
-                        .trainerCareerTemp(c)
-                        .build())
-                .toList();
-
-        List<TrainerLicenseImg> trainerLicenseImgList = trainerCertificationRequest.getLicenseTempImgList().stream().map(img -> TrainerLicenseImg.builder()
-                        .trainer(trainer)
-                        .document(img.getDocument())
-                        .build())
-                .toList();
-
-        trainer.updateCareerList(trainerCareerList);
-        trainer.updateTrainerLicenseImg(trainerLicenseImgList);
-
-        Optional<TrainerCareer> company = trainerCareerList.stream().filter(TrainerCareer::isWorking).findFirst();
-        company.ifPresent(trainer::updateAddress);
+        convertTempCareerIntoTrainerCareer(request.getCareerTempList(), trainer);
+        convertTempLicenseIntoTrainerLicense(request.getLicenseTempImgList(), trainer);
 
         trainer.grantPermission();
         trainerRepository.save(trainer);
-        trainerCertificationRequestRepository.delete(trainerCertificationRequest);
+        trainerCertificationRequestRepository.delete(request);
+    }
+
+    private void convertTempCareerIntoTrainerCareer(List<TrainerCareerTemp> temp, Trainer trainer) {
+        List<TrainerCareer> list = temp.stream()
+                .map(t -> {
+                    TrainerCareer career = TrainerCareer.builder().trainer(trainer).trainerCareerTemp(t).build();
+                    if (career.isWorking()) {
+                        trainer.updateAddress(career);
+                    }
+                    return career;
+                })
+                .toList();
+
+        trainer.updateCareerList(list);
+    }
+
+    private void convertTempLicenseIntoTrainerLicense(List<TrainerLicenseTempImg> temp, Trainer trainer) {
+        List<TrainerLicenseImg> list = temp.stream().map(img -> TrainerLicenseImg.builder().trainer(trainer).document(img.getDocument()).build())
+                .toList();
+        trainer.updateTrainerLicenseImg(list);
     }
 
     @Override
     @Transactional
     // TODO: 반려됐다는 알림 보내기?
     public void rejectTrainerCertificateRequest(Long requestId, CertRejectDto dto) {
-        TrainerCertificationRequest trainerCertificationRequest = trainerCertificationRequestRepository.findById(requestId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "트레이너 인증 요청을 찾을 수 없습니다."));//
-        List<TrainerLicenseTempImg> licenseTempImgList = trainerCertificationRequest.getLicenseTempImgList();
+        TrainerCertificationRequest request = findCertRequestById(requestId);
 
+        deleteTempData(request);
+        request.requestReject();
+
+        trainerCertificationRequestRepository.saveAndFlush(request);
+
+        createRejectLog(request, dto);
+    }
+
+    private void deleteTempData(TrainerCertificationRequest request) {
+        List<Document> documentToDeleted = getDocumentToDeleted(request.getLicenseTempImgList());
+
+        trainerCareerTempRepository.deleteAll(request.getCareerTempList());
+        trainerLicenseTempImgRepository.deleteAll(request.getLicenseTempImgList());
+        documentRepository.deleteAll(documentToDeleted);
+    }
+
+    private List<Document> getDocumentToDeleted(List<TrainerLicenseTempImg> tempImgList) {
         List<Document> documentToDeleted = new ArrayList<>();
-        for (TrainerLicenseTempImg trainerLicenseTempImg : licenseTempImgList) {
+        for (TrainerLicenseTempImg trainerLicenseTempImg : tempImgList) {
             Document document = trainerLicenseTempImg.getDocument();
             documentToDeleted.add(document);
             awsS3Uploader.deleteS3(document.getPath());
         }
+        return documentToDeleted;
+    }
 
-        trainerCareerTempRepository.deleteAll(trainerCertificationRequest.getCareerTempList());
-        trainerLicenseTempImgRepository.deleteAll(trainerCertificationRequest.getLicenseTempImgList());
-        documentRepository.deleteAll(documentToDeleted);
-
-        trainerCertificationRequest.requestReject();
-
-        trainerCertificationRequestRepository.saveAndFlush(trainerCertificationRequest);
-
+    private void createRejectLog(TrainerCertificationRequest request, CertRejectDto dto) {
         TrainerCertificationRejectLog rejectLog = TrainerCertificationRejectLog.builder()
-                .trainerCertificationRequest(trainerCertificationRequest)
+                .trainerCertificationRequest(request)
                 .dto(dto)
                 .build();
         rejectLogRepository.save(rejectLog);
+    }
+
+    private TrainerCertificationRequest findCertRequestById(Long requestId) {
+        return trainerCertificationRequestRepository.findById(requestId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "트레이너 인증 요청을 찾을 수 없습니다."));
     }
 }
