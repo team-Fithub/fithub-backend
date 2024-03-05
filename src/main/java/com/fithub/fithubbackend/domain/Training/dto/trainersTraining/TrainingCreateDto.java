@@ -29,10 +29,6 @@ public class TrainingCreateDto {
 
     private List<MultipartFile> images = new ArrayList<>();
 
-    @NotBlank
-    @Schema(description = "트레이닝이 진행 장소")
-    private String location;
-
     @Schema(description = "가격")
     private int price;
 

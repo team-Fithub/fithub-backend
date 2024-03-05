@@ -16,7 +16,7 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     Page<Training> findAllByDeletedFalseAndTrainerIdAndClosed(Long trainerId, boolean closed, Pageable pageable);
     List<Training> findByDeletedFalseAndClosedFalseAndTrainerId(Long trainerId);
 
-    List<Training> findByClosedFalseAndEndDateLessThanEqual(LocalDate now);
+    List<Training> findByDeletedFalseAndClosedFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate startDate, LocalDate endDate);
 
     boolean existsByDeletedFalseAndClosedFalseAndTrainerId(Long trainerId);
 
