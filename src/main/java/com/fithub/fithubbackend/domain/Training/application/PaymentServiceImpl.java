@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Objects;
 
 @Service
@@ -144,6 +146,10 @@ public class PaymentServiceImpl implements PaymentService {
         ReserveInfo reserveInfo = reserveInfoRepository.findById(dto.getReservationId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 결제내역입니다."));
         if (!Objects.equals(reserveInfo.getUser().getId(), userId)) {
             throw new CustomException(ErrorCode.PERMISSION_DENIED, "예약한 회원이 아니므로 예약 취소 권한이 없습니다.");
+        }
+
+        if (reserveInfo.getReserveDateTime().toLocalDate().isEqual(LocalDate.now(ZoneId.of("Asia/Seoul")))) {
+            throw new CustomException(ErrorCode.BAD_REQUEST, "당일 예약 취소 불가");
         }
 
         checkReserveStatusIsCancelable(reserveInfo.getStatus());
