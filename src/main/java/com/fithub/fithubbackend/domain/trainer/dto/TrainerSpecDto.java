@@ -14,10 +14,12 @@ import java.util.List;
 public class TrainerSpecDto {
     private List<TrainerCareerDto> trainerCareerList;
     private List<TrainerLicenseDto> trainerLicenseList;
+    private String address;
 
     @Builder
-    public TrainerSpecDto(List<TrainerCareer> trainerCareerList, List<TrainerLicenseImg> trainerLicenseList) {
+    public TrainerSpecDto(List<TrainerCareer> trainerCareerList, List<TrainerLicenseImg> trainerLicenseList, String address) {
         this.trainerCareerList = trainerCareerList.stream().map(c -> TrainerCareerDto.builder().career(c).build()).toList();
         this.trainerLicenseList = trainerLicenseList.stream().map(l -> TrainerLicenseDto.builder().licenseImg(l).build()).toList();
+        this.address = address;
     }
 }

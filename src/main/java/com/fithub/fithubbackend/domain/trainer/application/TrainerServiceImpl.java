@@ -44,6 +44,7 @@ public class TrainerServiceImpl implements TrainerService {
         return TrainerSpecDto.builder()
                 .trainerCareerList(trainer.getTrainerCareerList())
                 .trainerLicenseList(trainer.getTrainerLicenseImgList())
+                .address(trainer.getAddress())
                 .build();
     }
 
