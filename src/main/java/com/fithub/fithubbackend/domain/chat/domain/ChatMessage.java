@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class ChatMessage extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "MESSAGE_ID")
     private Long messageId;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -23,10 +22,8 @@ public class ChatMessage extends BaseTimeEntity {
     @ManyToOne(optional = false)
     private ChatRoom chatRoom;
 
-    @Column(name = "MESSAGE")
     private String message;
 
-    @Column(name = "CHECKED")
     private boolean checked;
 
     public void setUser(User user) {

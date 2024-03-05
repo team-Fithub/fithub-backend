@@ -1,12 +1,14 @@
 package com.fithub.fithubbackend.domain.chat.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fithub.fithubbackend.domain.chat.domain.Chat;
 import com.fithub.fithubbackend.domain.chat.domain.ChatMessage;
 import com.fithub.fithubbackend.domain.chat.domain.ChatRoom;
 import com.fithub.fithubbackend.domain.chat.repository.ChatRoomRepository;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,12 +19,17 @@ public class ChatRoomResponseDto {
     private String roomName; // 채팅 상대 이름
     private String createdDate;
     private List<ChatMessage> chatMessageList;
+    private LocalDateTime modifiedDate;
 
-    ChatRoomRepository chatRoomRepository;
 
     public ChatRoomResponseDto(ChatRoom entity) {
         this.roomId = entity.getRoomId();
         this.createdDate = String.valueOf(entity.getCreatedDate());
+    }
+
+    public ChatRoomResponseDto(Chat entity) {
+        this.roomId = entity.getChatPK().getChatRoom().getRoomId();
+        this.roomName = entity.getChatRoomName();
     }
 
 

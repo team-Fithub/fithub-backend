@@ -4,8 +4,6 @@ import com.fithub.fithubbackend.domain.chat.domain.ChatMessage;
 import com.fithub.fithubbackend.domain.chat.domain.ChatRoom;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageRequestDto;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageResponseDto;
-import com.fithub.fithubbackend.domain.chat.dto.ChatRoomRequestDto;
-import com.fithub.fithubbackend.domain.chat.dto.ChatRoomResponseDto;
 import com.fithub.fithubbackend.domain.chat.repository.ChatMessageRepository;
 import com.fithub.fithubbackend.domain.chat.repository.ChatRoomRepository;
 import com.fithub.fithubbackend.global.exception.CustomException;

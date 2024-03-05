@@ -18,11 +18,11 @@ import java.io.Serializable;
 public class ChatPK implements Serializable {
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ROOM_ID", nullable = false)
+    @JoinColumn(name = "room_id", nullable = false)
     private ChatRoom chatRoom;
 
     @NonNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ID", nullable = false)
+    @JoinColumn(name = "id", nullable = false)
     private User user;
 }
