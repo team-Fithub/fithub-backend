@@ -60,7 +60,7 @@ public class UserPostServiceImpl implements UserPostService {
             post.updatePost(postUpdateDto.getContent());
             postHashtagService.updateHashtag(postUpdateDto.getHashTags(), post);
         } else {
-            throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 게시글 작성자가 아님");
+            throw new CustomException(ErrorCode.PERMISSION_DENIED, "해당 회원은 게시글 작성자가 아님");
         }
     }
 
@@ -75,7 +75,7 @@ public class UserPostServiceImpl implements UserPostService {
                 throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "댓글이 있어 게시글 삭제 불가");
             postRepository.delete(post);
         } else {
-            throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 게시글 작성자가 아님");
+            throw new CustomException(ErrorCode.PERMISSION_DENIED, "해당 회원은 게시글 작성자가 아님");
         }
     }
 

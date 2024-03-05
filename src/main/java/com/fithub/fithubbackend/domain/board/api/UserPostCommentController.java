@@ -44,7 +44,7 @@ public class UserPostCommentController {
 
     @Operation(summary = "댓글 수정", responses = {
             @ApiResponse(responseCode = "200", description = "댓글 수정 완료"),
-            @ApiResponse(responseCode = "404", description = "댓글 작성자가 아니므로 댓글 수정 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "댓글 작성자가 아니므로 댓글 수정 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @PutMapping
     public ResponseEntity<Void> updateComment(@RequestBody @Valid CommentUpdateDto commentUpdateDto, @AuthUser User user) {
@@ -55,7 +55,7 @@ public class UserPostCommentController {
 
     @Operation(summary = "댓글 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "댓글 삭제 완료"),
-            @ApiResponse(responseCode = "404", description = "댓글 작성자가 아니므로 댓글 삭제 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "댓글 작성자가 아니므로 댓글 삭제 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     })
     @DeleteMapping
     public ResponseEntity<Void> deleteComment(@RequestParam(value = "commentId") long commentId, @AuthUser User user) {

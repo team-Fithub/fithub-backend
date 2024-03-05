@@ -46,7 +46,7 @@ public class UserCommentServiceImpl implements UserCommentService {
             comment.updateContent(commentUpdateDto.getContent());
         }
         else {
-            throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 댓글 작성자가 아님");
+            throw new CustomException(ErrorCode.PERMISSION_DENIED, "해당 회원은 댓글 작성자가 아님");
         }
     }
 
@@ -69,7 +69,7 @@ public class UserCommentServiceImpl implements UserCommentService {
             }
         }
         else {
-            throw new CustomException(ErrorCode.NOT_FOUND, "해당 회원은 댓글 작성자가 아님");
+            throw new CustomException(ErrorCode.PERMISSION_DENIED, "해당 회원은 댓글 작성자가 아님");
         }
     }
 

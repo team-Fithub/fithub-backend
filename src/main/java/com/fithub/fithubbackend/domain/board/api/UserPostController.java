@@ -50,7 +50,7 @@ public class UserPostController {
     @Operation(summary = "게시글 수정", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 수정 완료"),
             @ApiResponse(responseCode = "500", description = "이미지 업로드 실패", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
-            @ApiResponse(responseCode = "404", description = "해당 회원은 게시글 작성자가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 회원은 게시글 작성자가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "이미지가 아닌 파일 업로드 또는 이미지 확장자 검사 실패", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -62,7 +62,7 @@ public class UserPostController {
 
     @Operation(summary = "게시글 삭제", responses = {
             @ApiResponse(responseCode = "200", description = "게시글 삭제 완료"),
-            @ApiResponse(responseCode = "404", description = "해당 회원은 게시글 작성자가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "403", description = "해당 회원은 게시글 작성자가 아님", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
             @ApiResponse(responseCode = "409", description = "댓글이 있어 게시글 삭제 불가", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
     }, parameters = {
             @Parameter(name = "postId", description = "삭제할 게시글 id")
