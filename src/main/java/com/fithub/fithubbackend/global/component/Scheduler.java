@@ -76,7 +76,7 @@ public class Scheduler {
     }
 
     private void closeTraining(Training training, LocalDate date, LocalTime time) {
-        if (training.getEndDate().isEqual(date) && training.getEndHour().isBefore(time))
+        if (training.getEndDate().isEqual(date) && training.getEndHour().equals(time))
             training.updateClosed(true);
     }
 
