@@ -42,7 +42,7 @@ public class Scheduler {
         LocalDateTime nowDateTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         log.info("[SCHEDULE] - checkTrainingDateTimeValidation 실행: {}", nowDateTime);
         LocalDate date = nowDateTime.toLocalDate();
-        LocalTime time = LocalTime.of(nowDateTime.toLocalTime().getHour(), 0);
+        LocalTime time = LocalTime.of(nowDateTime.getHour(), 0);
 
         List<Training> openTrainingList =
                 trainingRepository.findByDeletedFalseAndClosedFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(date, date);
