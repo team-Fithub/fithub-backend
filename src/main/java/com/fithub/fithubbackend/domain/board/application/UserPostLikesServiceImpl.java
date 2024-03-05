@@ -59,10 +59,4 @@ public class UserPostLikesServiceImpl implements UserPostLikesService {
         return posts.map(PostInfoDto::toDto);
     }
 
-    @Override
-    @Transactional
-    public void deleteAllLikesByUser(User user) {
-        likesRepository.deleteByUser(user);
-    }
-
 }

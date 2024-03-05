@@ -12,5 +12,4 @@ public interface UserPostLikesService {
 
     boolean isLiked(User user, Long postId);
     Page<PostInfoDto> getLikedPosts(User user, Pageable pageable);
-    void deleteAllLikesByUser(User user);
 }

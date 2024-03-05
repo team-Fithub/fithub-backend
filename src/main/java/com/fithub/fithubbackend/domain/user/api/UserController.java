@@ -55,15 +55,6 @@ public class UserController {
         return ResponseEntity.ok().body("완료");
     }
 
-    @Operation(summary = "회원 탈퇴", responses = {
-            @ApiResponse(responseCode = "200", description = "회원 탈퇴 성공"),
-    })
-    @DeleteMapping
-    public ResponseEntity<Void> deleteUserAccount(@CookieValue(name = "refreshToken") String cookieRefreshToken, @AuthUser User user) {
-        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        userService.deleteUserAccount(user, cookieRefreshToken);
-        return ResponseEntity.ok().build();
-    }
 
 
 }

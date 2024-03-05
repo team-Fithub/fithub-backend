@@ -21,6 +21,4 @@ public interface LikesRepository extends JpaRepository<Likes, Long> {
 
     @Query("select l.post from Likes l where l.user = :user")
     Page<Post> findPostsByUser(@Param("user") User user, Pageable pageable);
-
-    void deleteByUser(User user);
 }

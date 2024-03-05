@@ -9,5 +9,4 @@ public interface UserService {
     ProfileDto myProfile(User user);
     void updateProfile(ProfileUpdateDto profileUpdateDto, User user);
     void updateImage(MultipartFile profileImg, User user);
-    void deleteUserAccount(User user, String cookieRefreshToken);
 }
