@@ -318,8 +318,9 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     }
 
     private void openAvailableDate(AvailableDate availableDate, List<AvailableTime> reservedTimeList) {
+        LocalTime now = LocalTime.now(ZoneId.of("Asia/Seoul"));
         availableDate.getAvailableTimes().stream()
-                .filter(availableTime -> !reservedTimeList.contains(availableTime))
+                .filter(availableTime -> !reservedTimeList.contains(availableTime) && availableTime.getTime().isAfter(now))
                 .forEach(AvailableTime::openTime);
         availableDate.openDate();
     }
