@@ -158,6 +158,21 @@ public class User extends BaseTimeEntity implements UserDetails {
         this.password =password;
     }
 
+    public void deleteUser() {
+        this.name = "탈퇴 회원";
+        this.nickname = "탈퇴 회원";
+        this.email = "";
+        this.phone = "";
+        this.password = null;
+        this.gender = Gender.UNDEFINED;
+        this.status = Status.DELETE;
+        this.bio = null;
+        this.provider = null;
+        this.providerId = null;
+        this.roles = null;
+        // TODO: 회원 탈퇴 시 등급 삭제?
+    }
+
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

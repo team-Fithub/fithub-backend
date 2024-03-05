@@ -63,4 +63,10 @@ public class UserPostBookmarkServiceImpl implements UserPostBookmarkService {
         Page<Post> posts = bookmarkRepository.findPostsByUser(user, pageable);
         return posts.map(PostInfoDto::toDto);
     }
+
+    @Override
+    @Transactional
+    public void deleteAllBookmarksByUser(User user) {
+        bookmarkRepository.deleteByUser(user);
+    }
 }

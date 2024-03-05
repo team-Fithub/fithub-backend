@@ -17,4 +17,5 @@ public interface UserPostBookmarkService {
 
     Page<PostInfoDto> getBookmarkedPosts(User user, Pageable pageable);
 
+    void deleteAllBookmarksByUser(User user);
 }
