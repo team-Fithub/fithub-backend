@@ -12,7 +12,6 @@ import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Where;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -54,22 +53,6 @@ public class AvailableDate {
     public void addTraining(Training training) {
         this.training = training;
         training.getAvailableDates().add(this);
-    }
-
-    public void closeCurrentTime(LocalTime now) {
-        for (AvailableTime time : this.getAvailableTimes()) {
-            if (time.isEnabled() && time.getTime().getHour() == now.getHour()) {
-                time.closeTime();
-                return;
-            }
-        }
-    }
-
-    public boolean isAllClosed() {
-        for (AvailableTime time : this.getAvailableTimes()) {
-            if (time.isEnabled()) return false;
-        }
-        return true;
     }
 
     public void closeDate() {

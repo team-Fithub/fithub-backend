@@ -1,10 +1,12 @@
 package com.fithub.fithubbackend.global.component;
 
 import com.fithub.fithubbackend.domain.Training.domain.AvailableDate;
+import com.fithub.fithubbackend.domain.Training.domain.AvailableTime;
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.AvailableDateRepository;
+import com.fithub.fithubbackend.domain.Training.repository.AvailableTimeRepository;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,16 +33,19 @@ public class Scheduler {
     private final TrainingRepository trainingRepository;
     private final ReserveInfoRepository reserveInfoRepository;
     private final AvailableDateRepository availableDateRepository;
+    private final AvailableTimeRepository availableTimeRepository;
 
     @Async
     @Scheduled(cron = "0 0 */1 * * *")
     @Transactional
     public void checkTrainingDateTimeValidation() {
-        log.info("[SCHEDULE] - checkTrainingDateTimeValidation 실행: {}", LocalDateTime.now());
-        LocalDate date = LocalDate.now();
-        LocalTime time = LocalTime.now();
+        LocalDateTime nowDateTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
+        log.info("[SCHEDULE] - checkTrainingDateTimeValidation 실행: {}", nowDateTime);
+        LocalDate date = nowDateTime.toLocalDate();
+        LocalTime time = LocalTime.of(nowDateTime.toLocalTime().getHour(), 0);
 
-        List<Training> openTrainingList = trainingRepository.findByClosedFalseAndEndDateLessThanEqual(LocalDate.now());
+        List<Training> openTrainingList =
+                trainingRepository.findByDeletedFalseAndClosedFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(date, date);
         for (Training training : openTrainingList) {
             checkTraining(training, date, time);
         }
@@ -53,18 +59,25 @@ public class Scheduler {
     private void closeAvailableTimeAndDate(Training training, LocalDate date, LocalTime time) {
         Optional<AvailableDate> today = availableDateRepository.findByTrainingIdAndDate(training.getId(), date);
         today.ifPresent(availableDate -> {
-            if (availableDate.isEnabled()) {
-                availableDate.closeCurrentTime(time);
-                if (availableDate.isAllClosed()) {
-                    availableDate.closeDate();
-                }
-            }
+            closeTimeIfExists(availableDate.getId(), time);
+            closeDateIfTimeAllClosed(availableDate);
         });
     }
 
+    private void closeTimeIfExists(Long dateId, LocalTime time) {
+        Optional<AvailableTime> availableTime = availableTimeRepository.findByAvailableDateIdAndTime(dateId, time);
+        availableTime.ifPresent(AvailableTime::closeTime);
+    }
+
+    private void closeDateIfTimeAllClosed(AvailableDate date) {
+        if (!availableTimeRepository.existsByEnabledTrueAndAvailableDateId(date.getId())) {
+            date.closeDate();
+        }
+    }
+
     private void closeTraining(Training training, LocalDate date, LocalTime time) {
-        if (training.getEndDate().isEqual(date) && !training.getEndHour().isBefore(time)) return;
-        training.updateClosed(true);
+        if (training.getEndDate().isEqual(date) && training.getEndHour().isBefore(time))
+            training.updateClosed(true);
     }
 
 
@@ -72,7 +85,7 @@ public class Scheduler {
     @Scheduled(cron = "0 0 */1 * * *")
     @Transactional
     public void changeReservationStatusToStart() {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Seoul"));
         log.info("[SCHEDULE] - changeReservationStatusToStart 실행: {}", now);
 
         LocalDateTime reserveTime = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour(), 0, 0);
