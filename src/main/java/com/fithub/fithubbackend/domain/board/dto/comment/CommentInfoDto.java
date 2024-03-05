@@ -20,6 +20,9 @@ public class CommentInfoDto {
     @Schema(description = "답글 id")
     private Long commentId;
 
+    @Schema(description = "답글 작성자의 id")
+    private Long writerId;
+
     @Schema(description = "답글 작성자의 닉네임")
     private String writerNickName;
 
@@ -47,10 +50,11 @@ public class CommentInfoDto {
     private List<CommentInfoDto> childComments = new ArrayList<>();
 
     @Builder
-    public CommentInfoDto(Long commentId, String writerNickName, String content, String mentionedUserNickname,
+    public CommentInfoDto(Long commentId, Long writerId, String writerNickName, String content, String mentionedUserNickname,
                           String writerProfileUrl, boolean deleted, LocalDateTime createdDate,
                           LocalDateTime modifiedDate) {
         this.commentId = commentId;
+        this.writerId = writerId;
         this.writerNickName = writerNickName;
         this.content = content;
         this.writerProfileUrl = writerProfileUrl;
@@ -64,6 +68,7 @@ public class CommentInfoDto {
 
         return CommentInfoDto.builder()
                 .commentId(comment.getId())
+                .writerId(comment.getUser().getId())
                 .writerNickName(comment.getUser().getNickname())
                 .content(comment.getContent())
                 .writerProfileUrl(comment.getUser().getProfileImg().getUrl())

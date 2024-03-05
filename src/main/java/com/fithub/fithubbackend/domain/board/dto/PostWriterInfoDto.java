@@ -9,6 +9,9 @@ import lombok.*;
 @Schema(description = "게시글 작성자 정보 dto")
 public class PostWriterInfoDto {
 
+    @Schema(description = "작성자 id")
+    private Long id;
+
     @Schema(description = "작성자 닉네임")
     private String nickname;
 
@@ -19,7 +22,8 @@ public class PostWriterInfoDto {
     private String profileUrl;
 
     @Builder
-    public PostWriterInfoDto(String nickname, String email, String profileUrl) {
+    public PostWriterInfoDto(Long id, String nickname, String email, String profileUrl) {
+        this.id = id;
         this.nickname = nickname;
         this.email = email;
         this.profileUrl = profileUrl;
@@ -27,6 +31,7 @@ public class PostWriterInfoDto {
 
     public static PostWriterInfoDto toDto(User user) {
         return PostWriterInfoDto.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .profileUrl(user.getProfileImg().getUrl())
