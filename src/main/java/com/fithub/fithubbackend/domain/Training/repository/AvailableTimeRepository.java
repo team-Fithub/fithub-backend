@@ -11,5 +11,5 @@ public interface AvailableTimeRepository extends JpaRepository<AvailableTime, Lo
     List<AvailableTime> findByAvailableDateIdOrderByTime(Long availableDateId);
     boolean existsByEnabledTrueAndAvailableDateIdAndIdNot(Long availableDateId, Long id);
     boolean existsByEnabledTrueAndAvailableDateId(Long availableDateId);
-    Optional<AvailableTime> findByAvailableDateIdAndTime(Long availableDateId, LocalTime time);
+    Optional<AvailableTime> findByEnabledTrueAndAvailableDateIdAndTime(Long availableDateId, LocalTime time);
 }

@@ -65,7 +65,7 @@ public class Scheduler {
     }
 
     private void closeTimeIfExists(Long dateId, LocalTime time) {
-        Optional<AvailableTime> availableTime = availableTimeRepository.findByAvailableDateIdAndTime(dateId, time);
+        Optional<AvailableTime> availableTime = availableTimeRepository.findByEnabledTrueAndAvailableDateIdAndTime(dateId, time);
         availableTime.ifPresent(AvailableTime::closeTime);
     }
 
@@ -76,7 +76,7 @@ public class Scheduler {
     }
 
     private void closeTraining(Training training, LocalDate date, LocalTime time) {
-        if (training.getEndDate().isEqual(date) && training.getEndHour().isBefore(time))
+        if (training.getEndDate().isEqual(date) && training.getEndHour().equals(time))
             training.updateClosed(true);
     }
 
