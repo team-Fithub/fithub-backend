@@ -280,7 +280,19 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     public void closeTraining(Long id, User user) {
         Training training = findTrainingById(id);
         permissionValidate(training.getTrainer(), user.getEmail());
+
+        closeAvailableDates(training.getAvailableDates());
+
         training.updateClosed(true);
+    }
+
+    private void closeAvailableDates(List<AvailableDate> availableDates) {
+        availableDates.forEach(this::closeAvailableTimes);
+    }
+
+    private void closeAvailableTimes(AvailableDate availableDate) {
+        availableDate.getAvailableTimes().forEach(AvailableTime::closeTime);
+        availableDate.closeDate();
     }
 
     @Override
@@ -288,11 +300,28 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     public void openTraining(Long id, User user) {
         Training training = findTrainingById(id);
         permissionValidate(training.getTrainer(), user.getEmail());
+
+        LocalDate currentDate = LocalDate.now(ZoneId.of("Asia/Seoul"));
         // 트레이닝 예약 가능한 마지막 날이 현재보다 이전이면 오픈 불가능
-        if (!training.getEndDate().isAfter(LocalDate.now())) {
+        if (!training.getEndDate().isAfter(currentDate)) {
             throw new CustomException(ErrorCode.UNCORRECTABLE_DATA, "트레이닝 마지막 예약 날짜가 현재 날짜 이후가 아니므로 불가능");
         }
+
+        List<ReserveInfo> reserveInfoList = reserveInfoRepository.findByTrainingIdAndStatus(training.getId(), ReserveStatus.BEFORE);
+        List<AvailableTime> reservedTimeList = reserveInfoList.stream().map(ReserveInfo::getAvailableTime).toList();
+        List<AvailableDate> availableDates = training.getAvailableDates();
+        availableDates.stream()
+                .filter(availableDate -> availableDate.getDate().isAfter(currentDate))
+                .forEach(availableDate -> openAvailableDate(availableDate, reservedTimeList));
+
         training.updateClosed(false);
+    }
+
+    private void openAvailableDate(AvailableDate availableDate, List<AvailableTime> reservedTimeList) {
+        availableDate.getAvailableTimes().stream()
+                .filter(availableTime -> !reservedTimeList.contains(availableTime))
+                .forEach(AvailableTime::openTime);
+        availableDate.openDate();
     }
 
     @Override
