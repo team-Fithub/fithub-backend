@@ -65,7 +65,7 @@ public class Scheduler {
     }
 
     private void closeTimeIfExists(Long dateId, LocalTime time) {
-        Optional<AvailableTime> availableTime = availableTimeRepository.findByAvailableDateIdAndTime(dateId, time);
+        Optional<AvailableTime> availableTime = availableTimeRepository.findByEnabledTrueAndAvailableDateIdAndTime(dateId, time);
         availableTime.ifPresent(AvailableTime::closeTime);
     }
 
