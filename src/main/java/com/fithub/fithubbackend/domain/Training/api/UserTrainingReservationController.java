@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.api;
 
 import com.fithub.fithubbackend.domain.Training.application.UserTrainingReservationService;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveCompleteOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
@@ -34,7 +35,7 @@ import java.util.List;
 public class UserTrainingReservationController {
     private final UserTrainingReservationService userTrainingReservationService;
 
-    @Operation(summary = "회원의 트레이닝 예약(진행 전, 진행 중/ 완료 / 취소 / 노쇼) 리스트", parameters = {
+    @Operation(summary = "회원의 트레이닝 예약(진행 전, 진행 중/ 취소 / 노쇼) 리스트", parameters = {
             @Parameter(name = "status", description = "예약 상태, 진행전,중을 불러올 때는 없어야 됨", example = "COMPLETE, CANCEL, NOSHOW"),
             @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id desc(생성 순), 예약된 트레이닝 날짜 순은 reserveDateTime으로 주면 됨)")
     }, responses = {
@@ -47,6 +48,19 @@ public class UserTrainingReservationController {
                                                                                         @PageableDefault(size = 3, sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(userTrainingReservationService.getTrainingReservationList(user, status, pageable));
+    }
+
+    @Operation(summary = "회원의 트레이닝 예약 진행 종료 리스트", parameters = {
+            @Parameter(name = "pageable", description = "조회할 목록의 page, size, sort(기본은 id desc(생성 순), 예약된 트레이닝 날짜 순은 reserveDateTime으로 주면 됨)")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
+    })
+    @GetMapping("/all/complete")
+    public ResponseEntity<Page<UsersReserveCompleteOutlineDto>> getUsersTrainingReservationCompleteList(@AuthUser User user,
+                                                                                                        @PageableDefault(size = 3, sort="id", direction = Sort.Direction.DESC) Pageable pageable) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(userTrainingReservationService.getTrainingReservationCompleteList(user, pageable));
     }
 
     @Operation(summary = "회원의 트레이닝 예약 내역 하나 상세 조회", parameters = {

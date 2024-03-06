@@ -10,5 +10,6 @@ public interface TrainingReviewRepository extends JpaRepository<TrainingReview, 
     List<TrainingReview> findByUserIdOrderByIdDesc(Long userId);
     List<TrainingReview> findByLockedFalseAndTrainingId(Long trainingId);
 
+    boolean existsByReserveInfoId(Long reserveInfoId);
     Optional<TrainingReview> findByReserveInfoId(Long reserveInfoId);
 }

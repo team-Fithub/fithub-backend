@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.application;
 
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveCompleteOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
@@ -13,6 +14,8 @@ import java.util.List;
 
 public interface UserTrainingReservationService {
     Page<UsersReserveOutlineDto> getTrainingReservationList(User user, ReserveStatus status, Pageable pageable);
+    Page<UsersReserveCompleteOutlineDto> getTrainingReservationCompleteList(User user, Pageable pageable);
+
     UsersReserveInfoDto getTrainingReservation(Long reservationId);
 
     List<UsersTrainingReviewDto> getAllReviews(User user);

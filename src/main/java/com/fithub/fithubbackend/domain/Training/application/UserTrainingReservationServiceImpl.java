@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.Training.application;
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.domain.TrainingReview;
+import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveCompleteOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveInfoDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
@@ -10,7 +11,6 @@ import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDt
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.CustomTrainingRepository;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
-import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -28,7 +28,6 @@ import java.util.List;
 public class UserTrainingReservationServiceImpl implements UserTrainingReservationService {
 
     private final ReserveInfoRepository reserveInfoRepository;
-    private final TrainingRepository trainingRepository;
     private final TrainingReviewRepository trainingReviewRepository;
     private final CustomTrainingRepository customTrainingRepository;
 
@@ -38,8 +37,20 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
     }
 
     @Override
+    public Page<UsersReserveCompleteOutlineDto> getTrainingReservationCompleteList(User user, Pageable pageable) {
+        Page<ReserveInfo> completedReserveList = reserveInfoRepository.findByUserIdAndStatus(user.getId(), ReserveStatus.COMPLETE, pageable);
+        return completedReserveList.map(r -> {
+            boolean review = trainingReviewRepository.existsByReserveInfoId(r.getId());
+            return UsersReserveCompleteOutlineDto.builder()
+                    .reserveInfo(r)
+                    .reviewWritten(review)
+                    .build();
+        });
+    }
+
+    @Override
     public UsersReserveInfoDto getTrainingReservation(Long reservationId) {
-        ReserveInfo reserveInfo = reserveInfoRepository.findById(reservationId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약 내역이 존재하지 않습니다"));
+        ReserveInfo reserveInfo = findReserveInfoById(reservationId);
         Training training = reserveInfo.getTraining();
         return UsersReserveInfoDto.builder()
                 .reservationId(reserveInfo.getId())
@@ -72,7 +83,7 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
     @Transactional
     // TODO: 리뷰 작성 시 트레이닝의 트레이너에게 리뷰가 달렸다는 알림?
     public Long writeReviewOnCompletedReservation(User user, TrainingReviewReqDto dto) {
-        ReserveInfo reserveInfo = reserveInfoRepository.findById(dto.getReservationId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 예약 내역을 찾을 수 없습니다."));
+        ReserveInfo reserveInfo = findReserveInfoById(dto.getReservationId());
 
         permissionValidate(user.getEmail(), reserveInfo.getUser().getEmail());
         isReserveInfoStatusComplete(reserveInfo);
@@ -89,7 +100,7 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
     @Override
     @Transactional
     public void updateReview(User user, Long reviewId, TrainingReviewReqDto dto) {
-        ReserveInfo reserveInfo = reserveInfoRepository.findById(dto.getReservationId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 예약 내역을 찾을 수 없습니다."));
+        ReserveInfo reserveInfo = findReserveInfoById(dto.getReservationId());
         isReserveInfoStatusComplete(reserveInfo);
 
         TrainingReview trainingReview = trainingReviewRepository.findById(reviewId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "수정하려는 리뷰가 존재하지 않습니다."));
@@ -118,4 +129,8 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
         }
     }
 
+    private ReserveInfo findReserveInfoById(Long reserveId) {
+        return reserveInfoRepository.findById(reserveId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당하는 예약 내역을 찾을 수 없습니다."));
+    }
 }
