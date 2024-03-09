@@ -5,10 +5,7 @@ import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.domain.TrainerCareer;
 import com.fithub.fithubbackend.domain.trainer.domain.TrainerLicenseImg;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerCareerDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerCareerRequestDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerLicenseDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerSpecDto;
+import com.fithub.fithubbackend.domain.trainer.dto.*;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerCareerRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerLicenseImgRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
@@ -49,9 +46,9 @@ public class TrainerServiceImpl implements TrainerService {
     }
 
     @Override
-    public TrainerCareerDto getTrainerCareer(Long careerId) {
+    public TrainerCareerDetailDto getTrainerCareer(Long careerId) {
         TrainerCareer trainerCareer = trainerCareerRepository.findById(careerId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 경력을 찾을 수 없습니다."));
-        return TrainerCareerDto.builder().career(trainerCareer).build();
+        return TrainerCareerDetailDto.builder().career(trainerCareer).build();
     }
 
     @Override
