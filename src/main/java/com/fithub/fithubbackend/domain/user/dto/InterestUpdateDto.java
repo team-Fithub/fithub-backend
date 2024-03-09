@@ -17,14 +17,14 @@ public class InterestUpdateDto {
     @Schema(description = "관심사 삭제 여부")
     private boolean interestsDeleted;
 
-    @Schema(description = "삭제된 관심사 ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
-    private List<Category> deletedInterests;
+    @Schema(description = "interestsDeleted = true 일 때만 사용. 삭제되지 않는 관심사. ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
+    private List<Category> unModifiedInterests;
 
     @NotNull
     @Schema(description = "관심사 추가 여부")
     private boolean interestsAdded;
 
-    @Schema(description = "추가된 관심사 ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
+    @Schema(description = "추가된 관심사. ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
     private List<Category> addedInterests;
 
 }

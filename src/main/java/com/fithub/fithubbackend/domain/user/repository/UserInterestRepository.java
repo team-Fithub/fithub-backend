@@ -10,8 +10,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface UserInterestRepository extends JpaRepository<UserInterest, Long> {
-
-    UserInterest findByInterestAndUser(Category interest, User user);
+    List<UserInterest> findByUser(User user);
 
     @Query("select u.interest from UserInterest u where u.user = :user")
     List<Category> findInterestsByUser(@Param(value = "user") User user);

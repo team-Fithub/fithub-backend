@@ -99,9 +99,11 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateInterest(InterestUpdateDto interestUpdateDto, User user) {
         if (interestUpdateDto.isInterestsDeleted()) {
-            interestUpdateDto.getDeletedInterests().forEach(interest -> {
-                UserInterest userInterest = userInterestRepository.findByInterestAndUser(interest, user);
-                userInterestRepository.delete(userInterest);
+            List<UserInterest> originalInterests = userInterestRepository.findByUser(user);
+            originalInterests.forEach(originalInterest -> {
+                if (!interestUpdateDto.getUnModifiedInterests().contains(originalInterest.getInterest())) {
+                    userInterestRepository.delete(originalInterest);
+                }
             });
         }
 
