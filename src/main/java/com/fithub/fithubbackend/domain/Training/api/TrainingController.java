@@ -65,7 +65,7 @@ public class TrainingController {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
     })
     @PostMapping("/search")
-    public ResponseEntity<Page<TrainingOutlineDto>> searchTrainingByConditions(@RequestBody TrainingSearchConditionDto conditions
+    public ResponseEntity<Page<TrainingOutlineDto>> searchTrainingByConditions(TrainingSearchConditionDto conditions
             , @PageableDefault(size = 9, sort = "id",  direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(trainingService.searchTrainingByConditions(conditions, pageable));
     }
