@@ -65,6 +65,9 @@ dependencies {
 	// portone (결제 api)
 	implementation 'com.github.iamport:iamport-rest-client-java:0.2.23'
 
+	// websocket
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 	// db에서 Geometry를 사용
 	implementation group: 'org.hibernate', name: 'hibernate-spatial', version: '6.4.1.Final'
 
