@@ -79,7 +79,7 @@ public class CustomExceptionHandler {
                 .body(ErrorResponseDto.builder()
                         .status(HttpStatus.BAD_REQUEST.value())
                         .code("INVALID_JSON")
-                        .message("확인할 수 없는 형태의 데이터가 들어왔습니다")
+                        .message("확인할 수 없는 형태의 데이터가 들어왔습니다. " + exception.getMessage())
                         .build()
                 );
     }
