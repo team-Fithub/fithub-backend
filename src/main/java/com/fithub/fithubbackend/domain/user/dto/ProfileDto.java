@@ -2,7 +2,10 @@ package com.fithub.fithubbackend.domain.user.dto;
 
 import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.domain.user.enums.Grade;
+import com.fithub.fithubbackend.global.common.Category;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Builder
@@ -17,6 +20,7 @@ public class ProfileDto {
     private String bio;
     private String profileImg;
     private Grade grade;
+    private List<Category> interests;
 
     private boolean trainer;
 }

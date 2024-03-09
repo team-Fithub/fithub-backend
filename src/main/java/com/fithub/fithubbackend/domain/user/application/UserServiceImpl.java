@@ -3,10 +3,14 @@ package com.fithub.fithubbackend.domain.user.application;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.user.domain.UserInterest;
+import com.fithub.fithubbackend.domain.user.dto.InterestUpdateDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
+import com.fithub.fithubbackend.domain.user.repository.UserInterestRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.common.Category;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -20,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
     private final DocumentRepository documentRepository;
+    private final UserInterestRepository userInterestRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     @Value("${default.image.address}")
@@ -36,6 +42,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public ProfileDto myProfile(User user) {
+        List<Category> interests = userInterestRepository.findInterestsByUser(user);
+
         return ProfileDto.builder()
                 .name(user.getName())
                 .nickname(user.getNickname())
@@ -45,6 +53,7 @@ public class UserServiceImpl implements UserService {
                 .bio(user.getBio())
                 .gender(user.getGender())
                 .grade(user.getGrade())
+                .interests(interests)
                 .trainer(user.isTrainer())
                 .build();
     }
@@ -83,6 +92,28 @@ public class UserServiceImpl implements UserService {
             optionalTrainer.ifPresent(t -> t.linkedToUserProfileImg(document));
         } catch (Exception e) {
             throw new CustomException(ErrorCode.UPLOAD_PROFILE_ERROR, "이미지 업데이트 중 오류가 발생했습니다");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateInterest(InterestUpdateDto interestUpdateDto, User user) {
+        if (interestUpdateDto.isInterestsDeleted()) {
+            List<UserInterest> originalInterests = userInterestRepository.findByUser(user);
+            originalInterests.forEach(originalInterest -> {
+                if (!interestUpdateDto.getUnModifiedInterests().contains(originalInterest.getInterest())) {
+                    userInterestRepository.delete(originalInterest);
+                }
+            });
+        }
+
+        if (interestUpdateDto.isInterestsAdded()) {
+            interestUpdateDto.getAddedInterests().forEach(interest -> {
+                UserInterest userInterest = UserInterest.builder()
+                        .interest(interest)
+                        .user(user).build();
+                userInterestRepository.save(userInterest);
+            });
         }
     }
 

@@ -1,12 +1,15 @@
 package com.fithub.fithubbackend.domain.user.application;
 
 import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.user.domain.UserInterest;
 import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
+import com.fithub.fithubbackend.domain.user.repository.UserInterestRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
+import com.fithub.fithubbackend.global.common.Category;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -34,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -43,6 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
+    private final UserInterestRepository userInterestRepository;
 
     private final RedisUtil redisUtil;
     private final CookieUtil cookieUtil;
@@ -90,6 +96,8 @@ public class AuthServiceImpl implements AuthService {
 
         User user = User.builder().signUpDto(signUpDto).encodedPassword(encodedPassword).document(document).build();
         userRepository.save(user);
+        saveUserInterests(signUpDto.getCategories(), user);
+
         SignUpResponseDto response = SignUpResponseDto.builder().user(user).build();
 
         return ResponseEntity.ok(response);
@@ -246,5 +254,14 @@ public class AuthServiceImpl implements AuthService {
         if (bindingResult.hasErrors()) {
             throw new CustomException(ErrorCode.INVALID_FORM_DATA,message);
         }
+    }
+
+    private void saveUserInterests(List<Category> categoryList, User user) {
+        categoryList.forEach(category -> {
+            UserInterest userInterest = UserInterest.builder()
+                    .interest(category)
+                    .user(user).build();
+            userInterestRepository.save(userInterest);
+        });
     }
 }

@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.user.dto;
 
 import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.global.common.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +12,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import static com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants.*;
+
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -46,4 +49,7 @@ public class SignUpDto {
 
     @NotNull
     private Gender gender;
+
+    @Schema(description = "관심사 입력은 선택입니다. 여러 개 선택 가능합니다. ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
+    private List<Category> categories;
 }
