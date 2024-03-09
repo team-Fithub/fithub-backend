@@ -10,7 +10,8 @@ import java.util.List;
 
 @Data
 @Schema(description = "게시글 생성 dto")
-public class PostCreateDto {
+public class
+PostCreateDto {
 
 
     @Schema(description = "게시글 내용")
