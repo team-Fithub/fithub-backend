@@ -1,10 +1,7 @@
 package com.fithub.fithubbackend.domain.trainer.api;
 
 import com.fithub.fithubbackend.domain.trainer.application.TrainerService;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerCareerDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerCareerRequestDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerLicenseDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerSpecDto;
+import com.fithub.fithubbackend.domain.trainer.dto.*;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -46,7 +43,7 @@ public class TrainerController {
             @Parameter(name="careerId", description = "/spec 조회로 얻은 careerList에 있는 careerId")
     })
     @GetMapping("/careers")
-    public ResponseEntity<TrainerCareerDto> getTrainerCareer(@AuthUser User user, @RequestParam Long careerId) {
+    public ResponseEntity<TrainerCareerDetailDto> getTrainerCareer(@AuthUser User user, @RequestParam Long careerId) {
         if (user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         return ResponseEntity.ok(trainerService.getTrainerCareer(careerId));
     }
