@@ -2,26 +2,20 @@ package com.fithub.fithubbackend.domain.chat.dto;
 
 import com.fithub.fithubbackend.domain.chat.domain.ChatMessage;
 import com.fithub.fithubbackend.domain.chat.domain.ChatRoom;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class ChatMessageRequestDto {
 
+    @Schema(description = "채팅 메세지")
     private String message;
-    private ChatRoom chatRoom;
 
-    public ChatMessageRequestDto(String message, ChatRoom chatRoom) {
+    @Schema(description = "채팅방 id")
+    private Long roomId;
+
+    public ChatMessageRequestDto(String message, Long roomId) {
         this.message = message;
-        this.chatRoom = chatRoom;
+        this.roomId = roomId;
     }
 
-    public ChatMessage toEntity() {
-        return ChatMessage.builder()
-                .message(this.message)
-                .chatRoom(this.chatRoom)
-                .build();
-    }
-
-    public void setChatRoom(ChatRoom chatRoomEntity) {
-        this.chatRoom = chatRoomEntity;
-    }
 }
 

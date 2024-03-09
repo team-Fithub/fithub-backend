@@ -36,7 +36,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     public List<ChatRoomResponseDto> findChatRoomDesc(User user) {
         // Chat 테이블: 현재 유저의 채팅방 id와 채팅방 이름 가져옴
-        List<Chat> chatList = this.chatRepository.findChatsByUserId(user.getId());
+        List<Chat> chatList = this.chatRepository.findChatsById(user.getId());
 
         // ChatRoom 테이블: 위에서 가져온 채팅방의 추가 정보를 가져옴
         List<ChatRoomResponseDto> dtoList = new ArrayList<>();
@@ -57,34 +57,30 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Transactional
     @Override
-    public Long save(User user, String receiverNickname) {
+    public Long save(User user, Long receiverId) {
         // chatRoom 테이블에 저장
-        Long roomId = this.chatRoomRepository.save(new ChatRoom()).getRoomId();
+        ChatRoom chatRoom = this.chatRoomRepository.save(new ChatRoom());
 
-        // chatRequestDto 생성 후 chat 테이블에 저장 (chatRoom과 user의 연관관계)
-        Optional<ChatRoom> chatRoomOptional = this.chatRoomRepository.findById(roomId);
-        ChatRoom chatRoom = chatRoomOptional.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "채팅룸이 존재하지 않음"));
+        // 상대 유저 찾기
+        User receiverUser = userRepository.findById(receiverId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "상대 유저가 존재하지 않음"));
 
         // 채팅룸ID-본인ID
         Chat chat = Chat.builder()
                 .chatRoom(chatRoom)
-                .chatRoomName(receiverNickname)
+                .chatRoomName(receiverUser.getNickname())
                 .user(user)
                 .build();
         this.chatRepository.save(chat);
 
         // 채팅룸ID-상대ID
-
-
-        Optional<User> receiverUserOptional = userRepository.findByNickname(receiverNickname);
         chat = Chat.builder()
                 .chatRoom(chatRoom)
-                .chatRoomName("새로운 채팅")
-                .user(receiverUserOptional.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "상대 유저가 존재하지 않음")))
+                .chatRoomName(user.getNickname())
+                .user(receiverUser)
                 .build();
         this.chatRepository.save(chat);
 
-        return roomId;
+        return chatRoom.getRoomId();
     }
 
     @Transactional

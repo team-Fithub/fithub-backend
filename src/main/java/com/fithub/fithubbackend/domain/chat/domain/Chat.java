@@ -14,14 +14,11 @@ public class Chat {
     @EmbeddedId
     private ChatPK chatPK;
 
-    @Column(name = "room_name")
     private String chatRoomName;
 
     @Builder
     public Chat(ChatRoom chatRoom, String chatRoomName, User user) {
-        this.chatPK = new ChatPK();
+        this.chatPK = new ChatPK(chatRoom, user);
         this.chatRoomName = chatRoomName;
-        this.chatPK.setChatRoom(chatRoom);
-        this.chatPK.setUser(user);
     }
 }

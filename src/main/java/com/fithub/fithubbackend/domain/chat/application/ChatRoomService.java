@@ -14,7 +14,7 @@ public interface ChatRoomService {
     public List<ChatRoomResponseDto> findChatRoomDesc(User user);
 
     /* ChatRoom 생성 */
-    Long save(final User user, final String receiverNickname);
+    Long save(final User user, final Long receiverId);
 
     /* ChatRoom 삭제 */
     public void delete(final Long id);

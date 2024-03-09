@@ -27,12 +27,12 @@ public class ChatRoomController {
     @Operation(summary = "채팅방 생성", responses = {
             @ApiResponse(responseCode = "200", description = "채팅방 생성 완료"),
             }, parameters = {
-            @Parameter(name = "receiverNickname", description = "수신자 닉네임"),
+            @Parameter(name = "receiverId", description = "수신자 아이디"),
     })
     @PostMapping("/create")
-    public ResponseEntity<Void> createChat(@AuthUser User user, @RequestParam("receiverNickname") String receiverNickname) {
+    public ResponseEntity<Void> createChat(@AuthUser User user, @RequestParam("receiverId") Long receiverId) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        chatRoomService.save(user, receiverNickname);
+        chatRoomService.save(user, receiverId);
         return ResponseEntity.ok().build();
     }
 

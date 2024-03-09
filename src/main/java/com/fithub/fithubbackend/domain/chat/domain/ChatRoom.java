@@ -15,7 +15,6 @@ import java.util.List;
 public class ChatRoom extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ROOM_ID")
     private Long roomId;
 
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)

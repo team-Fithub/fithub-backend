@@ -34,10 +34,7 @@ public class ChatMessageServiceImpl implements ChatMessageService{
     @Transactional
     @Override
     public Long save(Long chatRoomId, ChatMessageRequestDto requestDto) {
-        ChatRoom chatRoomEntity = this.chatRoomRepository.findById(chatRoomId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND, "채팅룸이 존재하지 않음"));
-        requestDto.setChatRoom(chatRoomEntity);
-        return this.chatMessageRepository.save(requestDto.toEntity()).getMessageId();
+        return null;
     }
 
     @Transactional
@@ -51,11 +48,6 @@ public class ChatMessageServiceImpl implements ChatMessageService{
     @Transactional
     @Override
     public List<ChatMessageResponseDto> findAllByChatRoomIdDesc(Long chatRoomId) {
-        ChatRoom chatRoomEntity = this.chatRoomRepository.findById(chatRoomId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND, "채팅룸이 존재하지 않음"));
-        Sort sort = Sort.by(Sort.Direction.DESC, "id");
-        List<ChatMessage> chatMessageList = this.chatMessageRepository.findAllByChatRoom(chatRoomEntity, sort);
-        return chatMessageList.stream().map(ChatMessageResponseDto::new).collect(Collectors.toList());
-
+        return null;
     }
 }
