@@ -27,9 +27,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Transactional
     @Override
     public ChatRoomResponseDto findById(final Long id) {
-        ChatRoom entity = this.chatRoomRepository.findById(id).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND, "채팅룸이 존재하지 않음"));
-        return new ChatRoomResponseDto(entity);
+        return null;
     }
 
     @Transactional

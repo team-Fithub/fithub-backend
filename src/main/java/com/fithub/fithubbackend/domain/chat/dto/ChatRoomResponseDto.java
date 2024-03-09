@@ -24,23 +24,10 @@ public class ChatRoomResponseDto {
     @Schema(description = "채팅상대 이름")
     private String roomName; // 채팅 상대 이름
 
-    @Schema(description = "채팅방 생성일")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdDate;
-
     @Schema(description = "채팅방 수정일")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedDate;
 
-    @Schema(description = "채팅 내용 목록")
-    private List<ChatMessage> chatMessageList;
-
-
-
-    public ChatRoomResponseDto(ChatRoom entity) {
-        this.roomId = entity.getRoomId();
-        this.createdDate = entity.getCreatedDate();
-    }
 
     public ChatRoomResponseDto(Chat entity) {
         this.roomId = entity.getChatPK().getChatRoom().getRoomId();
