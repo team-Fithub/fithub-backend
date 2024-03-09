@@ -117,7 +117,7 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "검색 완료"),
     })
     @PostMapping("/search")
-    public ResponseEntity<Page<PostInfoDto>> searchPostsByKeyword(@RequestBody PostSearchFilterDto filter,
+    public ResponseEntity<Page<PostInfoDto>> searchPostsByKeyword(PostSearchFilterDto filter,
                                                                   @PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok().body(postService.searchPostsByKeyword(filter, pageable));
     }
