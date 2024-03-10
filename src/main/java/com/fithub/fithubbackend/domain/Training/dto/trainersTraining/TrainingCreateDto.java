@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.Training.dto.trainersTraining;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fithub.fithubbackend.global.common.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,6 +32,9 @@ public class TrainingCreateDto {
 
     @Schema(description = "가격")
     private int price;
+
+    @Schema(description = "트레이닝 카테고리 ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
+    private List<Category> categories;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Schema(description = "트레이닝 시작 날짜")
