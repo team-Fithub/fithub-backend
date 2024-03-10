@@ -96,7 +96,7 @@ public class TrainingServiceImpl implements TrainingService {
         Query query = entityManager.createNativeQuery(
                 "" +
                         "SELECT * \n" +
-                        "FROM Training AS t \n" +
+                        "FROM training AS t \n" +
                         "WHERE t.deleted = false AND t.closed = false " +
                         "AND " +
                         "MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + "), t.point) \n" +
