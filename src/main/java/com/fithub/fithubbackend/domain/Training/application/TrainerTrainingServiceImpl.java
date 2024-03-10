@@ -259,7 +259,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
             deleteOriginalCategories(dto.getUnModifiedCategoryList(), training);
         }
 
-        if (dto.isCategoryDeleted() && !dto.getNewCategoryList().isEmpty()) {
+        if (dto.isCategoryAdded() && !dto.getNewCategoryList().isEmpty()) {
             saveTrainingCategories(training, dto.getNewCategoryList());
         }
     }
