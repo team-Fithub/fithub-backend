@@ -20,4 +20,7 @@ public class TrainingContentUpdateDto {
 
     @Schema(description = "트레이닝 이미지를 수정했다면 값을 넣어주면 됨. 수정 없으면 안 줘야 됨")
     private TrainingImgUpdateDto trainingImgUpdateDto;
+
+    @Schema(description = "트레이닝 카테고리를 수정했다면 값을 넣어주면 됨. 수정 없으면 안 줘야 됨")
+    private TrainingCategoryUpdateDto trainingCategoryUpdateDto;
 }

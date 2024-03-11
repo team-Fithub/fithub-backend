@@ -2,10 +2,14 @@ package com.fithub.fithubbackend.domain.Training.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fithub.fithubbackend.domain.Training.domain.Training;
+import com.fithub.fithubbackend.domain.Training.domain.TrainingCategory;
+import com.fithub.fithubbackend.global.common.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -26,6 +30,7 @@ public class TrainingOutlineDto {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     private boolean closed;
+    private List<Category> categories;
 
     public static TrainingOutlineDto toDto(Training training) {
         return TrainingOutlineDto.builder()
@@ -37,6 +42,7 @@ public class TrainingOutlineDto {
                 .startDate(training.getStartDate())
                 .endDate(training.getEndDate())
                 .closed(training.isClosed())
+                .categories(training.getCategories().stream().map(TrainingCategory::getCategory).collect(Collectors.toList()))
                 .build();
     }
 
