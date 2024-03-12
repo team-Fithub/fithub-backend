@@ -96,7 +96,7 @@ public class AuthServiceImpl implements AuthService {
 
         User user = User.builder().signUpDto(signUpDto).encodedPassword(encodedPassword).document(document).build();
         userRepository.save(user);
-        saveUserInterests(signUpDto.getCategories(), user);
+        saveUserInterests(signUpDto.getInterests(), user);
 
         SignUpResponseDto response = SignUpResponseDto.builder().user(user).build();
 
@@ -256,10 +256,10 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private void saveUserInterests(List<Category> categoryList, User user) {
-        categoryList.forEach(category -> {
+    private void saveUserInterests(List<Category> interestList, User user) {
+        interestList.forEach(interest -> {
             UserInterest userInterest = UserInterest.builder()
-                    .interest(category)
+                    .interest(interest)
                     .user(user).build();
             userInterestRepository.save(userInterest);
         });
