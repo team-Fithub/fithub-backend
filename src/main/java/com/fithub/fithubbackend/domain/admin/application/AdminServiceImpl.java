@@ -7,7 +7,6 @@ import com.fithub.fithubbackend.domain.admin.repository.TrainerCertificationReje
 import com.fithub.fithubbackend.domain.admin.repository.TrainerLicenseTempImgRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.*;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerCertificationRequestRepository;
-import com.fithub.fithubbackend.domain.trainer.repository.TrainerExpertiseTempRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
@@ -29,7 +28,6 @@ public class AdminServiceImpl implements AdminService {
     private final TrainerCertificationRequestRepository trainerCertificationRequestRepository;
     private final TrainerCareerTempRepository trainerCareerTempRepository;
     private final TrainerLicenseTempImgRepository trainerLicenseTempImgRepository;
-    private final TrainerExpertiseTempRepository trainerExpertiseTempRepository;
     private final DocumentRepository documentRepository;
 
     private final TrainerRepository trainerRepository;
@@ -77,7 +75,6 @@ public class AdminServiceImpl implements AdminService {
 
         convertTempCareerIntoTrainerCareer(request.getCareerTempList(), trainer);
         convertTempLicenseIntoTrainerLicense(request.getLicenseTempImgList(), trainer);
-        convertTempExpertiseIntoTrainerExpertise(request.getExpertiseTempList(), trainer);
 
         trainer.grantPermission();
         trainerRepository.save(trainer);
@@ -104,12 +101,6 @@ public class AdminServiceImpl implements AdminService {
         trainer.updateTrainerLicenseImg(list);
     }
 
-    private void convertTempExpertiseIntoTrainerExpertise(List<TrainerExpertiseTemp> temp, Trainer trainer) {
-        List<TrainerExpertise> list = temp.stream().map(expertise -> TrainerExpertise.builder().trainer(trainer).expertise(expertise.getExpertise()).build())
-                .toList();
-        trainer.updateTrainerExpertise(list);
-    }
-
     @Override
     @Transactional
     // TODO: 반려됐다는 알림 보내기?
@@ -129,7 +120,6 @@ public class AdminServiceImpl implements AdminService {
 
         trainerCareerTempRepository.deleteAll(request.getCareerTempList());
         trainerLicenseTempImgRepository.deleteAll(request.getLicenseTempImgList());
-        trainerExpertiseTempRepository.deleteAll(request.getExpertiseTempList());
         documentRepository.deleteAll(documentToDeleted);
     }
 

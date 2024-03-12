@@ -30,8 +30,4 @@ public class TrainerCertificationRequestDto {
     @Schema(description = "트레이너 인증 요청 시 작성한 경력사항")
     private List<TrainerCareerRequestDto> careerList;
 
-    @Schema(description = "트레이너 전문 분야 ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
-    @NotEmpty(message = "트레이닝 전문 분야는 최소 1개 이상 선택해야 합니다.")
-    private List<Category> expertiseList;
-
 }

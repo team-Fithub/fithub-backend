@@ -9,6 +9,8 @@ import com.fithub.fithubbackend.domain.trainer.dto.*;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerCareerRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerLicenseImgRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
+import com.fithub.fithubbackend.domain.user.application.UserService;
+import com.fithub.fithubbackend.domain.user.domain.UserInterest;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -33,15 +35,19 @@ public class TrainerServiceImpl implements TrainerService {
 
     private final TrainingRepository trainingRepository;
 
+    private final UserService userService;
+
     private final AwsS3Uploader s3Uploader;
 
     @Override
     public TrainerSpecDto getTrainersSpec(Long userId) {
         Trainer trainer = findTrainerByUserId(userId);
+        List<UserInterest> expertiseList = userService.getUserInterests(userId);
+
         return TrainerSpecDto.builder()
                 .trainerCareerList(trainer.getTrainerCareerList())
                 .trainerLicenseList(trainer.getTrainerLicenseImgList())
-                .trainerExpertiseList(trainer.getTrainerExpertiseList())
+                .trainerExpertiseList(expertiseList)
                 .address(trainer.getAddress())
                 .build();
     }

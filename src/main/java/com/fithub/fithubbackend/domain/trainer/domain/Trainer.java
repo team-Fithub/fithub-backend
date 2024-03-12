@@ -49,10 +49,6 @@ public class Trainer extends BaseTimeEntity {
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TrainerLicenseImg> trainerLicenseImgList;
 
-    @Comment("전문 분야")
-    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL)
-    private List<TrainerExpertise> trainerExpertiseList;
-
     @Builder
     public Trainer(User user) {
         this.user = user;
@@ -72,10 +68,6 @@ public class Trainer extends BaseTimeEntity {
 
     public void updateTrainerLicenseImg(List<TrainerLicenseImg> trainerLicenseImgList) {
         this.trainerLicenseImgList = trainerLicenseImgList;
-    }
-
-    public void updateTrainerExpertise(List<TrainerExpertise> trainerExpertiseList) {
-        this.trainerExpertiseList = trainerExpertiseList;
     }
 
     public void linkedToUserName(String name) {
