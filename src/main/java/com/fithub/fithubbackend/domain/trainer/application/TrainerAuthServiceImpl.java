@@ -2,12 +2,14 @@ package com.fithub.fithubbackend.domain.trainer.application;
 
 import com.fithub.fithubbackend.domain.trainer.domain.TrainerCareerTemp;
 import com.fithub.fithubbackend.domain.trainer.domain.TrainerCertificationRequest;
+import com.fithub.fithubbackend.domain.trainer.domain.TrainerExpertiseTemp;
 import com.fithub.fithubbackend.domain.trainer.domain.TrainerLicenseTempImg;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerCareerRequestDto;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerCertificationRequestDto;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerCertificationRequestRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.global.common.Category;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -46,6 +48,7 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
 
         saveTrainerLicenseTempImg(requestDto.getLicenseFileList(), request);
         saveTrainerCareer(requestDto.getCareerList(), request);
+        saveTrainerExpertise(requestDto.getSpecialtyList(), request);
 
         trainerCertificationRequestRepository.save(request);
     }
@@ -87,4 +90,13 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
             throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
         }
     }
+
+    private void saveTrainerExpertise(List<Category> expertiseList, TrainerCertificationRequest request) {
+        for (Category expertise : expertiseList) {
+            TrainerExpertiseTemp trainerExpertiseTemp = TrainerExpertiseTemp.builder()
+                    .expertise(expertise).build();
+            trainerExpertiseTemp.updateRequest(request);
+        }
+    }
+
 }

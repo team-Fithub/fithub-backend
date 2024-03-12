@@ -35,6 +35,9 @@ public class TrainerCertificationRequest extends BaseTimeEntity {
     @OneToMany(mappedBy = "trainerCertificationRequest", cascade = CascadeType.ALL)
     private List<TrainerCareerTemp> careerTempList;
 
+    @OneToMany(mappedBy = "trainerCertificationRequest", cascade = CascadeType.ALL)
+    private List<TrainerExpertiseTemp> expertiseTempList;
+
     @NotNull
     @ColumnDefault("false")
     private boolean rejected;
@@ -45,16 +48,18 @@ public class TrainerCertificationRequest extends BaseTimeEntity {
         this.licenseNames = licenseNames;
         this.licenseTempImgList = new ArrayList<>();
         this.careerTempList = new ArrayList<>();
+        this.expertiseTempList = new ArrayList<>();
     }
 
     public void requestReject() {
         this.rejected = true;
-        clearCareerAndImg();
+        clearCareerAndImgAndExpertise();
     }
 
-    public void clearCareerAndImg() {
+    public void clearCareerAndImgAndExpertise() {
         this.careerTempList.clear();
         this.licenseTempImgList.clear();
+        this.expertiseTempList.clear();
     }
 
 }
