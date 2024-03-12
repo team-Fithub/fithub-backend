@@ -1,7 +1,7 @@
 package com.fithub.fithubbackend.domain.admin.application;
 
 import com.fithub.fithubbackend.domain.admin.domain.TrainerCertificationRejectLog;
-import com.fithub.fithubbackend.domain.admin.dto.CertRejectDto;
+import com.fithub.fithubbackend.domain.admin.dto.*;
 import com.fithub.fithubbackend.domain.admin.repository.TrainerCareerTempRepository;
 import com.fithub.fithubbackend.domain.admin.repository.TrainerCertificationRejectLogRepository;
 import com.fithub.fithubbackend.domain.admin.repository.TrainerLicenseTempImgRepository;
@@ -15,6 +15,8 @@ import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,36 @@ public class AdminServiceImpl implements AdminService {
     private final TrainerCertificationRejectLogRepository rejectLogRepository;
 
     private final AwsS3Uploader awsS3Uploader;
+
+    @Override
+    public Page<CertRequestOutlineDto> getAllAuthenticationRequest(Pageable pageable) {
+        Page<TrainerCertificationRequest> requestPage = trainerCertificationRequestRepository.findAllByRejectedFalse(pageable);
+        return requestPage.map(r -> CertRequestOutlineDto.builder().request(r).build());
+    }
+    @Override
+    public Page<CertRejectedRequestDto> getAllAuthenticationRejectedRequest(Pageable pageable) {
+        Page<TrainerCertificationRejectLog> rejectedRequestPage = rejectLogRepository.findAll(pageable);
+        return rejectedRequestPage.map(r -> CertRejectedRequestDto.builder().log(r).request(r.getTrainerCertificationRequest()).build());
+    }
+
+    @Override
+    public CertRequestDetailDto getAuthenticationRequestById(Long requestId) {
+        TrainerCertificationRequest request = trainerCertificationRequestRepository.findById(requestId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 요청을 찾을 수 없습니다."));
+
+        ApplicantInfoDto applicantInfo = ApplicantInfoDto.builder().user(request.getUser()).build();
+        List<TrainerLicenseTempImgDto> tempImgList = request.getLicenseTempImgList().stream()
+                .map(l -> TrainerLicenseTempImgDto.builder().tempImg(l).build()).toList();
+
+        List<TrainerCareerTempDto> tempCareerList = request.getCareerTempList().stream()
+                .map(c -> TrainerCareerTempDto.builder().temp(c).build()).toList();
+
+        return CertRequestDetailDto.builder()
+                .id(request.getId())
+                .applicantInfoDto(applicantInfo)
+                .licenseTempImgList(tempImgList)
+                .careerTempList(tempCareerList)
+                .build();
+    }
 
     @Override
     @Transactional
