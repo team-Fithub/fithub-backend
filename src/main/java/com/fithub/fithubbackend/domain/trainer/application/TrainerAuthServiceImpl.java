@@ -48,7 +48,7 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
 
         saveTrainerLicenseTempImg(requestDto.getLicenseFileList(), request);
         saveTrainerCareer(requestDto.getCareerList(), request);
-        saveTrainerExpertise(requestDto.getSpecialtyList(), request);
+        saveTrainerExpertise(requestDto.getExpertiseList(), request);
 
         trainerCertificationRequestRepository.save(request);
     }
