@@ -67,6 +67,9 @@ public class User extends BaseTimeEntity implements UserDetails {
     @JoinColumn(name = "document_id")
     private Document profileImg;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<UserInterest> interests = new ArrayList<>();
+
     @ElementCollection
     private List<String> roles = new ArrayList<>();
 
@@ -156,6 +159,14 @@ public class User extends BaseTimeEntity implements UserDetails {
 
     public void updatePassword(String password) {
         this.password =password;
+    }
+
+    public void addInterest(UserInterest interest) {
+        this.interests.add(interest);
+    }
+
+    public void removeInterest(UserInterest interest) {
+        this.interests.remove(interest);
     }
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
