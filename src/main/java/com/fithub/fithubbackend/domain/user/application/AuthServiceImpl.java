@@ -5,7 +5,6 @@ import com.fithub.fithubbackend.domain.user.domain.UserInterest;
 import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.domain.user.dto.constants.SignUpDtoConstants;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
-import com.fithub.fithubbackend.domain.user.repository.UserInterestRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
 import com.fithub.fithubbackend.global.auth.JwtTokenProvider;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
@@ -48,7 +47,6 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final DocumentRepository documentRepository;
-    private final UserInterestRepository userInterestRepository;
 
     private final RedisUtil redisUtil;
     private final CookieUtil cookieUtil;
@@ -193,6 +191,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByProviderId(oAuthSignUpDto.getProviderId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 회원을 찾을 수 없습니다. 소셜 회원가입을 다시 진행해주십시오."));
         user.setOAuthSignUp(oAuthSignUpDto);
         user.updateGuestToUser();
+        saveUserInterests(oAuthSignUpDto.getInterests(), user);
 
         TokenInfoDto tokenInfoDto = jwtTokenProvider.createToken(oAuthSignUpDto.getEmail());
 
@@ -256,12 +255,10 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    private void saveUserInterests(List<Category> interestList, User user) {
-        interestList.forEach(interest -> {
-            UserInterest userInterest = UserInterest.builder()
-                    .interest(interest)
-                    .user(user).build();
-            userInterestRepository.save(userInterest);
+    private void saveUserInterests(List<Category> interests, User user) {
+        interests.forEach(interest -> {
+            UserInterest userInterest = UserInterest.builder().interest(interest).user(user).build();
+            user.addInterest(userInterest);
         });
     }
 }
