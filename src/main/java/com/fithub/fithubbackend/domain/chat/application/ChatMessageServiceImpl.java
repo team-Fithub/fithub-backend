@@ -1,15 +1,18 @@
 package com.fithub.fithubbackend.domain.chat.application;
 
+import com.fithub.fithubbackend.domain.chat.domain.Chat;
 import com.fithub.fithubbackend.domain.chat.domain.ChatMessage;
 import com.fithub.fithubbackend.domain.chat.domain.ChatRoom;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageRequestDto;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageResponseDto;
 import com.fithub.fithubbackend.domain.chat.repository.ChatMessageRepository;
 import com.fithub.fithubbackend.domain.chat.repository.ChatRoomRepository;
+import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +36,13 @@ public class ChatMessageServiceImpl implements ChatMessageService{
 
     @Transactional
     @Override
-    public Long save(Long chatRoomId, ChatMessageRequestDto requestDto) {
-        return null;
+    public Long save(ChatMessageRequestDto requestDto, User user) {
+        ChatMessage message = ChatMessage.builder()
+                    .chatRoom(chatRoomRepository.findByRoomId(requestDto.getRoomId()))
+                    .message(requestDto.getMessage())
+                    .sender(user)
+                    .build();
+        return chatMessageRepository.save(message).getMessageId();
     }
 
     @Transactional
