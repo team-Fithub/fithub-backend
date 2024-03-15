@@ -10,6 +10,7 @@ import com.fithub.fithubbackend.domain.Training.repository.*;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.global.common.Category;
 import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
@@ -45,6 +46,8 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     private final TrainingReviewRepository trainingReviewRepository;
     private final CustomReserveInfoRepository customReserveInfoRepository;
 
+    private final TrainingCategoryRepository trainingCategoryRepository;
+
     private final AwsS3Uploader awsS3Uploader;
 
     private final String imagePath =  "training";
@@ -79,6 +82,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
         Training training = Training.builder().dto(dto).trainer(trainer).build();
         saveDateTimeToTraining(training, dto);
+        saveTrainingCategories(training, dto.getCategories());
 
         if (dto.getImages() != null && !dto.getImages().isEmpty()) {
             saveTrainingImages(dto.getImages(), training);
@@ -117,6 +121,15 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         }
     }
 
+    private void saveTrainingCategories(Training training, List<Category> newCategories) {
+        newCategories.forEach(category -> {
+            TrainingCategory trainingCategory = TrainingCategory.builder()
+                    .category(category)
+                    .training(training).build();
+            training.addCategory(trainingCategory);
+        });
+    }
+
     private Document createDocument(MultipartFile file) {
         String path = awsS3Uploader.imgPath(imagePath);
         return Document.builder()
@@ -136,6 +149,9 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         if (dto.getTrainingImgUpdateDto() != null) {
             deleteOrAddImage(dto.getTrainingImgUpdateDto(), training);
         }
+
+        if (dto.getTrainingCategoryUpdateDto() != null)
+            deleteOrAddCategory(dto.getTrainingCategoryUpdateDto(), training);
 
         return training.getId();
     }
@@ -236,6 +252,23 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
                 awsS3Uploader.deleteS3(originalImg.getDocument().getPath());
             }
         }
+    }
+
+    private void deleteOrAddCategory(TrainingCategoryUpdateDto dto, Training training) {
+        if (dto.isCategoryDeleted() && !dto.getUnModifiedCategoryList().isEmpty()) {
+            deleteOriginalCategories(dto.getUnModifiedCategoryList(), training);
+        }
+
+        if (dto.isCategoryAdded() && !dto.getNewCategoryList().isEmpty()) {
+            saveTrainingCategories(training, dto.getNewCategoryList());
+        }
+    }
+
+    private void deleteOriginalCategories(List<Category> unModifiedCategoryList, Training training) {
+        List<TrainingCategory> originalCategoryList = trainingCategoryRepository.findByTrainingId(training.getId());
+        for (TrainingCategory originalCategory : originalCategoryList)
+            if (!unModifiedCategoryList.contains(originalCategory.getCategory()))
+                training.removeCategory(originalCategory);
     }
 
     @Override

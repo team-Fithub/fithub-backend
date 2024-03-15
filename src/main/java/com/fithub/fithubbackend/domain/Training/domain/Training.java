@@ -53,6 +53,10 @@ public class Training extends BaseTimeEntity {
     @JsonIgnoreProperties({"training"})
     private List<TrainingDocument> images;
 
+    @OneToMany(mappedBy = "training", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"training"})
+    private List<TrainingCategory> categories;
+
     @NotNull
     private boolean closed;
 
@@ -95,6 +99,7 @@ public class Training extends BaseTimeEntity {
         this.point = trainer.getPoint();
         this.availableDates = new ArrayList<>();
         this.images = new ArrayList<>();
+        this.categories = new ArrayList<>();
         this.deleted = false;
     }
 
@@ -135,4 +140,13 @@ public class Training extends BaseTimeEntity {
         this.address = trainerCareer.getAddress();
         this.point = trainerCareer.getPoint();
     }
+
+    public void addCategory(TrainingCategory category) {
+        this.categories.add(category);
+    }
+
+    public void removeCategory(TrainingCategory category) {
+        this.categories.remove(category);
+    }
+
 }
