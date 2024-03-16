@@ -26,7 +26,7 @@ public class TrainerController {
 
     private final TrainerService trainerService;
 
-    @Operation(summary = "트레이너의 경력, 자격증 이미지 조회", responses = {
+    @Operation(summary = "트레이너의 경력, 자격증 이미지, 전문 분야 조회", responses = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "401", description = "로그인한 사용자만 가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     })

@@ -27,4 +27,5 @@ public class TrainerCertificationRequestDto {
     @NotNull(message = "경력사항은 1개 이상 등록되어야 합니다.")
     @Schema(description = "트레이너 인증 요청 시 작성한 경력사항")
     private List<TrainerCareerRequestDto> careerList;
+
 }
