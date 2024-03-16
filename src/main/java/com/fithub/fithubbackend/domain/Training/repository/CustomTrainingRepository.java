@@ -5,6 +5,7 @@ import com.fithub.fithubbackend.domain.Training.dto.TrainingSearchConditionDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.QUsersReserveOutlineDto;
 import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveOutlineDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
+import com.fithub.fithubbackend.global.common.Category;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -38,7 +39,8 @@ public class CustomTrainingRepository {
                         keywordContains(conditions.getKeyword()),
                         startDateGoe(conditions.getStartDate()),
                         endDateLoe(conditions.getEndDate()),
-                        priceBetween(conditions.getLowestPrice(), conditions.getHighestPrice())
+                        priceBetween(conditions.getLowestPrice(), conditions.getHighestPrice()),
+                        categoryEqual(conditions.getCategory())
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -51,7 +53,8 @@ public class CustomTrainingRepository {
                         keywordContains(conditions.getKeyword()),
                         startDateGoe(conditions.getStartDate()),
                         endDateLoe(conditions.getEndDate()),
-                        priceBetween(conditions.getLowestPrice(), conditions.getHighestPrice())
+                        priceBetween(conditions.getLowestPrice(), conditions.getHighestPrice()),
+                        categoryEqual(conditions.getCategory())
                 )
                 .fetchOne();
 
@@ -103,6 +106,10 @@ public class CustomTrainingRepository {
 
     private BooleanExpression priceBetween(Integer lowestPrice, Integer highestPrice) {
         return lowestPrice != 0 || highestPrice != 0 ? training.price.between(lowestPrice, highestPrice) : null;
+    }
+
+    private BooleanExpression categoryEqual(Category category) {
+        return category != null ? training.categories.any().category.eq(category) : null;
     }
 
     private BooleanExpression statusCondition(ReserveStatus status) {
