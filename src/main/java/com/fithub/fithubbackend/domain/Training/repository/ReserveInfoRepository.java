@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReserveInfoRepository extends JpaRepository<ReserveInfo, Long> {
-    Page<ReserveInfo> findByTrainerId(Long trainerId, Pageable pageable);
+    Page<ReserveInfo> findByUserIdAndStatusInOrderByStatusDesc(Long userId, List<@NotNull ReserveStatus> status, Pageable pageable);
     Page<ReserveInfo> findByUserIdAndStatus(Long userId, ReserveStatus status, Pageable pageable);
     List<ReserveInfo> findByTrainingIdAndStatus(Long trainingId, ReserveStatus status);
     boolean existsByTrainingIdAndStatusNotIn(Long trainingId, List<@NotNull ReserveStatus> status);
