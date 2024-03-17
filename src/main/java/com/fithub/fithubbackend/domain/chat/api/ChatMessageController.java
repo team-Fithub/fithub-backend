@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,13 +23,10 @@ public class ChatMessageController {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    @Operation(summary = "채팅 메세지", parameters = {
-            @Parameter(name = "messageRequestDto", description = "채탱 메세지 요청 dto")
-    })
-    @MessageMapping("/chat/message")
-    public void message(@AuthUser User user, @RequestParam("messageRequestDto") ChatMessageRequestDto messageRequestDto) {
+    @MessageMapping("/chatroom/{id}")
+    public void sendMessage(@DestinationVariable("id") Long id, @AuthUser User user, @RequestParam("messageRequestDto") ChatMessageRequestDto messageRequestDto) {
         chatMessageService.save(messageRequestDto, user);
-        simpMessagingTemplate.convertAndSend("/subscribe/rooms/" + messageRequestDto.getRoomId(), messageRequestDto.getMessage());
+        simpMessagingTemplate.convertAndSend("/sub/chatroom/" + messageRequestDto.getRoomId(), messageRequestDto.getMessage());
     }
 }
 
