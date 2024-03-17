@@ -1,20 +1,17 @@
 package com.fithub.fithubbackend.domain.Training.dto.reservation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
+import com.fithub.fithubbackend.domain.Training.domain.Training;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
-import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @Schema(description = "회원의 트레이닝 예약, 진행,종료 정보 확인")
 public class UsersReserveOutlineDto {
 
@@ -23,6 +20,9 @@ public class UsersReserveOutlineDto {
 
     @Schema(description = "트레이닝 id")
     private Long trainingId;
+
+    @Schema(description = "예약한 트레이닝의 트레이너 프로필 이미지")
+    private String trainerProfileImgUrl;
 
     @Schema(description = "트레이닝 제목")
     private String title;
@@ -44,17 +44,18 @@ public class UsersReserveOutlineDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedDateTime;
 
-    @QueryProjection
-    public UsersReserveOutlineDto(Long reservationId, Long trainingId, String title, String location,
-                                  LocalDateTime reserveDateTime, ReserveStatus status,
-                                  LocalDateTime paymentDateTime, LocalDateTime modifiedDateTime) {
-        this.reservationId = reservationId;
-        this.trainingId = trainingId;
-        this.title = title;
-        this.location = location;
-        this.reserveDateTime = reserveDateTime;
-        this.status = status;
-        this.paymentDateTime = paymentDateTime;
-        this.modifiedDateTime = modifiedDateTime;
+    @Builder
+    public UsersReserveOutlineDto(ReserveInfo reserveInfo) {
+        Training training = reserveInfo.getTraining();
+
+        this.reservationId = reserveInfo.getId();
+        this.trainingId = training.getId();
+        this.trainerProfileImgUrl = training.getTrainer().getProfileUrl();
+        this.title = training.getTitle();
+        this.reserveDateTime = reserveInfo.getReserveDateTime();
+        this.location = training.getAddress();
+        this.status = reserveInfo.getStatus();
+        this.paymentDateTime = reserveInfo.getCreatedDate();
+        this.modifiedDateTime = reserveInfo.getModifiedDate();
     }
 }
