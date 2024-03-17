@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.dto;
 
+import com.fithub.fithubbackend.global.common.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,4 +23,7 @@ public class TrainingSearchConditionDto {
 
     private LocalDate startDate;
     private LocalDate endDate;
+
+    @Schema(description = "카테고리, 하나만 가능")
+    private Category category;
 }

@@ -23,6 +23,9 @@ public class UsersReserveCompleteOutlineDto {
     @Schema(description = "트레이닝 id")
     private Long trainingId;
 
+    @Schema(description = "예약한 트레이닝의 트레이너 프로필 이미지")
+    private String trainerProfileImgUrl;
+
     @Schema(description = "트레이닝 제목")
     private String title;
 
@@ -52,6 +55,7 @@ public class UsersReserveCompleteOutlineDto {
 
         this.reservationId = reserveInfo.getId();
         this.trainingId = training.getId();
+        this.trainerProfileImgUrl = training.getTrainer().getProfileUrl();
         this.title = training.getTitle();
         this.reserveDateTime = reserveInfo.getReserveDateTime();
         this.location = training.getAddress();

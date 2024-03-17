@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 public class UsersTrainingReviewDto {
     private Long reviewId;
     private Long trainingId;
+
+    private String trainerProfileImg;
+
     private String trainingTitle;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -29,6 +32,7 @@ public class UsersTrainingReviewDto {
         return UsersTrainingReviewDto.builder()
                 .reviewId(review.getId())
                 .trainingId(review.getTraining().getId())
+                .trainerProfileImg(review.getTraining().getTrainer().getProfileUrl())
                 .trainingTitle(review.getTraining().getTitle())
                 .reserveDateTime(review.getReserveInfo().getReserveDateTime())
                 .content(review.getContent())

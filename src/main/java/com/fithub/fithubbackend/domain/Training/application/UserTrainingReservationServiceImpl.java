@@ -9,7 +9,6 @@ import com.fithub.fithubbackend.domain.Training.dto.reservation.UsersReserveOutl
 import com.fithub.fithubbackend.domain.Training.dto.review.TrainingReviewReqDto;
 import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDto;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
-import com.fithub.fithubbackend.domain.Training.repository.CustomTrainingRepository;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -29,11 +28,16 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
 
     private final ReserveInfoRepository reserveInfoRepository;
     private final TrainingReviewRepository trainingReviewRepository;
-    private final CustomTrainingRepository customTrainingRepository;
 
     @Override
     public Page<UsersReserveOutlineDto> getTrainingReservationList(User user, ReserveStatus status, Pageable pageable) {
-        return customTrainingRepository.searchUsersReserveInfo(user.getId(), status, pageable);
+        Page<ReserveInfo> reserveList;
+        if (status == null) {
+            reserveList = reserveInfoRepository.findByUserIdAndStatusInOrderByStatusDesc(user.getId(), List.of(ReserveStatus.START, ReserveStatus.BEFORE), pageable);
+        } else {
+            reserveList = reserveInfoRepository.findByUserIdAndStatus(user.getId(), status, pageable);
+        }
+        return reserveList.map(r -> UsersReserveOutlineDto.builder().reserveInfo(r).build());
     }
 
     @Override
@@ -53,16 +57,8 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
         ReserveInfo reserveInfo = findReserveInfoById(reservationId);
         Training training = reserveInfo.getTraining();
         return UsersReserveInfoDto.builder()
-                .reservationId(reserveInfo.getId())
-                .trainingId(training.getId())
-                .title(training.getTitle())
-                .address(training.getAddress())
-                .reserveDateTime(reserveInfo.getReserveDateTime())
-                .price(reserveInfo.getPrice())
-                .impUid(reserveInfo.getImpUid())
-                .status(reserveInfo.getStatus())
-                .paymentDateTime(reserveInfo.getCreatedDate())
-                .modifiedDateTime(reserveInfo.getModifiedDate())
+                .reserveInfo(reserveInfo)
+                .training(training)
                 .build();
     }
 
