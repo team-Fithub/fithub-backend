@@ -117,4 +117,10 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserInterest> getUserInterests(Long userId) {
+        return userInterestRepository.findByUserId(userId);
+    }
+
 }
