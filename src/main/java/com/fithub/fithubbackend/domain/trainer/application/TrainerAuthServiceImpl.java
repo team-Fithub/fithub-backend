@@ -87,4 +87,5 @@ public class TrainerAuthServiceImpl implements TrainerAuthService {
             throw new CustomException(ErrorCode.POINT_PARSING_ERROR);
         }
     }
+
 }

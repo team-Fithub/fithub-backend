@@ -12,6 +12,8 @@ import java.util.List;
 public interface UserInterestRepository extends JpaRepository<UserInterest, Long> {
     List<UserInterest> findByUser(User user);
 
+    List<UserInterest> findByUserId(Long userId);
+
     @Query("select u.interest from UserInterest u where u.user = :user")
     List<Category> findInterestsByUser(@Param(value = "user") User user);
 }

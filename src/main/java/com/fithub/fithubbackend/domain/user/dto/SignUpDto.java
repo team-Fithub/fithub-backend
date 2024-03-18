@@ -4,6 +4,7 @@ import com.fithub.fithubbackend.domain.user.enums.Gender;
 import com.fithub.fithubbackend.global.common.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -50,6 +51,7 @@ public class SignUpDto {
     @NotNull
     private Gender gender;
 
-    @Schema(description = "관심사 입력은 선택입니다. 여러 개 선택 가능합니다. ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
-    private List<Category> categories;
+    @NotEmpty(message = "관심사는 최소 1개 이상 선택해야 합니다. ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
+    @Schema(description = "관심사(최소 1개 이상). ex) PILATES, HEALTH, PT, CROSSFIT, YOGA")
+    private List<Category> interests;
 }

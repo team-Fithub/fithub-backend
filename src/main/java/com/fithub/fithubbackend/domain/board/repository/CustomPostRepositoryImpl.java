@@ -45,7 +45,10 @@ public class CustomPostRepositoryImpl implements CustomPostRepository {
     }
 
     private BooleanExpression scopeEq(PostSearchFilterDto filter) {
-        if (filter.getScope().equals("content"))
+        if (filter.getKeyword() == null)
+            return null;
+
+        if (filter.getScope() == null || filter.getScope().equals("content"))
             return post.content.containsIgnoreCase(filter.getKeyword());
         else if (filter.getScope().equals("writer"))
             return post.user.nickname.containsIgnoreCase(filter.getKeyword());
