@@ -13,6 +13,6 @@ public class PostSearchFilterDto {
     private String keyword;
 
     @Schema(description = "검색 범위 (내용, 작성자, 해시태그)", example = "content")
-    private String scope = "content";
+    private String scope;
 
 }
