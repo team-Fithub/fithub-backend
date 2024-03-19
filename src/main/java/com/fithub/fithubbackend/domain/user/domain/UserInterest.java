@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.user.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fithub.fithubbackend.global.common.Category;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,7 @@ public class UserInterest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private User user;
 
