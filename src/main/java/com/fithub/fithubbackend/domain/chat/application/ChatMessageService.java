@@ -2,16 +2,17 @@ package com.fithub.fithubbackend.domain.chat.application;
 
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageRequestDto;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageResponseDto;
+import com.fithub.fithubbackend.domain.user.domain.User;
 
 import java.util.List;
 
 public interface ChatMessageService {
-    public ChatMessageResponseDto findById(final Long chatMessageId);
+    ChatMessageResponseDto findById(final Long chatMessageId);
 
-    public Long save(final Long chatRoomId, final ChatMessageRequestDto requestDto);
+    Long save(final ChatMessageRequestDto requestDto, final User user);
 
-    public void delete(final Long chatMessageId);
+    void delete(final Long chatMessageId);
 
-    public List<ChatMessageResponseDto> findAllByChatRoomIdDesc(final Long chatRoomId);
+    List<ChatMessageResponseDto> findAllByChatRoomIdDesc(final Long chatRoomId);
 
 }

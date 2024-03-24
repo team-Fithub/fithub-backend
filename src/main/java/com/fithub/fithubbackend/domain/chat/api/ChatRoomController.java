@@ -37,7 +37,7 @@ public class ChatRoomController {
     }
 
     @Operation(summary = "채팅방 목록 조회", responses = {
-            @ApiResponse(responseCode = "200", description = "채팅 생성 완료"),
+            @ApiResponse(responseCode = "200", description = "채팅방 목록 조회 완료"),
     })
     @GetMapping("/list")
     public ResponseEntity<List<ChatRoomResponseDto>> getChatList(@AuthUser User user) {
