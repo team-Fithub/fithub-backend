@@ -13,6 +13,6 @@ public interface ChatMessageService {
 
     void delete(final Long chatMessageId);
 
-    List<ChatMessageResponseDto> findAllByChatRoomIdDesc(final Long chatRoomId);
+    List<ChatMessageResponseDto> findAllByChatRoomId(final Long chatRoomId);
 
 }
