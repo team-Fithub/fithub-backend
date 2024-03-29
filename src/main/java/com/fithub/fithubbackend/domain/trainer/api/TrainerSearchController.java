@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.trainer.api;
 
 import com.fithub.fithubbackend.domain.trainer.application.TrainerSearchService;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerOutlineDto;
+import com.fithub.fithubbackend.domain.trainer.dto.TrainerSearchAllReviewDto;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerSearchFilterDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,8 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.*;
 
 @Tag(name = "trainer's search (트레이너 조회)", description = "인증이 필요없는 트레이너 조회 api")
 @RestController
@@ -37,5 +36,15 @@ public class TrainerSearchController {
     public ResponseEntity<Page<TrainerOutlineDto>> searchTrainers(@ModelAttribute TrainerSearchFilterDto dto,
                                                                   @PageableDefault(size = 9, sort = "id",  direction = Sort.Direction.DESC)  Pageable pageable) {
         return ResponseEntity.ok(trainerSearchService.searchTrainers(dto, pageable));
+    }
+
+    @Operation(summary = "트레이너 조회 시 트레이너의 트레이닝에 작성된 모든 리뷰 조회", parameters = {
+            @Parameter(name = "trainerId", description = "조회할 트레이너의 primary key(id)")
+    }, responses = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+    })
+    @GetMapping("/reviews")
+    public ResponseEntity<TrainerSearchAllReviewDto> getTrainerReviews (@RequestParam Long trainerId) {
+        return ResponseEntity.ok(trainerSearchService.searchTrainerReviews(trainerId));
     }
 }

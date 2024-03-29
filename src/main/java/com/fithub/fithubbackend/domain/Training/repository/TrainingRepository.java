@@ -17,7 +17,7 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     List<Training> findByDeletedFalseAndClosedFalseAndTrainerId(Long trainerId);
 
     List<Training> findByDeletedFalseAndClosedFalseAndStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate startDate, LocalDate endDate);
-
+    List<Training> findByTrainerId(Long trainerId);
     boolean existsByDeletedFalseAndClosedFalseAndTrainerId(Long trainerId);
 
     @Query(value = "SELECT * FROM training AS t WHERE t.deleted = false AND t.closed = false AND MBRContains(ST_LINESTRINGFROMTEXT(:pointFormat), t.point)", nativeQuery = true)
