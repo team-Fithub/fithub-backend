@@ -19,7 +19,7 @@ public class TrainerRecommendationDto {
     private String address;
 
     @Schema(description = "트레이너 id")
-    private long id;
+    private long trainerId;
 
     @Schema(description = "트레이너 이름")
     private String name;
@@ -37,9 +37,9 @@ public class TrainerRecommendationDto {
     private long totalReviews;
 
     @Builder
-    public TrainerRecommendationDto(long id, String address, String name,
+    public TrainerRecommendationDto(long trainerId, String address, String name,
                                     String profileUrl, List<Category> interests) {
-        this.id = id;
+        this.trainerId = trainerId;
         this.address = address;
         this.name = name;
         this.profileUrl = profileUrl;
@@ -48,7 +48,7 @@ public class TrainerRecommendationDto {
 
     public static TrainerRecommendationDto toDto(Trainer trainer) {
         return TrainerRecommendationDto.builder()
-                .id(trainer.getId())
+                .trainerId(trainer.getId())
                 .address(trainer.getAddress())
                 .name(trainer.getName())
                 .profileUrl(trainer.getProfileUrl())
