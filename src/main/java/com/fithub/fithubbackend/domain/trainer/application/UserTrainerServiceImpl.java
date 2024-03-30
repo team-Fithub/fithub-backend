@@ -48,15 +48,15 @@ public class UserTrainerServiceImpl implements UserTrainerService {
 
     private void updateTrainerRecommendations(List<TrainerRecommendationDto> trainerRecommendationList) {
         for (TrainerRecommendationDto dto : trainerRecommendationList) {
-            RatingTotalReviewsDto result = trainerRepository.findRatingAndReviewCountByTrainerId(dto.getId());
+            RatingTotalReviewsDto result = trainerRepository.findRatingAndReviewCountByTrainerId(dto.getTrainerId());
             dto.updateTotalReviews(result.getTotalReviews());
             dto.updateRating(result.getRating());
         }
     }
 
     private String setFormatPoint(Location location) {
-        Location northEast = GeometryUtil.calculate(location.getLatitude(), location.getLongitude(), 1.5, Direction.NORTHEAST.getBearing());
-        Location southWest = GeometryUtil.calculate(location.getLatitude(), location.getLongitude(), 1.5, Direction.SOUTHWEST.getBearing());
+        Location northEast = GeometryUtil.calculate(location.getLatitude(), location.getLongitude(), 2.0, Direction.NORTHEAST.getBearing());
+        Location southWest = GeometryUtil.calculate(location.getLatitude(), location.getLongitude(), 2.0, Direction.SOUTHWEST.getBearing());
 
         return String.format(
                 "'LINESTRING(%f %f, %f %f)'",
@@ -77,17 +77,16 @@ public class UserTrainerServiceImpl implements UserTrainerService {
         Query query = entityManager.createNativeQuery(
                 "SELECT t.* " +
                         "FROM trainer AS t INNER JOIN user AS u ON t.user_id = u.id " +
-                        "LEFT JOIN  " +
-                        "(SELECT trainer.id, COALESCE(AVG(tr.star), 0) AS rating " +
+                        "INNER JOIN  " +
+                        "(SELECT trainer.id, COALESCE(AVG(tr.star), 0) AS rating, COUNT(tr.star) AS review_count " +
                         "FROM training_review AS tr " +
                         "INNER JOIN training ON tr.training_id = training.id " +
                         "INNER JOIN trainer ON training.trainer_id = trainer.id " +
-                        "GROUP by trainer.id " +
+                        "GROUP by trainer.id HAVING rating >= 4.0 " +
                         ") AS avg_tr ON t.id = avg_tr.id " +
                         "WHERE u.id IN ( SELECT ui.user_id FROM user_interest ui WHERE ui.interest = '"+ interest + "') " +
                         "AND MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + "), t.point)" +
-                        "AND avg_tr.rating >= 3.5 " +
-                        "ORDER BY rating DESC LIMIT " + size
+                        "ORDER BY avg_tr.review_count DESC LIMIT " + size
                 , Trainer.class
         );
         return query.getResultList();
