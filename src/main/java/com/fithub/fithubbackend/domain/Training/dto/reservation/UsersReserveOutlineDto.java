@@ -27,6 +27,9 @@ public class UsersReserveOutlineDto {
     @Schema(description = "트레이닝 제목")
     private String title;
 
+    @Schema(description = "트레이닝 가격")
+    private int price;
+
     @Schema(description = "예약한 트레이닝 날짜, 시간")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime reserveDateTime;
@@ -52,6 +55,7 @@ public class UsersReserveOutlineDto {
         this.trainingId = training.getId();
         this.trainerProfileImgUrl = training.getTrainer().getProfileUrl();
         this.title = training.getTitle();
+        this.price = training.getPrice();
         this.reserveDateTime = reserveInfo.getReserveDateTime();
         this.location = training.getAddress();
         this.status = reserveInfo.getStatus();
