@@ -19,7 +19,7 @@ public class TrainerOutlineDto {
     @Schema(description = "트레이너 id")
     private long id;
 
-    @Schema(description = "트레이너 이름")
+    @Schema(description = "트레이너 소개")
     private String bio;
 
     @Schema(description = "트레이너 이름")
