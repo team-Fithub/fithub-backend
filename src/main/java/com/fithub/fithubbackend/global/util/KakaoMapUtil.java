@@ -1,15 +1,13 @@
 package com.fithub.fithubbackend.global.util;
 
+import com.fithub.fithubbackend.domain.user.dto.map.MapResDto;
+import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -41,5 +39,28 @@ public class KakaoMapUtil {
                 .build();
         ResponseEntity<String> result = restTemplate.exchange(requestEntity, String.class);
         return result.getBody();
+    }
+
+    public String getRegionAddress(double x, double y) {
+        String url = "https://dapi.kakao.com/v2/local/geo/coord2regioncode.json";
+
+        UriComponents  uri = UriComponentsBuilder.newInstance()
+                .fromHttpUrl(url)
+                .queryParam("x",x)
+                .queryParam("y",y)
+                .build();
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Authorization", "KakaoAK " + key);
+
+        HttpEntity requestMessage = new HttpEntity(httpHeaders);
+
+        ResponseEntity response = restTemplate.exchange(uri.toUriString(), HttpMethod.GET, requestMessage, String.class);
+
+        Gson gson = new Gson();
+
+        MapResDto mapped_data = gson.fromJson(response.getBody().toString(), MapResDto.class);
+        String target = mapped_data.documents.get(0).address_name;
+        return target;
     }
 }
