@@ -2,8 +2,6 @@ package com.fithub.fithubbackend.domain.trainer.application;
 
 import com.fithub.fithubbackend.domain.Training.dto.Location;
 import com.fithub.fithubbackend.domain.Training.enums.Direction;
-import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
-import com.fithub.fithubbackend.domain.trainer.dto.RatingTotalReviewsDto;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerRecommendationDto;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerRecommendationOutlineDto;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
@@ -18,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -36,21 +35,18 @@ public class UserTrainerServiceImpl implements UserTrainerService {
         String pointFormat = setFormatPoint(location);
         Category interest = randomCategory(userInterestRepository.findByUser(user));
 
-        List<Trainer> trainerList = findTrainersByLocationAndInterestAndRating(pointFormat, interest, size);
-        List<TrainerRecommendationDto> trainerRecommendationList = trainerList.stream().map(TrainerRecommendationDto::toDto).toList();
-
-        updateTrainerRecommendations(trainerRecommendationList);
+        List<TrainerRecommendationDto> trainerRecommendationList = findTrainersByLocationAndInterestAndRating(pointFormat, interest, size);
+        updateTrainerInterests(trainerRecommendationList);
 
         return TrainerRecommendationOutlineDto.builder()
                 .interest(interest)
                 .trainerRecommendationList(trainerRecommendationList).build();
     }
 
-    private void updateTrainerRecommendations(List<TrainerRecommendationDto> trainerRecommendationList) {
-        for (TrainerRecommendationDto dto : trainerRecommendationList) {
-            RatingTotalReviewsDto result = trainerRepository.findRatingAndReviewCountByTrainerId(dto.getTrainerId());
-            dto.updateTotalReviews(result.getTotalReviews());
-            dto.updateRating(result.getRating());
+    private void updateTrainerInterests(List<TrainerRecommendationDto> dtoList) {
+        for (TrainerRecommendationDto dto : dtoList) {
+            List<Category> result = userInterestRepository.findInterestsByUserId(dto.getUserId());
+            dto.updateTrainerInterests(result);
         }
     }
 
@@ -73,9 +69,9 @@ public class UserTrainerServiceImpl implements UserTrainerService {
             return interestList.get(0).getInterest();
     }
 
-    private List<Trainer> findTrainersByLocationAndInterestAndRating(String pointFormat, Category interest, int size) {
+    private List<TrainerRecommendationDto> findTrainersByLocationAndInterestAndRating(String pointFormat, Category interest, int size) {
         Query query = entityManager.createNativeQuery(
-                "SELECT t.* " +
+                "SELECT t.id, t.address, t.name, t.profile_url, t.user_id, avg_tr.rating, avg_tr.review_count " +
                         "FROM trainer AS t INNER JOIN user AS u ON t.user_id = u.id " +
                         "INNER JOIN  " +
                         "(SELECT trainer.id, COALESCE(AVG(tr.star), 0) AS rating, COUNT(tr.star) AS review_count " +
@@ -87,8 +83,22 @@ public class UserTrainerServiceImpl implements UserTrainerService {
                         "WHERE u.id IN ( SELECT ui.user_id FROM user_interest ui WHERE ui.interest = '"+ interest + "') " +
                         "AND MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + "), t.point)" +
                         "ORDER BY avg_tr.review_count DESC LIMIT " + size
-                , Trainer.class
         );
-        return query.getResultList();
+
+        List<Object[]> queryResultList = query.getResultList();
+
+        List<TrainerRecommendationDto> dtoList = new ArrayList<>();
+        for (Object[] result : queryResultList) {
+            TrainerRecommendationDto dto = TrainerRecommendationDto.builder()
+                    .trainerId((long) result[0])
+                    .address((String) result[1])
+                    .name((String) result[2])
+                    .profileUrl((String) result[3])
+                    .userId((long) result[4])
+                    .rating(Double.parseDouble(String.valueOf(result[5])))
+                    .totalReviews((Long) result[6]).build();
+            dtoList.add(dto);
+        }
+        return dtoList;
     }
 }

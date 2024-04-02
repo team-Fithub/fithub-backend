@@ -1,8 +1,6 @@
 package com.fithub.fithubbackend.domain.trainer.dto;
 
-
-import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
-import com.fithub.fithubbackend.domain.user.domain.UserInterest;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fithub.fithubbackend.global.common.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -21,6 +19,9 @@ public class TrainerRecommendationDto {
     @Schema(description = "트레이너 id")
     private long trainerId;
 
+    @JsonIgnore
+    private long userId;
+
     @Schema(description = "트레이너 이름")
     private String name;
 
@@ -37,31 +38,19 @@ public class TrainerRecommendationDto {
     private long totalReviews;
 
     @Builder
-    public TrainerRecommendationDto(long trainerId, String address, String name,
-                                    String profileUrl, List<Category> interests) {
+    public TrainerRecommendationDto(long trainerId, long userId, String address, String name,
+                                    String profileUrl, double rating, long totalReviews) {
         this.trainerId = trainerId;
+        this.userId = userId;
         this.address = address;
         this.name = name;
         this.profileUrl = profileUrl;
-        this.interests = interests;
-    }
-
-    public static TrainerRecommendationDto toDto(Trainer trainer) {
-        return TrainerRecommendationDto.builder()
-                .trainerId(trainer.getId())
-                .address(trainer.getAddress())
-                .name(trainer.getName())
-                .profileUrl(trainer.getProfileUrl())
-                .interests(trainer.getUser().getInterests().stream().map(UserInterest::getInterest).toList())
-                .build();
-    }
-
-    public void updateRating(double rating) {
         this.rating = rating;
+        this.totalReviews = totalReviews;
     }
 
-    public void updateTotalReviews(long totalReviews) {
-        this.totalReviews = totalReviews;
+    public void updateTrainerInterests (List<Category> interests) {
+        this.interests = interests;
     }
 
 
