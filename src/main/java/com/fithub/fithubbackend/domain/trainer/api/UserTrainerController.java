@@ -21,7 +21,7 @@ public class UserTrainerController {
 
     private final UserTrainerService userTrainerService;
 
-    @Operation(summary = "트레이너 추천", description = "회원이 설정한 관심사와 위치(반경 1.5km 이내), 트레이너 평점(3.5 이상)을 토대로 트레이너 추천(정렬 기준은 평점이 제일 높은 순으로). \n 관심사가 2개 이상인 경우 랜덤으로 한 개의 관심사 추출하여 선정",
+    @Operation(summary = "트레이너 추천", description = "회원이 설정한 관심사와 위치(반경 2.0km 이내), 트레이너 평점(4.0 이상)을 토대로 트레이너 추천(정렬 기준은 리뷰 많은 순). \n 관심사가 2개 이상인 경우 랜덤으로 한 개의 관심사 추출하여 선정",
             parameters = {
                     @Parameter(name = "location", description = "위도, 경도"),
                     @Parameter(name = "size", description = "출력할 데이터의 수. 안 보낼 경우 기본 10.")

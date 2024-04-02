@@ -24,7 +24,6 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class UserTrainerServiceImpl implements UserTrainerService {
 
-    private final TrainerRepository trainerRepository;
     private final UserInterestRepository userInterestRepository;
     private final EntityManager entityManager;
 
@@ -45,7 +44,7 @@ public class UserTrainerServiceImpl implements UserTrainerService {
 
     private void updateTrainerInterests(List<TrainerRecommendationDto> dtoList) {
         for (TrainerRecommendationDto dto : dtoList) {
-            List<Category> result = userInterestRepository.findInterestsByUserId(dto.getUserId());
+            List<Category> result = userInterestRepository.findByUserId(dto.getUserId()).stream().map(UserInterest::getInterest).toList();
             dto.updateTrainerInterests(result);
         }
     }
