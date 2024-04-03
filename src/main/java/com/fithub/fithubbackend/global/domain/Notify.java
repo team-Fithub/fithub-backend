@@ -20,7 +20,7 @@ public class Notify extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User receiver;
 
@@ -44,5 +44,9 @@ public class Notify extends BaseTimeEntity {
         this.url = url;
         this.type = type;
         this.isRead = false;
+    }
+
+    public void setStatusToRead() {
+        this.isRead = true;
     }
 }
