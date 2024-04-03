@@ -17,7 +17,7 @@ public class NotifyService {
 
     public void notifyByRequest(NotifyRequestDto dto) {
         notifyRepository.save(createNotify(dto.getReceiver(), dto.getContent(), dto.getUrl(), dto.getType()));
-        messagingTemplate.convertAndSend("/topic/alarm" + dto.getReceiver().getId(), dto.getContent());
+        messagingTemplate.convertAndSend("/topic/alarm/" + dto.getReceiver().getId(), dto.getContent());
     }
 
     private Notify createNotify(User receiver, String content, String url, NotificationType type) {
