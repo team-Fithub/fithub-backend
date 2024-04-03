@@ -6,10 +6,14 @@ import com.fithub.fithubbackend.domain.Training.dto.review.UsersTrainingReviewDt
 import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerOutlineDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerSearchAllReviewDto;
-import com.fithub.fithubbackend.domain.trainer.dto.TrainerSearchFilterDto;
+import com.fithub.fithubbackend.domain.trainer.domain.TrainerCareer;
+import com.fithub.fithubbackend.domain.trainer.domain.TrainerLicenseImg;
+import com.fithub.fithubbackend.domain.trainer.dto.*;
+import com.fithub.fithubbackend.domain.trainer.repository.TrainerCareerRepository;
+import com.fithub.fithubbackend.domain.trainer.repository.TrainerLicenseImgRepository;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
+import com.fithub.fithubbackend.global.exception.CustomException;
+import com.fithub.fithubbackend.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -28,6 +33,8 @@ public class TrainerSearchServiceImpl implements TrainerSearchService {
     private final TrainerRepository trainerRepository;
     private final TrainingRepository trainingRepository;
     private final TrainingReviewRepository reviewRepository;
+    private final TrainerLicenseImgRepository trainerLicenseImgRepository;
+    private final TrainerCareerRepository trainerCareerRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -60,6 +67,40 @@ public class TrainerSearchServiceImpl implements TrainerSearchService {
                 .average((double)sum / reviewNum)
                 .list(list)
                 .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TrainerSearchAllLicenseDto searchTrainerLicenses(Long trainerId) {
+
+        List<TrainerLicenseDto> trainerLicenseDto = new ArrayList<>();
+
+        List<TrainerLicenseImg> trainerLicenseImgs = trainerLicenseImgRepository.findByTrainerId(trainerId);
+        trainerLicenseImgs.forEach(img ->
+            trainerLicenseDto.add(TrainerLicenseDto.builder().licenseImg(img).build())
+        );
+        return TrainerSearchAllLicenseDto.builder().totalCounts(trainerLicenseDto.size()).licenses(trainerLicenseDto).build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TrainerSearchCompanyDto searchTrainerCompanyInfo(Long trainerId) {
+        Optional<TrainerCareer> career = trainerCareerRepository.findByWorkingTrueAndTrainerId(trainerId);
+
+        if (career.isPresent()) {
+            return TrainerSearchCompanyDto.builder()
+                    .company(career.get().getCompany())
+                    .longitude(career.get().getPoint().getX())
+                    .latitude(career.get().getPoint().getY()).build();
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TrainerOutlineDto searchTrainerProfileInfo(Long trainerId) {
+        Trainer trainer = trainerRepository.findById(trainerId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이너"));
+        return TrainerOutlineDto.toDto(trainer);
     }
 
 }
