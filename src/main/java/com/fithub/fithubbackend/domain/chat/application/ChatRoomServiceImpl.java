@@ -2,7 +2,6 @@ package com.fithub.fithubbackend.domain.chat.application;
 
 import com.fithub.fithubbackend.domain.chat.domain.Chat;
 import com.fithub.fithubbackend.domain.chat.domain.ChatRoom;
-import com.fithub.fithubbackend.domain.chat.dto.ChatRequestDto;
 import com.fithub.fithubbackend.domain.chat.dto.ChatRoomResponseDto;
 import com.fithub.fithubbackend.domain.chat.repository.ChatRepository;
 import com.fithub.fithubbackend.domain.chat.repository.ChatRoomRepository;
@@ -15,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -36,20 +36,13 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // Chat 테이블: 현재 유저의 채팅방 id와 채팅방 이름 가져옴
         List<Chat> chatList = this.chatRepository.findChatsById(user.getId());
 
-        // ChatRoom 테이블: 위에서 가져온 채팅방의 추가 정보를 가져옴
-        List<ChatRoomResponseDto> dtoList = new ArrayList<>();
-        Iterator<Chat> chatIterator = chatList.iterator();
-
-        while(chatIterator.hasNext()) {
-            Chat chat = chatIterator.next();
-            ChatRoomResponseDto dto = new ChatRoomResponseDto(chat);
-            dto.setModifiedDate(this.chatRoomRepository.findByRoomId(dto.getRoomId()).getModifiedDate());
-            dtoList.add(dto);
-        }
+        List<ChatRoomResponseDto> dtoList = chatList.stream()
+                .map(ChatRoomResponseDto::new)
+                .collect(Collectors.toList());
 
         // modifiedDate 기준으로 정렬
-        Comparator<ChatRoomResponseDto> comparator = Comparator.comparing(ChatRoomResponseDto::getModifiedDate);
-        Collections.sort(dtoList, comparator);
+        Comparator<ChatRoomResponseDto> comparator = Comparator.comparing(ChatRoomResponseDto::getLastMessageDate);
+        Collections.sort(dtoList, comparator.reversed());
         return dtoList;
     }
 
