@@ -47,7 +47,6 @@ public class ChatMessageController {
     @GetMapping("/chatroom/message")
     public ResponseEntity<List<ChatMessageResponseDto>> getChatList(@AuthUser User user, @RequestParam("chatRoomId") Long chatRoomId) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-
         List<ChatMessageResponseDto> chatMessageResponseDtoList = chatMessageService.findAllByChatRoomId(chatRoomId);
         return ResponseEntity.ok(chatMessageResponseDtoList);
     }

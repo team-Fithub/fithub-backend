@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     };
 
     private static final String[] SHOULD_NOT_FILTER_GET_URI_LIST = new String[] {
-            "/training/**", "/auth/oauth/login", "/posts/**", "/ws/chat", "/search/trainers"
+            "/training/**", "/auth/oauth/login", "/posts/**", "/ws", "/search/trainers"
     };
 
     @Override
