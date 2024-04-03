@@ -82,7 +82,6 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
 
     @Override
     @Transactional
-    // TODO: 리뷰 작성 시 트레이닝의 트레이너에게 리뷰가 달렸다는 알림?
     public Long writeReviewOnCompletedReservation(User user, TrainingReviewReqDto dto) {
         ReserveInfo reserveInfo = findReserveInfoById(dto.getReservationId());
 
