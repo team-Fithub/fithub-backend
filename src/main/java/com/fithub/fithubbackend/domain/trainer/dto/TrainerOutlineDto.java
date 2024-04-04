@@ -13,13 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 public class TrainerOutlineDto {
 
-    @Schema(description = "현재 일하는 장소")
+    @Schema(description = "근무 중인 회사 주소")
     private String address;
 
     @Schema(description = "트레이너 id")
     private long id;
 
-    @Schema(description = "트레이너 이름")
+    @Schema(description = "트레이너 소개")
     private String bio;
 
     @Schema(description = "트레이너 이름")

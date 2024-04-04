@@ -15,6 +15,8 @@ import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.notify.NotificationType;
+import com.fithub.fithubbackend.global.notify.dto.NotifyRequestDto;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
 import com.siot.IamportRestClient.request.CancelData;
@@ -23,6 +25,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +45,8 @@ public class PaymentServiceImpl implements PaymentService {
     private final AvailableTimeRepository availableTimeRepository;
 
     private final ReserveInfoRepository reserveInfoRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     @Value("${imp.api.key}")
     private String apiKey;
@@ -79,9 +84,10 @@ public class PaymentServiceImpl implements PaymentService {
         closeReservationDateTime(availableTime, availableDate);
         updateTrainingStatus(training, availableDate.getId());
 
-        ReserveInfo reserveInfo = createReserveInfo(user, training, availableDate, availableTime);
+        ReserveInfo reserveInfo = reserveInfoRepository.save(createReserveInfo(user, training, availableDate, availableTime));
 
-        return reserveInfoRepository.save(reserveInfo).getId();
+        eventPublisher.publishEvent(createReservationNotifyRequest(training));
+        return reserveInfo.getId();
     }
 
     private void closeReservationDateTime(AvailableTime availableTime, AvailableDate availableDate) {
@@ -103,6 +109,15 @@ public class PaymentServiceImpl implements PaymentService {
                 .training(training)
                 .date(availableDate)
                 .time(availableTime)
+                .build();
+    }
+
+    private NotifyRequestDto createReservationNotifyRequest(Training training) {
+        return NotifyRequestDto.builder()
+                .receiver(training.getTrainer().getUser())
+                .content("새로운 예약이 생겼습니다.")
+                .urlId(null)
+                .type(NotificationType.NEW_RESERVATION)
                 .build();
     }
 
@@ -135,14 +150,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void cancelPayment(Long userId, CancelReqDto dto) throws IamportResponseException, IOException {
-        cancelComplete(userId, dto);
+        ReserveInfo reserveInfo = cancelComplete(userId, dto);
 
         Payment response = iamportClient.paymentByImpUid(dto.getImpUid()).getResponse();
         iamportClient.cancelPaymentByImpUid(createCancelData(response));
+        eventPublisher.publishEvent(createReservationCancelNotifyRequest(reserveInfo.getTraining()));
     }
 
-    // TODO: 예약 취소시 예약 취소됐다는 알림 트레이너에게 전달
-    private void cancelComplete(Long userId, CancelReqDto dto) {
+    private ReserveInfo cancelComplete(Long userId, CancelReqDto dto) {
         ReserveInfo reserveInfo = reserveInfoRepository.findById(dto.getReservationId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 결제내역입니다."));
         if (!Objects.equals(reserveInfo.getUser().getId(), userId)) {
             throw new CustomException(ErrorCode.PERMISSION_DENIED, "예약한 회원이 아니므로 예약 취소 권한이 없습니다.");
@@ -156,6 +171,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         reserveInfo.updateStatus(ReserveStatus.CANCEL);
         openTrainingAndDateTime(reserveInfo.getTraining(), reserveInfo);
+        return reserveInfo;
     }
 
     private void checkReserveStatusIsCancelable(ReserveStatus status) {
@@ -179,5 +195,14 @@ public class PaymentServiceImpl implements PaymentService {
     private CancelData createCancelData(Payment response) {
         log.info("결제 취소 - 포트원 고유 번호: {}, 구매 번호: {}", response.getImpUid(), response.getMerchantUid());
         return new CancelData(response.getImpUid(), true);
+    }
+
+    private NotifyRequestDto createReservationCancelNotifyRequest(Training training) {
+        return NotifyRequestDto.builder()
+                .receiver(training.getTrainer().getUser())
+                .content("트레이닝 예약 취소가 있습니다.")
+                .urlId(null)
+                .type(NotificationType.CANCEL_RESERVATION)
+                .build();
     }
 }

@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface TrainerRepository extends JpaRepository<Trainer, Long>, CustomTrainerRepository {
     boolean existsByUserId(Long userId);
     Optional<Trainer> findByUserId(Long userId);
+
 }

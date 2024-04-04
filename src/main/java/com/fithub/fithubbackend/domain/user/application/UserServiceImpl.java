@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public ProfileDto myProfile(User user) {
-        List<Category> interests = userInterestRepository.findInterestsByUser(user);
+        List<Category> interests = userInterestRepository.findByUser(user).stream().map(UserInterest::getInterest).toList();
 
         return ProfileDto.builder()
                 .name(user.getName())
