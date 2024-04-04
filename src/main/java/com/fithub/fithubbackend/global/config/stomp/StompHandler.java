@@ -1,4 +1,4 @@
-package com.fithub.fithubbackend.domain.chat.Handler;
+package com.fithub.fithubbackend.global.config.stomp;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 public class StompHandler implements ChannelInterceptor {
 
 
-    // 메세지 전송 사전 작업 필요 시
+    // ws 송신 사전 작업 필요 시
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        log.info("presend 진입");
         return message;
     }
 }
+
 

@@ -1,6 +1,5 @@
-package com.fithub.fithubbackend.domain.chat.config;
+package com.fithub.fithubbackend.global.config.stomp;
 
-import com.fithub.fithubbackend.domain.chat.Handler.StompHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -20,7 +19,7 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws/chat").setAllowedOrigins("*");
+        registry.addEndpoint("/ws").setAllowedOrigins("*");
     }
 
     @Override
