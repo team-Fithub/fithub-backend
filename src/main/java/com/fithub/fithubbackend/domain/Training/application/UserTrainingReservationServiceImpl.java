@@ -14,7 +14,10 @@ import com.fithub.fithubbackend.domain.Training.repository.TrainingReviewReposit
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.notify.NotificationType;
+import com.fithub.fithubbackend.global.notify.dto.NotifyRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,8 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
 
     private final ReserveInfoRepository reserveInfoRepository;
     private final TrainingReviewRepository trainingReviewRepository;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public Page<UsersReserveOutlineDto> getTrainingReservationList(User user, ReserveStatus status, Pageable pageable) {
@@ -77,7 +82,6 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
 
     @Override
     @Transactional
-    // TODO: 리뷰 작성 시 트레이닝의 트레이너에게 리뷰가 달렸다는 알림?
     public Long writeReviewOnCompletedReservation(User user, TrainingReviewReqDto dto) {
         ReserveInfo reserveInfo = findReserveInfoById(dto.getReservationId());
 
@@ -90,7 +94,18 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
                 .trainingReviewReqDto(dto)
                 .build();
 
-        return trainingReviewRepository.save(trainingReview).getId();
+        TrainingReview review = trainingReviewRepository.save(trainingReview);
+        eventPublisher.publishEvent(createReviewNotifyRequest(reserveInfo));
+        return review.getId();
+    }
+
+    private NotifyRequestDto createReviewNotifyRequest(ReserveInfo reserveInfo) {
+        return NotifyRequestDto.builder()
+                .receiver(reserveInfo.getTraining().getTrainer().getUser())
+                .content("트레이닝에 리뷰가 달렸습니다.")
+                .urlId(reserveInfo.getTraining().getId())
+                .type(NotificationType.NEW_REVIEW)
+                .build();
     }
 
     @Override
