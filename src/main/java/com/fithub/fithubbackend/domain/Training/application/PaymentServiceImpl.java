@@ -63,7 +63,6 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public Long saveOrder(ReserveReqDto dto, User user) {
         Training training = trainingRepository.findById(dto.getTrainingId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
-
         if (training.isClosed()) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "마감된 트레이닝은 예약할 수 없습니다.");
         }
@@ -72,6 +71,7 @@ public class PaymentServiceImpl implements PaymentService {
         if (!availableDate.isEnabled()) {
             throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR, "해당 날짜에 예약 가능한 시간대가 없습니다.");
         }
+
         AvailableTime availableTime = availableTimeRepository.findById(dto.getReservationTimeId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약 시간은 존재하지 않습니다."));
         if (!availableTime.isEnabled()) {
             throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR, "해당 시간은 이미 예약되었습니다.");
@@ -82,6 +82,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         closeReservationDateTime(availableTime, availableDate);
+        availableDateRepository.saveAndFlush(availableDate);
+        availableTimeRepository.saveAndFlush(availableTime);
+
         updateTrainingStatus(training, availableDate.getId());
 
         ReserveInfo reserveInfo = reserveInfoRepository.save(createReserveInfo(user, training, availableDate, availableTime));
