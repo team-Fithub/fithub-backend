@@ -14,4 +14,5 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     @Modifying
     @Query("UPDATE ChatMessage c SET c.checked = true WHERE c.chatRoom.roomId = :roomId")
     void updateCheckedByRoomId(Long roomId);
+
 }
