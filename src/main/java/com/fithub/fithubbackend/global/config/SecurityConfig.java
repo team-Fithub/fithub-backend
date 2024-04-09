@@ -45,7 +45,7 @@ public class SecurityConfig {
     };
 
     private static final String[] PERMIT_ALL_GET_PATTERNS = new String[] {
-        "/training/**", "/posts/**", "/search/trainers"
+        "/training/**", "/posts/**", "/search/trainers/**"
     };
 
     @Bean
