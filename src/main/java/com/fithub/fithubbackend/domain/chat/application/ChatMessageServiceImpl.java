@@ -72,7 +72,12 @@ public class ChatMessageServiceImpl implements ChatMessageService{
         ChatRoom chatRoomEntity = this.chatRoomRepository.findById(chatRoomId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND, "채팅방이 존재하지 않음"));
         List<ChatMessage> chatMessageList = this.chatMessageRepository.findAllByChatRoomOrderByCreatedDateDesc(chatRoomEntity);
+
+        // 읽음 표시
+        if(!chatMessageList.get(0).isChecked()) {
+            this.chatMessageRepository.updateCheckedByRoomId(chatRoomId);
+        }
+
         return  chatMessageList.stream().map(ChatMessageResponseDto::new).collect(Collectors.toList());
     }
-
 }
