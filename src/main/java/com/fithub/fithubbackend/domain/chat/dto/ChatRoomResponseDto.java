@@ -44,8 +44,7 @@ public class ChatRoomResponseDto {
         ChatMessage lastChatMessage = entity.getChatPK().getChatRoom().getChatMessageList().get(messageListSize - 1);
         this.lastMessageDate = lastChatMessage.getCreatedDate();
         this.lastMessage = lastChatMessage.getMessage();
-
-        this.unreadChatCount = 0;
+        this.unreadChatCount = lastChatMessage.isChecked()? 0 : 1;
     }
 
 
