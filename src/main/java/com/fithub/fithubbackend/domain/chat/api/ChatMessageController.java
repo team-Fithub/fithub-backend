@@ -38,7 +38,6 @@ public class ChatMessageController {
         Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
         UserAdapter userAdapter = (UserAdapter) authentication.getPrincipal();
         chatMessageService.save(messageRequestDto, userAdapter.getUser());
-        simpMessagingTemplate.convertAndSend("/topic/chatroom/" + messageRequestDto.getRoomId(), messageRequestDto.getMessage());
     }
 
     @Operation(summary = "채팅 메세지 조회", responses = {
@@ -48,6 +47,7 @@ public class ChatMessageController {
     public ResponseEntity<List<ChatMessageResponseDto>> getChatList(@AuthUser User user, @RequestParam("chatRoomId") Long chatRoomId) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         List<ChatMessageResponseDto> chatMessageResponseDtoList = chatMessageService.findAllByChatRoomId(chatRoomId);
+        simpMessagingTemplate.convertAndSend("/topic/chatroom/" + chatRoomId, chatRoomId);
         return ResponseEntity.ok(chatMessageResponseDtoList);
     }
 }
