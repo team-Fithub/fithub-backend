@@ -2,6 +2,7 @@ package com.fithub.fithubbackend.domain.Training.repository;
 
 import com.fithub.fithubbackend.domain.Training.domain.ReserveInfo;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
+import com.fithub.fithubbackend.domain.user.domain.User;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,7 @@ public interface ReserveInfoRepository extends JpaRepository<ReserveInfo, Long> 
     Page<ReserveInfo> findByUserIdAndStatus(Long userId, ReserveStatus status, Pageable pageable);
     List<ReserveInfo> findByTrainingIdAndStatus(Long trainingId, ReserveStatus status);
     boolean existsByTrainingIdAndStatusNotIn(Long trainingId, List<@NotNull ReserveStatus> status);
+    boolean existsByUserAndStatusNotIn(User user, List<@NotNull ReserveStatus> status);
     boolean existsByTrainingId(Long trainingId);
 
     List<ReserveInfo> findByReserveDateTimeAndStatus(LocalDateTime now, ReserveStatus status);

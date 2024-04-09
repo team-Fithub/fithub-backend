@@ -1,12 +1,20 @@
 package com.fithub.fithubbackend.domain.user.application;
 
+import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
+import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
+import com.fithub.fithubbackend.domain.board.repository.BookmarkRepository;
+import com.fithub.fithubbackend.domain.board.repository.LikesRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
+import com.fithub.fithubbackend.domain.user.domain.ClosureReason;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.domain.UserInterest;
+import com.fithub.fithubbackend.domain.user.dto.CloseAccountReasonDto;
 import com.fithub.fithubbackend.domain.user.dto.InterestUpdateDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
+import com.fithub.fithubbackend.domain.user.repository.ClosureReasonRepository;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserInterestRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
@@ -34,6 +42,11 @@ public class UserServiceImpl implements UserService {
     private final TrainerRepository trainerRepository;
     private final DocumentRepository documentRepository;
     private final UserInterestRepository userInterestRepository;
+    private final ReserveInfoRepository reserveInfoRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final TrainingLikesRepository trainingLikesRepository;
+    private final ClosureReasonRepository closureReasonRepository;
+    private final LikesRepository likesRepository;
     private final AwsS3Uploader awsS3Uploader;
 
     @Value("${default.image.address}")
@@ -121,6 +134,42 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public List<UserInterest> getUserInterests(Long userId) {
         return userInterestRepository.findByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public void closeAccount(User user, CloseAccountReasonDto reason) {
+
+        if (!reserveInfoRepository.existsByUserAndStatusNotIn(user,
+                List.of(ReserveStatus.BEFORE, ReserveStatus.START)))
+            throw new CustomException(ErrorCode.BAD_REQUEST, "예약 또는 진행 중인 트레이닝이 존재해 탈퇴 작업이 불가능합니다.");
+
+        addClosureReason(reason);
+        cleanUpUser(user);
+        userRepository.save(user);
+    }
+
+    private void addClosureReason(CloseAccountReasonDto reason) {
+        closureReasonRepository.save(ClosureReason.builder()
+                .reasonType(reason.getClosureReasonType()).customReason(reason.getCustomReason()).build());
+    }
+
+    private void cleanUpUser(User user) {
+        
+        if (!user.getProfileImg().getUrl().equals(defaultProfileImg)) {
+            awsS3Uploader.deleteS3(user.getProfileImg().getPath());
+            documentRepository.deleteById(user.getProfileImg().getId());
+
+            Optional<Document> defaultDocument = documentRepository.findById(1L);
+            user.updateProfileImg(defaultDocument.get());
+        }
+
+        user.deleteUser();
+        bookmarkRepository.deleteByUser(user);
+        likesRepository.deleteByUser(user);
+        trainingLikesRepository.deleteByUser(user);
+        userInterestRepository.deleteByUser(user);
+
     }
 
 }

@@ -2,14 +2,18 @@ package com.fithub.fithubbackend.domain.user.api;
 
 import com.fithub.fithubbackend.domain.user.application.UserService;
 import com.fithub.fithubbackend.domain.user.domain.User;
+import com.fithub.fithubbackend.domain.user.dto.CloseAccountReasonDto;
 import com.fithub.fithubbackend.domain.user.dto.InterestUpdateDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileDto;
 import com.fithub.fithubbackend.domain.user.dto.ProfileUpdateDto;
 import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +69,19 @@ public class UserController {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
         userService.updateInterest(interestUpdateDto, user);
         return ResponseEntity.ok().body("관심사 수정 완료");
+    }
+
+    @Operation(summary = "회원 탈퇴", responses = {
+            @ApiResponse(responseCode = "200", description = "탈퇴 성공"),
+            @ApiResponse(responseCode = "400", description = "예약 또는 진행 중인 트레이닝이 존재해 탈퇴 작업 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+    }, parameters = {
+            @Parameter(name="CloseAccountReasonDto", description = "탈퇴 사유 dto. reason 이 other(기타)가 아니라면 customReason 를 안 보내거나 null 로 보내주기.")
+    })
+    @PutMapping
+    public ResponseEntity<String> closeAccount(@AuthUser User user, @RequestBody CloseAccountReasonDto reason) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        userService.closeAccount(user, reason);
+        return ResponseEntity.ok().body("회원 탈퇴 완료");
     }
 
 
