@@ -23,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -53,6 +54,8 @@ public class AuthServiceImpl implements AuthService {
     private final HeaderUtil headerUtil;
 
     private final AwsS3Uploader awsS3Uploader;
+
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Value("${default.image.address}")
     private String profileImgUrl;

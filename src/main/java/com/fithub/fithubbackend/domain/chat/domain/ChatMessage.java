@@ -35,5 +35,6 @@ public class ChatMessage extends BaseTimeEntity {
         this.sender = sender;
         this.chatRoom = chatRoom;
         this.message = message;
+        this.checked = false;
     }
 }

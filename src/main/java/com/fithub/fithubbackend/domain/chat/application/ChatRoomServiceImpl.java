@@ -43,6 +43,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // modifiedDate 기준으로 정렬
         Comparator<ChatRoomResponseDto> comparator = Comparator.comparing(ChatRoomResponseDto::getLastMessageDate);
         Collections.sort(dtoList, comparator.reversed());
+
         return dtoList;
     }
 

@@ -35,8 +35,6 @@ public class ChatRoomResponseDto {
     @Schema(description = "안읽은 채팅 개수")
     private int unreadChatCount;
 
-
-
     public ChatRoomResponseDto(Chat entity) {
         this.roomId = entity.getChatPK().getChatRoom().getRoomId();
         this.roomName = entity.getChatRoomName();
