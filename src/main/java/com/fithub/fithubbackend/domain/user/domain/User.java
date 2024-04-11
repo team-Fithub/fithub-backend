@@ -209,4 +209,18 @@ public class User extends BaseTimeEntity implements UserDetails {
     public boolean isTrainer() {
         return this.roles.contains("ROLE_TRAINER");
     }
+
+    public void deleteUser() {
+        this.name = "탈퇴 회원";
+        this.nickname = "탈퇴 회원";
+        this.email = "";
+        this.phone = "";
+        this.gender = Gender.UNDEFINED;
+        this.bio = null;
+        this.password = null;
+        this.status = Status.DELETE;
+        this.provider = null;
+        this.providerId = null;
+        roles.clear();
+    }
 }
