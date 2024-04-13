@@ -37,4 +37,8 @@ public class ChatMessage extends BaseTimeEntity {
         this.message = message;
         this.checked = false;
     }
+
+    public void updateChecked(boolean checked) {
+        this.checked = checked;
+    }
 }

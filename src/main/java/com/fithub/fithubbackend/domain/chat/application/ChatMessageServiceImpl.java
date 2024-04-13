@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,9 +72,9 @@ public class ChatMessageServiceImpl implements ChatMessageService{
                 () -> new CustomException(ErrorCode.NOT_FOUND, "채팅방이 존재하지 않음"));
         List<ChatMessage> chatMessageList = this.chatMessageRepository.findAllByChatRoomOrderByCreatedDateDesc(chatRoomEntity);
 
-        // 읽음 표시
-        if(!chatMessageList.get(0).isChecked()) {
-            this.chatMessageRepository.updateCheckedByRoomId(chatRoomId);
+        for (ChatMessage chatMessage : chatMessageList) {
+            chatMessage.updateChecked(true);
+            chatMessageRepository.save(chatMessage);
         }
 
         return  chatMessageList.stream().map(ChatMessageResponseDto::new).collect(Collectors.toList());
