@@ -14,8 +14,6 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query("SELECT e.chatPK.user FROM Chat e WHERE e.chatPK.chatRoom.roomId = :roomId")
     List<User> findUsersByRoomId(Long roomId);
 
-    boolean existsByChatPK_UserId(Long userId);
-
     Chat findChatByChatPK_UserId(Long userId);
 
 }
