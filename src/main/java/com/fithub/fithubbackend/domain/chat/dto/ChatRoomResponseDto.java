@@ -32,10 +32,8 @@ public class ChatRoomResponseDto {
     @Schema(description = "마지막 채팅 내용")
     private String lastMessage;
 
-    @Schema(description = "안읽은 채팅 개수")
-    private int unreadChatCount;
-
-
+    @Schema(description = "안읽은 채팅 메세지 존재 여부")
+    private boolean hasUnreadChatMessage;
 
     public ChatRoomResponseDto(Chat entity) {
         this.roomId = entity.getChatPK().getChatRoom().getRoomId();
@@ -46,8 +44,7 @@ public class ChatRoomResponseDto {
         ChatMessage lastChatMessage = entity.getChatPK().getChatRoom().getChatMessageList().get(messageListSize - 1);
         this.lastMessageDate = lastChatMessage.getCreatedDate();
         this.lastMessage = lastChatMessage.getMessage();
-
-        this.unreadChatCount = 0;
+        this.hasUnreadChatMessage = !lastChatMessage.isChecked();
     }
 
 

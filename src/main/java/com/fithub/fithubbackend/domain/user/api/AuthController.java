@@ -1,10 +1,8 @@
 package com.fithub.fithubbackend.domain.user.api;
 
 import com.fithub.fithubbackend.domain.user.application.AuthService;
-import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.dto.*;
 import com.fithub.fithubbackend.global.auth.TokenInfoDto;
-import com.fithub.fithubbackend.global.domain.AuthUser;
 import com.fithub.fithubbackend.global.exception.ErrorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,6 +27,7 @@ import java.io.IOException;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+
 
     @Operation(summary = "회원가입 swagger에서 사용 불가능. postman으로 테스트 가능 (multipart/form-data)", responses = {
             @ApiResponse(responseCode = "200", description = "회원 생성"),

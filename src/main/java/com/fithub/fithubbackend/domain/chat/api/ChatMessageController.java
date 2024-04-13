@@ -1,6 +1,7 @@
 package com.fithub.fithubbackend.domain.chat.api;
 
 import com.fithub.fithubbackend.domain.chat.application.ChatMessageService;
+import com.fithub.fithubbackend.domain.chat.application.ChatRoomService;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageRequestDto;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageResponseDto;
 import com.fithub.fithubbackend.domain.user.domain.User;

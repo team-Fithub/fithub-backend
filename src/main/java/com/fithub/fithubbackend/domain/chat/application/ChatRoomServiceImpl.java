@@ -43,6 +43,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         // modifiedDate 기준으로 정렬
         Comparator<ChatRoomResponseDto> comparator = Comparator.comparing(ChatRoomResponseDto::getLastMessageDate);
         Collections.sort(dtoList, comparator.reversed());
+
         return dtoList;
     }
 
@@ -80,5 +81,27 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         ChatRoom entity = this.chatRoomRepository.findById(id).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND, "채팅룸이 존재하지 않음"));
         this.chatRoomRepository.delete(entity);
+    }
+
+    @Override
+    public boolean hasChatRoom(Long userId, Long receiverId) {
+       List<Long> roomIdsOfUser = chatRepository.findChatsById(userId)
+               .stream()
+               .map(Chat::getChatRoomId)
+               .collect(Collectors.toList());
+
+        List<Long> roomIdsOfReceiver = chatRepository.findChatsById(receiverId)
+                .stream()
+                .map(Chat::getChatRoomId)
+                .collect(Collectors.toList());
+
+        roomIdsOfUser.retainAll(roomIdsOfReceiver);
+
+        return !roomIdsOfUser.isEmpty();
+    }
+
+    @Override
+    public long findRoomIdByUserId(long userId) {
+        return this.chatRepository.findChatByChatPK_UserId(userId).getChatPK().getChatRoom().getRoomId();
     }
 }
