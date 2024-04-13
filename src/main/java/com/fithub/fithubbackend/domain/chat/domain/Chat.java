@@ -21,4 +21,8 @@ public class Chat {
         this.chatPK = new ChatPK(chatRoom, user);
         this.chatRoomName = chatRoomName;
     }
+
+    public long getChatRoomId() {
+        return this.chatPK.getChatRoom().getRoomId();
+    }
 }

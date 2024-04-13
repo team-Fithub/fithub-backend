@@ -19,7 +19,7 @@ public interface ChatRoomService {
     /* ChatRoom 삭제 */
     public void delete(final Long id);
 
-    public boolean hasChatRoom(final Long userId);
+    public boolean hasChatRoom(final Long userId, final Long receiverId);
 
     public long findRoomIdByUserId(final long userId);
 }

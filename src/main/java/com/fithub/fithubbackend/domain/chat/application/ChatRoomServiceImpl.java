@@ -84,8 +84,20 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    public boolean hasChatRoom(Long userId) {
-        return this.chatRepository.existsByChatPK_UserId(userId);
+    public boolean hasChatRoom(Long userId, Long receiverId) {
+       List<Long> roomIdsOfUser = chatRepository.findChatsById(userId)
+               .stream()
+               .map(Chat::getChatRoomId)
+               .collect(Collectors.toList());
+
+        List<Long> roomIdsOfReceiver = chatRepository.findChatsById(receiverId)
+                .stream()
+                .map(Chat::getChatRoomId)
+                .collect(Collectors.toList());
+
+        roomIdsOfUser.retainAll(roomIdsOfReceiver);
+
+        return !roomIdsOfUser.isEmpty();
     }
 
     @Override

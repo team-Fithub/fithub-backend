@@ -53,24 +53,5 @@ public class ChatMessageController {
         List<ChatMessageResponseDto> chatMessageResponseDtoList = chatMessageService.findAllByChatRoomId(chatRoomId);
         return ResponseEntity.ok(chatMessageResponseDtoList);
     }
-
-    @Operation(summary = "채팅방 참여하기", responses = {
-            @ApiResponse(responseCode = "200", description = "채팅방 참여(메세지 조회) 완료"),
-    })
-    @PostMapping("/chatroom/join")
-    public ResponseEntity<List<ChatMessageResponseDto>> joinChatRoom(@AuthUser User user, @RequestParam("receiverId") Long receiverId) {
-        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-
-        long chatRoomId;
-        if(chatRoomService.hasChatRoom(user.getId())) {
-            chatRoomId = chatRoomService.findRoomIdByUserId(user.getId());
-        } else {
-            chatRoomId = chatRoomService.save(user, receiverId);
-        }
-
-        List<ChatMessageResponseDto> chatMessageResponseDtoList = chatMessageService.findAllByChatRoomId(chatRoomId);
-        simpMessagingTemplate.convertAndSend("/topic/chatroom/" + chatRoomId, chatRoomId);
-        return ResponseEntity.ok(chatMessageResponseDtoList);
-    }
 }
 
