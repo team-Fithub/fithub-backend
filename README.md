@@ -1,8 +1,11 @@
+![portone (1)](https://github.com/team-Fithub/fithub-backend/assets/68698007/fd02e67c-3912-44f2-825e-fa1065c751d8)# fithub-backend
+사이드프로젝트-핏헙 백엔드
+
 <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/171d1320-a023-413e-a833-6ca9ed57b97c" style="display: block; margin: 0 auto; height: 100px; width: 100px;" />
 
 # 핏헙 (fithub)
 - 사람들간의 운동 관련 대화를 나누고 질문할 수 있는 커뮤니티
-- 나에게 맞는 트레이닝을 예약해 원하는 트레이닝을 손쉽게 체험
+- 나에게 맞는 트레이닝을 예약(결제)해 원하는 트레이닝을 손쉽게 체험
 - 사용자 위치 주변에 있는 트레이닝, 트레이너 검색
 
 - 트레이너 인증 시, 트레이닝 생성과 예약 관리
@@ -17,10 +20,22 @@
 ### 핏헙 - 프론트
 https://github.com/team-Fithub/fithub-front
 
-# fithub-backend
-사이드프로젝트-핏헙 백엔드
+## 💻기술 스택
+<div> 
+  <img src="https://img.shields.io/badge/spring%20Boot-6DB33F?style=for-the-badge&logo=springBoot&logoColor=white"/>
+  <br>
+  <img src="https://img.shields.io/badge/Amazon%20EC2-FF9900?style=for-the-badge&logo=AmazonEC2&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=Redis&logoColor=white"/>
+  <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=MariaDB&logoColor=white"/>
+  <br>
+  포트원, 웹소켓(STOMP), Hibernate-spatial
+  <br>
+  스웨거, 노션, 피그마
+
+</div>
 
 
+### 
 ## 주요 기능
 ### 사용자
 > - 조회    
@@ -29,15 +44,17 @@ https://github.com/team-Fithub/fithub-front
 
 ### 회원
 > - 게시글, 댓글 북마크, 좋아요
-> - 트레이닝 예약, 리뷰
+> - 트레이닝 예약(결제), 리뷰
 > - 관심사,위치 기반 트레이너 추천
 > - 1:1 채팅
-> - 트레이너 인증 요철
+> - 트레이너 인증 요청
 
 ### 트레이너
 > - 트레이닝 설정
 > - 트레이닝 예약 관리
 
+## 관리자
+> - 트레이너 인증 요청 조회 및 승인/반려
 
 ## 문제 해결
 ### 트레이닝 예약 동시성
