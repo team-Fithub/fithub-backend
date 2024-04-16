@@ -74,6 +74,7 @@ public class UserController {
     @Operation(summary = "회원 탈퇴", responses = {
             @ApiResponse(responseCode = "200", description = "탈퇴 성공"),
             @ApiResponse(responseCode = "400", description = "예약 또는 진행 중인 트레이닝이 존재해 탈퇴 작업 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class))),
+            @ApiResponse(responseCode = "409", description = "모집 중인 트레이닝이 존재해 탈퇴 작업 불가능", content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     }, parameters = {
             @Parameter(name="CloseAccountReasonDto", description = "탈퇴 사유 dto. reason 이 other(기타)가 아니라면 customReason 를 안 보내거나 null 로 보내주기.")
     })

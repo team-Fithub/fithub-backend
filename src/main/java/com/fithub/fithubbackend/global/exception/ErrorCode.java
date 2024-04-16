@@ -36,7 +36,8 @@ public enum ErrorCode {
     PERMISSION_DENIED(HttpStatus.FORBIDDEN, "해당 작업을 수행할 권한이 없습니다."),
 
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
-    POINT_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "좌표 변환 중 에러가 발생했습니다. 좌표를 다시 설정해주세요");
+    POINT_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "좌표 변환 중 에러가 발생했습니다. 좌표를 다시 설정해주세요"),
+    CONFLICT_TRAINING(HttpStatus.CONFLICT, "모집 중인 트레이닝이 존재해 트레이너 탈퇴 작업이 불가능합니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }

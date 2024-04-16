@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.user.application;
 import com.fithub.fithubbackend.domain.Training.enums.ReserveStatus;
 import com.fithub.fithubbackend.domain.Training.repository.ReserveInfoRepository;
 import com.fithub.fithubbackend.domain.Training.repository.TrainingLikesRepository;
+import com.fithub.fithubbackend.domain.Training.repository.TrainingRepository;
 import com.fithub.fithubbackend.domain.board.repository.BookmarkRepository;
 import com.fithub.fithubbackend.domain.board.repository.LikesRepository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
@@ -30,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import java.util.List;
@@ -40,6 +42,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final TrainerRepository trainerRepository;
+    private final TrainingRepository trainingRepository;
     private final DocumentRepository documentRepository;
     private final UserInterestRepository userInterestRepository;
     private final ReserveInfoRepository reserveInfoRepository;
@@ -140,9 +143,21 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void closeAccount(User user, CloseAccountReasonDto reason) {
 
-        if (!reserveInfoRepository.existsByUserAndStatusNotIn(user,
-                List.of(ReserveStatus.BEFORE, ReserveStatus.START)))
-            throw new CustomException(ErrorCode.BAD_REQUEST, "예약 또는 진행 중인 트레이닝이 존재해 탈퇴 작업이 불가능합니다.");
+        if (user.getRoles().contains("ROLE_TRAINER")) {
+            Trainer trainer = trainerRepository.findByUserId(user.getId()).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+            if (trainingRepository.existsByTrainerIdAndEndDateAfter(trainer.getId(), LocalDate.now()))
+                throw new CustomException(ErrorCode.CONFLICT_TRAINING);
+
+            if (!reserveInfoRepository.existsByTrainerAndStatusNotIn(trainer,
+                    List.of(ReserveStatus.BEFORE, ReserveStatus.START)))
+                throw new CustomException(ErrorCode.BAD_REQUEST, "예약 또는 진행 중인 트레이닝이 존재해 트레이너 탈퇴 작업이 불가능합니다.");
+
+            trainer.clearUpTrainer(user.getProfileImg().getUrl());
+        } else
+            if (!reserveInfoRepository.existsByUserAndStatusNotIn(user,
+                    List.of(ReserveStatus.BEFORE, ReserveStatus.START)))
+                throw new CustomException(ErrorCode.BAD_REQUEST, "예약 또는 진행 중인 트레이닝이 존재해 회원 탈퇴 작업이 불가능합니다.");
 
         addClosureReason(reason);
         cleanUpUser(user);
