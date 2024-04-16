@@ -9,6 +9,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    List<ChatMessage> findAllByChatRoomOrderByCreatedDateDesc(ChatRoom chatRoom);
+    List<ChatMessage> findAllByChatRoomOrderByCreatedDate(ChatRoom chatRoom);
 
 }
