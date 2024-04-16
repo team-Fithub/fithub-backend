@@ -84,7 +84,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    public boolean hasChatRoom(Long userId, Long receiverId) {
+    public Long hasChatRoom(Long userId, Long receiverId) {
        List<Long> roomIdsOfUser = chatRepository.findChatsById(userId)
                .stream()
                .map(Chat::getChatRoomId)
@@ -97,7 +97,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         roomIdsOfUser.retainAll(roomIdsOfReceiver);
 
-        return !roomIdsOfUser.isEmpty();
+        return roomIdsOfUser.isEmpty() ? null : roomIdsOfUser.get(0);
     }
 
     @Override
