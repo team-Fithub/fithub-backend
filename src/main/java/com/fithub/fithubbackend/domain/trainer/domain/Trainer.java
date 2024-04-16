@@ -81,4 +81,12 @@ public class Trainer extends BaseTimeEntity {
     public void grantPermission() {
         this.user.getRoles().add("ROLE_TRAINER");
     }
+
+    public void clearUpTrainer(String profileUrl) {
+        this.name = "탈퇴 회원";
+        this.email = "";
+        this.point = null;
+        this.profileUrl = profileUrl;
+        this.address = null;
+    }
 }
