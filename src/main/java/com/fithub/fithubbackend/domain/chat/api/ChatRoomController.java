@@ -41,10 +41,9 @@ public class ChatRoomController {
             @Parameter(name = "receiverId", description = "수신자 아이디"),
     })
     @PostMapping("/create")
-    public ResponseEntity<Void> createChat(@AuthUser User user, @RequestParam("receiverId") Long receiverId) {
+    public ResponseEntity<Long> createChat(@AuthUser User user, @RequestParam("receiverId") Long receiverId) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        chatRoomService.save(user, receiverId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(chatRoomService.save(user, receiverId));
     }
 
     @Operation(summary = "기존 채팅방 존재 유무 확인", responses = {
