@@ -42,8 +42,8 @@ public class ChatMessageServiceImpl implements ChatMessageService{
         Long roomId = message.getChatRoom().getRoomId();
         List<User> users = chatRepository.findUsersByRoomId(roomId);
         users.remove(sender);
-        Long receiverId = users.get(0).getId();
-        simpMessagingTemplate.convertAndSend("/topic/alarm/" + receiverId, "새로운 채팅!");
+        String receiverEmail = users.get(0).getEmail();
+        simpMessagingTemplate.convertAndSend("/topic/alarm/" + receiverEmail, "새로운 채팅!");
 
         return message.getMessageId();
     }

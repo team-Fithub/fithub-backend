@@ -18,5 +18,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
     boolean existsByUserAndPostId(User user, Long postId);
     @Query("select b.post from Bookmark b where b.user = :user")
     Page<Post> findPostsByUser(@Param("user") User user, Pageable pageable);
+    void deleteByUser(User user);
 
 }

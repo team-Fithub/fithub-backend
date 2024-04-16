@@ -10,4 +10,5 @@ public interface UserInterestRepository extends JpaRepository<UserInterest, Long
     List<UserInterest> findByUser(User user);
 
     List<UserInterest> findByUserId(Long userId);
+    void deleteByUser(User user);
 }
