@@ -28,15 +28,6 @@ public class ChatMessageServiceImpl implements ChatMessageService{
     private final ChatRepository chatRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-
-    @Transactional
-    @Override
-    public ChatMessageResponseDto findById(Long chatMessageId) {
-        ChatMessage chatMessageEntity = this.chatMessageRepository.findById(chatMessageId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND, "채팅 메세지가 존재하지 않음"));
-        return new ChatMessageResponseDto(chatMessageEntity);
-    }
-
     @Transactional
     @Override
     public Long save(ChatMessageRequestDto requestDto, User sender) {
@@ -67,16 +58,18 @@ public class ChatMessageServiceImpl implements ChatMessageService{
 
     @Transactional
     @Override
-    public List<ChatMessageResponseDto> findAllByChatRoomId(Long chatRoomId) {
+    public List<ChatMessageResponseDto> findAllByChatRoomId(Long chatRoomId, Long userId) {
         ChatRoom chatRoomEntity = this.chatRoomRepository.findById(chatRoomId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND, "채팅방이 존재하지 않음"));
-        List<ChatMessage> chatMessageList = this.chatMessageRepository.findAllByChatRoomOrderByCreatedDateDesc(chatRoomEntity);
+        List<ChatMessage> chatMessageList = this.chatMessageRepository.findAllByChatRoomOrderByCreatedDate(chatRoomEntity);
 
         for (ChatMessage chatMessage : chatMessageList) {
             chatMessage.updateChecked(true);
             chatMessageRepository.save(chatMessage);
         }
 
-        return  chatMessageList.stream().map(ChatMessageResponseDto::new).collect(Collectors.toList());
+        return chatMessageList.stream()
+                .map(entity -> new ChatMessageResponseDto(entity, userId))
+                .collect(Collectors.toList());
     }
 }

@@ -1,7 +1,6 @@
 package com.fithub.fithubbackend.domain.chat.api;
 
 import com.fithub.fithubbackend.domain.chat.application.ChatMessageService;
-import com.fithub.fithubbackend.domain.chat.application.ChatRoomService;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageRequestDto;
 import com.fithub.fithubbackend.domain.chat.dto.ChatMessageResponseDto;
 import com.fithub.fithubbackend.domain.user.domain.User;
@@ -48,7 +47,7 @@ public class ChatMessageController {
     @GetMapping("/chatroom/message")
     public ResponseEntity<List<ChatMessageResponseDto>> getChatList(@AuthUser User user, @RequestParam("chatRoomId") Long chatRoomId) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        List<ChatMessageResponseDto> chatMessageResponseDtoList = chatMessageService.findAllByChatRoomId(chatRoomId);
+        List<ChatMessageResponseDto> chatMessageResponseDtoList = chatMessageService.findAllByChatRoomId(chatRoomId, user.getId());
         return ResponseEntity.ok(chatMessageResponseDtoList);
     }
 }

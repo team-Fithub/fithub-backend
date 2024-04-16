@@ -7,12 +7,11 @@ import com.fithub.fithubbackend.domain.user.domain.User;
 import java.util.List;
 
 public interface ChatMessageService {
-    ChatMessageResponseDto findById(final Long chatMessageId);
 
     Long save(final ChatMessageRequestDto requestDto, final User user);
 
     void delete(final Long chatMessageId);
 
-    List<ChatMessageResponseDto> findAllByChatRoomId(final Long chatRoomId);
+    List<ChatMessageResponseDto> findAllByChatRoomId(final Long chatRoomId, final Long userId);
 
 }
