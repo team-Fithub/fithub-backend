@@ -37,6 +37,6 @@ public class PostUpdateDto {
     private List<MultipartFile> newImages;
 
     @Schema(description = "삭제 되지 않는 게시글 이미지 aws s3의 url")
-    private List<String> existingImages;
+    private List<String> existingImages = new ArrayList<>();
 
 }
