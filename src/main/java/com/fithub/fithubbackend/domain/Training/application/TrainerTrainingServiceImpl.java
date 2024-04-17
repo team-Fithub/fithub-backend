@@ -146,8 +146,13 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         permissionValidate(training.getTrainer(), email);
 
         training.updateTraining(dto);
-        if (dto.getTrainingImgUpdateDto() != null) {
-            deleteOrAddImage(dto.getTrainingImgUpdateDto(), training);
+        if (dto.isImgAdded() || dto.isImgDeleted()) {
+            TrainingImgUpdateDto imgUpdateDto = TrainingImgUpdateDto.builder()
+                    .imgAdded(dto.isImgAdded())
+                    .newImgList(dto.getNewImgList())
+                    .imgDeleted(dto.isImgDeleted())
+                    .unModifiedImgList(dto.getUnModifiedImgList()).build();
+            deleteOrAddImage(imgUpdateDto, training);
         }
 
         if (dto.getTrainingCategoryUpdateDto() != null)
@@ -236,10 +241,10 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     }
 
     private void deleteOrAddImage(TrainingImgUpdateDto dto, Training training) {
-        if (dto.isImgDeleted() && !dto.getUnModifiedImgList().isEmpty()) {
+        if (dto.isImgDeleted() && dto.getUnModifiedImgList() != null) {
             deleteOriginalImage(dto.getUnModifiedImgList(), training);
         }
-        if (dto.isImgAdded() && !dto.getNewImgList().isEmpty()) {
+        if (dto.isImgAdded() && dto.getNewImgList() != null) {
             saveTrainingImages(dto.getNewImgList(), training);
         }
     }

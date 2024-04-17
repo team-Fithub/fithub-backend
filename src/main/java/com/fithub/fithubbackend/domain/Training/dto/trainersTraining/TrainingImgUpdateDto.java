@@ -1,14 +1,15 @@
 package com.fithub.fithubbackend.domain.Training.dto.trainersTraining;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Schema(description = "트레이닝 내용 수정 - 이미지 수정에 사용")
 public class TrainingImgUpdateDto {
 
