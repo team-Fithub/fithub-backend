@@ -21,6 +21,9 @@ public class ParentCommentInfoDto {
     @Schema(description = "댓글 작성자의 닉네임")
     private String writerNickName;
 
+    @Schema(description = "댓글 작성자의 이메일")
+    private String writerEmail;
+    
     @Schema(description = "댓글 내용")
     private String content;
 
@@ -39,12 +42,13 @@ public class ParentCommentInfoDto {
     private Boolean hasChildComment;
 
     @Builder
-    public ParentCommentInfoDto(Long commentId, Long writerId, String writerNickName, String content,
+    public ParentCommentInfoDto(Long commentId, Long writerId, String writerNickName, String writerEmail, String content,
                                 String writerProfileUrl, LocalDateTime createdDate,
                                 LocalDateTime modifiedDate, Boolean hasChildComment) {
         this.commentId = commentId;
         this.writerId = writerId;
         this.writerNickName = writerNickName;
+        this.writerEmail = writerEmail;
         this.content = content;
         this.writerProfileUrl = writerProfileUrl;
         this.createdDate = createdDate;
@@ -58,6 +62,7 @@ public class ParentCommentInfoDto {
                 .commentId(comment.getId())
                 .writerId(comment.getUser().getId())
                 .writerNickName(comment.getUser().getNickname())
+                .writerEmail(comment.getUser().getEmail())
                 .content(comment.getContent())
                 .writerProfileUrl(comment.getUser().getProfileImg().getUrl())
                 .createdDate(comment.getCreatedDate())
