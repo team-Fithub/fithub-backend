@@ -35,6 +35,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -113,23 +115,26 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateInterest(InterestUpdateDto interestUpdateDto, User user) {
-        if (interestUpdateDto.isInterestsDeleted()) {
-            List<UserInterest> originalInterests = userInterestRepository.findByUser(user);
-            originalInterests.forEach(originalInterest -> {
-                if (!interestUpdateDto.getUnModifiedInterests().contains(originalInterest.getInterest())) {
-                    userInterestRepository.delete(originalInterest);
-                }
-            });
-        }
+    public void updateInterest(InterestUpdateDto dto, User user) {
 
-        if (interestUpdateDto.isInterestsAdded()) {
-            interestUpdateDto.getAddedInterests().forEach(interest -> {
-                UserInterest userInterest = UserInterest.builder()
-                        .interest(interest)
-                        .user(user).build();
-                userInterestRepository.save(userInterest);
-            });
+        if (dto.isInterestsUpdated()) {
+            List<Category> originalInterests = userInterestRepository.findByUser(user).stream().map(UserInterest::getInterest).toList();
+            List<Category> deletedInterests = originalInterests.stream().filter(interest ->
+                    dto.getInterests().stream().noneMatch(Predicate.isEqual(interest))).collect(Collectors.toList());
+            List<Category> addedInterests = dto.getInterests().stream().filter(interest ->
+                    originalInterests.stream().noneMatch(Predicate.isEqual(interest))).collect(Collectors.toList());
+
+            if (!deletedInterests.isEmpty())
+                userInterestRepository.deleteAllByUserAndInterests(user, deletedInterests);
+
+            if(!addedInterests.isEmpty()) {
+                addedInterests.stream().forEach(interest -> {
+                    UserInterest userInterest = UserInterest.builder()
+                            .interest(interest)
+                            .user(user).build();
+                    userInterestRepository.save(userInterest);
+                });
+            }
         }
     }
 
