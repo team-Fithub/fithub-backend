@@ -18,5 +18,5 @@ public interface ChatRoomService {
 
     Long hasChatRoom(final Long userId, final Long receiverId);
 
-    Boolean isReceiverLeft(Long userId, Long roomId);
+    Boolean isReceiverExists(Long userId, Long roomId);
 }

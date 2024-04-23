@@ -113,9 +113,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     @Override
-    public Boolean isReceiverLeft(Long userId, Long roomId) {
+    public Boolean isReceiverExists(Long userId, Long roomId) {
         Chat receiverChat = chatRepository.findByChatPK_ChatRoomRoomIdAndChatPK_UserIdNot(roomId, userId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND, "해당 채팅방의 다른 사용자를 찾을 수 없습니다."));
-        return receiverChat.isDeleted();
+        return !receiverChat.isDeleted();
     }
 }
