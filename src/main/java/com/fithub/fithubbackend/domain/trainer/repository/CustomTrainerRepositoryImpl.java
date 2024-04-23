@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.domain.trainer.repository;
 import com.fithub.fithubbackend.domain.trainer.domain.Trainer;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerSearchFilterDto;
 import com.fithub.fithubbackend.domain.user.enums.Gender;
+import com.fithub.fithubbackend.domain.user.enums.Status;
 import com.fithub.fithubbackend.global.common.Category;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.Order;
@@ -34,7 +35,7 @@ public class CustomTrainerRepositoryImpl implements CustomTrainerRepository {
     @Transactional(readOnly = true)
     public Page<Trainer> searchTrainers(TrainerSearchFilterDto filter, Pageable pageable) {
         QueryResults<Trainer> trainers = jpaQueryFactory.selectFrom(trainer)
-                .where(interestEq(filter.getInterest()), genderEq((Gender) filter.getGender()), keywordContains((String) filter.getKeyword()))
+                .where(interestEq(filter.getInterest()), genderEq(filter.getGender()), keywordContains(filter.getKeyword()), user.status.ne(Status.DELETE))
                 .join(trainer.user, user).fetchJoin()
                 .orderBy(getOrderSpecifier(pageable).toArray(OrderSpecifier[]::new))
                 .offset(pageable.getOffset())

@@ -4,9 +4,9 @@ import com.fithub.fithubbackend.domain.Training.dto.Location;
 import com.fithub.fithubbackend.domain.Training.enums.Direction;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerRecommendationDto;
 import com.fithub.fithubbackend.domain.trainer.dto.TrainerRecommendationOutlineDto;
-import com.fithub.fithubbackend.domain.trainer.repository.TrainerRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.domain.UserInterest;
+import com.fithub.fithubbackend.domain.user.enums.Status;
 import com.fithub.fithubbackend.domain.user.repository.UserInterestRepository;
 import com.fithub.fithubbackend.global.common.Category;
 import com.fithub.fithubbackend.global.util.GeometryUtil;
@@ -80,7 +80,8 @@ public class UserTrainerServiceImpl implements UserTrainerService {
                         "GROUP by trainer.id HAVING rating >= 4.0 " +
                         ") AS avg_tr ON t.id = avg_tr.id " +
                         "WHERE u.id IN ( SELECT ui.user_id FROM user_interest ui WHERE ui.interest = '"+ interest + "') " +
-                        "AND MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + "), t.point)" +
+                        "AND MBRContains(ST_LINESTRINGFROMTEXT(" + pointFormat + "), t.point) " +
+                        "AND u.status != '" + Status.DELETE + "' " +
                         "ORDER BY avg_tr.review_count DESC LIMIT " + size
         );
 
