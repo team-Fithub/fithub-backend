@@ -57,4 +57,10 @@ public class ChatRoomController {
         return ResponseEntity.ok(chatRoomService.hasChatRoom(user.getId(), receiverId));
     }
 
+    @DeleteMapping
+    public ResponseEntity<String> deleteUserChatRoom(@AuthUser User user, @RequestParam Long roomId) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        chatRoomService.deleteChatRoom(user.getId(), roomId);
+        return ResponseEntity.ok().body("완료");
+    }
 }

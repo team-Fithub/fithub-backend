@@ -26,15 +26,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Transactional
     @Override
-    public ChatRoomResponseDto findById(final Long id) {
-        return null;
-    }
-
-    @Transactional
-    @Override
     public List<ChatRoomResponseDto> findChatRoomDesc(User user) {
         // Chat 테이블: 현재 유저의 채팅방 id와 채팅방 이름 가져옴
-        List<Chat> chatList = this.chatRepository.findByChatPK_UserId(user.getId());
+        List<Chat> chatList = this.chatRepository.findByChatPK_UserIdAndDeletedFalse(user.getId());
 
         List<ChatRoomResponseDto> dtoList = chatList.stream()
                 .map(ChatRoomResponseDto::new)
@@ -78,19 +72,37 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Transactional
     @Override
     public void deleteChatRoom(Long userId, Long roomId) {
-        ChatRoom chatRoom = this.chatRoomRepository.findById(roomId).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND, "채팅룸이 존재하지 않음"));
-        List<Chat> chatList = chatRepository.findByChatPK_ChatRoom(chatRoom);
+        List<Chat> chatList = chatRepository.findByChatPK_ChatRoomRoomId(roomId);
+
+        boolean needToAllDelete = chatList.stream().anyMatch(Chat::isDeleted);
+        if (needToAllDelete) {
+            deleteAllAssociatedChat(chatList);
+        } else {
+            deleteOnlyUsersChat(chatList, userId);
+        }
+    }
+
+    private void deleteAllAssociatedChat(List<Chat> chatList) {
+        chatRepository.deleteAll(chatList);
+        chatRoomRepository.delete(chatList.get(0).getChatPK().getChatRoom());
+    }
+
+    private void deleteOnlyUsersChat(List<Chat> chatList, Long userId) {
+        Chat userChat = chatList.stream()
+                .filter(chat -> chat.getChatPK().getUser().getId().equals(userId))
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "사용자의 채팅이 존재하지 않음"));
+        userChat.deleteChat();
     }
 
     @Override
     public Long hasChatRoom(Long userId, Long receiverId) {
-       List<Long> roomIdsOfUser = chatRepository.findByChatPK_UserId(userId)
+       List<Long> roomIdsOfUser = chatRepository.findByChatPK_UserIdAndDeletedFalse(userId)
                .stream()
                .map(Chat::getChatRoomId)
                .collect(Collectors.toList());
 
-        List<Long> roomIdsOfReceiver = chatRepository.findByChatPK_UserId(receiverId)
+        List<Long> roomIdsOfReceiver = chatRepository.findByChatPK_UserIdAndDeletedFalse(receiverId)
                 .stream()
                 .map(Chat::getChatRoomId)
                 .collect(Collectors.toList());
@@ -98,10 +110,5 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         roomIdsOfUser.retainAll(roomIdsOfReceiver);
 
         return roomIdsOfUser.isEmpty() ? null : roomIdsOfUser.get(0);
-    }
-
-    @Override
-    public long findRoomIdByUserId(long userId) {
-        return this.chatRepository.findChatByChatPK_UserId(userId).getChatPK().getChatRoom().getRoomId();
     }
 }
