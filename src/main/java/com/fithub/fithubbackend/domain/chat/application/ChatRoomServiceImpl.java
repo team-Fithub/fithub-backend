@@ -34,7 +34,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     @Override
     public List<ChatRoomResponseDto> findChatRoomDesc(User user) {
         // Chat 테이블: 현재 유저의 채팅방 id와 채팅방 이름 가져옴
-        List<Chat> chatList = this.chatRepository.findChatsById(user.getId());
+        List<Chat> chatList = this.chatRepository.findByChatPK_UserId(user.getId());
 
         List<ChatRoomResponseDto> dtoList = chatList.stream()
                 .map(ChatRoomResponseDto::new)
@@ -77,20 +77,20 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     @Transactional
     @Override
-    public void delete(Long id) {
-        ChatRoom entity = this.chatRoomRepository.findById(id).orElseThrow(
+    public void deleteChatRoom(Long userId, Long roomId) {
+        ChatRoom chatRoom = this.chatRoomRepository.findById(roomId).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND, "채팅룸이 존재하지 않음"));
-        this.chatRoomRepository.delete(entity);
+        List<Chat> chatList = chatRepository.findByChatPK_ChatRoom(chatRoom);
     }
 
     @Override
     public Long hasChatRoom(Long userId, Long receiverId) {
-       List<Long> roomIdsOfUser = chatRepository.findChatsById(userId)
+       List<Long> roomIdsOfUser = chatRepository.findByChatPK_UserId(userId)
                .stream()
                .map(Chat::getChatRoomId)
                .collect(Collectors.toList());
 
-        List<Long> roomIdsOfReceiver = chatRepository.findChatsById(receiverId)
+        List<Long> roomIdsOfReceiver = chatRepository.findByChatPK_UserId(receiverId)
                 .stream()
                 .map(Chat::getChatRoomId)
                 .collect(Collectors.toList());
