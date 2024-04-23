@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
     List<Chat> findByChatPK_UserIdAndDeletedFalse(Long userId);
@@ -15,5 +16,7 @@ public interface ChatRepository extends JpaRepository<Chat, Long> {
     List<User> findUsersByRoomId(@Param("roomId") Long roomId);
 
     List<Chat> findByChatPK_ChatRoomRoomId(Long roomId);
+
+    Optional<Chat> findByChatPK_ChatRoomRoomIdAndChatPK_UserIdNot(Long roomId, Long userId);
 
 }

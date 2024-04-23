@@ -17,4 +17,6 @@ public interface ChatRoomService {
     void deleteChatRoom(Long userId, Long roomId);
 
     Long hasChatRoom(final Long userId, final Long receiverId);
+
+    Boolean isReceiverLeft(Long userId, Long roomId);
 }

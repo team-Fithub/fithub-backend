@@ -57,6 +57,13 @@ public class ChatRoomController {
         return ResponseEntity.ok(chatRoomService.hasChatRoom(user.getId(), receiverId));
     }
 
+
+    @GetMapping("/check/receiver/left")
+    public ResponseEntity<Boolean> isReceiverLeft(@AuthUser User user, @RequestParam Long roomId) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(chatRoomService.isReceiverLeft(user.getId(), roomId));
+    }
+
     @DeleteMapping
     public ResponseEntity<String> deleteUserChatRoom(@AuthUser User user, @RequestParam Long roomId) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
