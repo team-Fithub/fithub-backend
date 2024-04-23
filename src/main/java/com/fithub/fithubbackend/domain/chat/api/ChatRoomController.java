@@ -57,4 +57,26 @@ public class ChatRoomController {
         return ResponseEntity.ok(chatRoomService.hasChatRoom(user.getId(), receiverId));
     }
 
+    @Operation(summary = "채팅방 목록 -> 채팅방 클릭 시, 상대방이 나갔는지 확인", responses = {
+            @ApiResponse(responseCode = "200", description = "확인 성공, true면 상대방이 있는 것(채팅 가능)"),
+    }, parameters = {
+            @Parameter(name = "roomId", description = "채팅방 id"),
+    })
+    @GetMapping("/check/receiver/exist")
+    public ResponseEntity<Boolean> isReceiverExists(@AuthUser User user, @RequestParam Long roomId) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        return ResponseEntity.ok(chatRoomService.isReceiverExists(user.getId(), roomId));
+    }
+
+    @Operation(summary = "채팅방 삭제(나가기)", responses = {
+            @ApiResponse(responseCode = "200", description = "삭제 또는 수정 성공"),
+    }, parameters = {
+            @Parameter(name = "roomId", description = "채팅방 id"),
+    })
+    @DeleteMapping
+    public ResponseEntity<String> deleteUserChatRoom(@AuthUser User user, @RequestParam Long roomId) {
+        if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
+        chatRoomService.deleteChatRoom(user.getId(), roomId);
+        return ResponseEntity.ok().body("완료");
+    }
 }
