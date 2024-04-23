@@ -7,6 +7,8 @@ import com.fithub.fithubbackend.domain.board.repository.LikesRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.notify.NotificationType;
+import com.fithub.fithubbackend.global.notify.dto.NotifyRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +24,6 @@ public class UserPostLikesServiceImpl implements UserPostLikesService {
     private final LikesRepository likesRepository;
     private final PostService postService;
 
-    // TODO 게시글 좋아요 시, 게시글 작성자에게 알림 전송
     @Override
     @Transactional
     public void addLikes(User user, long postId) {
@@ -33,6 +34,18 @@ public class UserPostLikesServiceImpl implements UserPostLikesService {
             throw new CustomException(ErrorCode.DUPLICATE, "이미 좋아요한 게시글입니다.");
 
         post.addLikes(new Likes(user, post));
+
+        if (user != post.getUser())
+            createLikesNotifyRequest(post, user);
+    }
+
+    private NotifyRequestDto createLikesNotifyRequest(Post post, User user) {
+        return NotifyRequestDto.builder()
+                .receiver(post.getUser())
+                .content(user.getNickname() + "님이 회원님의 게시글을 좋아합니다.")
+                .urlId(post.getId())
+                .type(NotificationType.LIKE_POST)
+                .build();
     }
 
     @Override
