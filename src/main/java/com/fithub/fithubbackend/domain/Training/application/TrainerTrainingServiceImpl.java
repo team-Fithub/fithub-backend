@@ -15,8 +15,11 @@ import com.fithub.fithubbackend.global.config.s3.AwsS3Uploader;
 import com.fithub.fithubbackend.global.domain.Document;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.notify.NotificationType;
+import com.fithub.fithubbackend.global.notify.dto.NotifyRequestDto;
 import com.fithub.fithubbackend.global.util.FileUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,8 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     private final TrainingCategoryRepository trainingCategoryRepository;
 
     private final AwsS3Uploader awsS3Uploader;
+
+    private final ApplicationEventPublisher eventPublisher;
 
     private final String imagePath =  "training";
 
@@ -378,7 +383,6 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
 
     @Override
     @Transactional
-    // TODO: 노쇼 처리 시, 리뷰 비공개 처리 시 예약 회원에게 알림
     public void updateReservationStatusNoShow(String email, Long reservationId) {
         ReserveInfo reserveInfo = reserveInfoRepository.findById(reservationId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약은 존재하지 않습니다."));
 
@@ -388,8 +392,17 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
         reserveInfo.updateStatus(ReserveStatus.NOSHOW);
 
         lockReviewIfPresent(reserveInfo.getId());
+        eventPublisher.publishEvent(createNoShowNotifyRequest(reserveInfo.getUser()));
     }
 
+    private NotifyRequestDto createNoShowNotifyRequest(User receiver) {
+        return NotifyRequestDto.builder()
+                .receiver(receiver)
+                .content("트레이닝에 리뷰가 달렸습니다.")
+                .urlId(null)
+                .type(NotificationType.NEW_REVIEW)
+                .build();
+    }
     private void isReserveInfoStatusComplete(ReserveInfo reserveInfo) {
         if (!reserveInfo.getStatus().equals(ReserveStatus.COMPLETE)) {
             throw new CustomException(ErrorCode.BAD_REQUEST, "해당 예약은 진행 전 / 진행 중 / 취소 상태이므로 노쇼 처리할 수 없습니다. 완료 처리된 예약만 노쇼 처리가 가능합니다.");
