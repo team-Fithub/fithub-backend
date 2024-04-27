@@ -400,7 +400,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
                 .receiver(receiver)
                 .content("수업이 진행된 트레이닝이 노쇼 처리되었습니다.")
                 .urlId(null)
-                .type(NotificationType.NEW_REVIEW)
+                .type(NotificationType.NOSHOW)
                 .build();
     }
     private void isReserveInfoStatusComplete(ReserveInfo reserveInfo) {
