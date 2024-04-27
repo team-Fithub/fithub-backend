@@ -120,7 +120,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .receiver(training.getTrainer().getUser())
                 .content("새로운 예약이 생겼습니다.")
                 .urlId(null)
-                .type(NotificationType.NEW_RESERVATION)
+                .type(NotificationType.RESERVATION)
                 .build();
     }
 
@@ -205,7 +205,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .receiver(training.getTrainer().getUser())
                 .content("트레이닝 예약 취소가 있습니다.")
                 .urlId(null)
-                .type(NotificationType.CANCEL_RESERVATION)
+                .type(NotificationType.RESERVATION)
                 .build();
     }
 }

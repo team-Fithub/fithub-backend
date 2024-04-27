@@ -104,7 +104,7 @@ public class UserTrainingReservationServiceImpl implements UserTrainingReservati
                 .receiver(reserveInfo.getTraining().getTrainer().getUser())
                 .content("트레이닝에 리뷰가 달렸습니다.")
                 .urlId(reserveInfo.getTraining().getId())
-                .type(NotificationType.NEW_REVIEW)
+                .type(NotificationType.REVIEW)
                 .build();
     }
 
