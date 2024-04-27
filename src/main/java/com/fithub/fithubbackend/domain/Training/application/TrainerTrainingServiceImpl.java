@@ -398,7 +398,7 @@ public class TrainerTrainingServiceImpl implements TrainerTrainingService {
     private NotifyRequestDto createNoShowNotifyRequest(User receiver) {
         return NotifyRequestDto.builder()
                 .receiver(receiver)
-                .content("트레이닝에 리뷰가 달렸습니다.")
+                .content("수업이 진행된 트레이닝이 노쇼 처리되었습니다.")
                 .urlId(null)
                 .type(NotificationType.NEW_REVIEW)
                 .build();
