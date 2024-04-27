@@ -27,8 +27,8 @@ public class NotifyRequestDto {
         String url = switch (type) {
             case COMMENT, LIKE_POST -> "/posts/" + urlId;
             case NEW_RESERVATION, CANCEL_RESERVATION -> "/trainers/training/reservations/all";
-            case NEW_REVIEW -> "/training?" + urlId;
-            case NOSHOW -> "/users/training/reservation?" + urlId;
+            case NEW_REVIEW -> "/detail/" + urlId;
+            case NOSHOW -> "/user/cancellations";
             default -> null;
         };
 
