@@ -10,6 +10,7 @@ import com.fithub.fithubbackend.global.exception.ErrorCode;
 import com.fithub.fithubbackend.global.notify.NotificationType;
 import com.fithub.fithubbackend.global.notify.dto.NotifyRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class UserPostLikesServiceImpl implements UserPostLikesService {
 
     private final LikesRepository likesRepository;
     private final PostService postService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -36,7 +38,8 @@ public class UserPostLikesServiceImpl implements UserPostLikesService {
         post.addLikes(new Likes(user, post));
 
         if (user != post.getUser())
-            createLikesNotifyRequest(post, user);
+            eventPublisher.publishEvent(createLikesNotifyRequest(post, user));
+
     }
 
     private NotifyRequestDto createLikesNotifyRequest(Post post, User user) {
