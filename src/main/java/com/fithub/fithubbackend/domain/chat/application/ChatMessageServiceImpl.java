@@ -30,7 +30,7 @@ public class ChatMessageServiceImpl implements ChatMessageService{
 
     @Transactional
     @Override
-    public Long save(ChatMessageRequestDto requestDto, User sender) {
+    public ChatMessageResponseDto save(ChatMessageRequestDto requestDto, User sender) {
         ChatMessage message = ChatMessage.builder()
                     .chatRoom(chatRoomRepository.findByRoomId(requestDto.getRoomId()))
                     .message(requestDto.getMessage())
@@ -45,7 +45,7 @@ public class ChatMessageServiceImpl implements ChatMessageService{
         String receiverEmail = users.get(0).getEmail();
         simpMessagingTemplate.convertAndSend("/topic/alarm/" + receiverEmail, "새로운 채팅!");
 
-        return message.getMessageId();
+        return new ChatMessageResponseDto(message, sender.getId());
     }
 
     @Transactional

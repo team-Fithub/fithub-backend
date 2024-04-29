@@ -37,8 +37,10 @@ public class ChatMessageController {
     public void sendMessage(@Header("Authorization") String accessToken, ChatMessageRequestDto messageRequestDto) {
         Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
         UserAdapter userAdapter = (UserAdapter) authentication.getPrincipal();
-        chatMessageService.save(messageRequestDto, userAdapter.getUser());
-        simpMessagingTemplate.convertAndSend("/topic/chatroom/" + messageRequestDto.getRoomId(), messageRequestDto.getMessage());
+        ChatMessageResponseDto responseDto = chatMessageService.save(messageRequestDto, userAdapter.getUser());
+
+        // messageRequestDto가 아닌 다른 값으로 응답해야함...
+        simpMessagingTemplate.convertAndSend("/topic/chatroom/" + messageRequestDto.getRoomId(), responseDto);
     }
 
     @Operation(summary = "채팅 메세지 조회", responses = {
