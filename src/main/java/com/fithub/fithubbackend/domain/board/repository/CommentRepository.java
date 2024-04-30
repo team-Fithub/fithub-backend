@@ -17,9 +17,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Long countByPostAndDeletedIsNull(Post post);
 
-    Page<Comment> findByPostIdAndParentIsNull(Pageable pageable, long postId);
+    Long countByPostIdAndDeletedIsNull(long postId);
 
-    List<Comment> findByParent(Comment comment);
+    Page<Comment> findByPostIdAndParentIsNull(Pageable pageable, long postId);
 
     @Query(value = "SELECT distinct c.post " +
             "FROM Comment c " +
