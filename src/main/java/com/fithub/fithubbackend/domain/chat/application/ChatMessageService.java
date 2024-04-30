@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ChatMessageService {
 
-    Long save(final ChatMessageRequestDto requestDto, final User user);
+    ChatMessageResponseDto save(final ChatMessageRequestDto requestDto, final User user);
 
     void delete(final Long chatMessageId);
 
