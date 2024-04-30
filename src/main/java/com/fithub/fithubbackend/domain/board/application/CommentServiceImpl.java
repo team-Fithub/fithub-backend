@@ -28,6 +28,12 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
+    public long countCommentByPostId(long postId) {
+        return commentRepository.countByPostIdAndDeletedIsNull(postId);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Page<ParentCommentInfoDto> getCommentsWithPage(Pageable pageable,
                                                           long postId) {

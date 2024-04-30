@@ -50,7 +50,7 @@ public class PostInfoDto {
     @Builder
     public PostInfoDto(Long postId, String content, Integer views, PostWriterInfoDto writerInfo,
                        List<String> documentUrls, List<String> hashTags, LocalDateTime createdDate,
-                       LocalDateTime modifiedDate, Integer postCommentsCount) {
+                       LocalDateTime modifiedDate) {
         this.postId = postId;
         this.writerInfo = writerInfo;
         this.content = content;
@@ -59,15 +59,13 @@ public class PostInfoDto {
         this.documentUrls = documentUrls;
         this.createdDate = createdDate;
         this.modifiedDate = modifiedDate;
+    }
+
+    public void updatePostCommentCount(Integer postCommentsCount) {
         this.postCommentsCount = postCommentsCount;
     }
 
     public static PostInfoDto toDto(Post post) {
-
-        Integer commentsCount = 0;
-        for (Comment comment: post.getComments())
-            if (comment.getDeleted() == null && comment.getParent() == null)
-                commentsCount++;
 
         return PostInfoDto.builder()
                 .postId(post.getId())
@@ -78,7 +76,6 @@ public class PostInfoDto {
                 .documentUrls(post.getPostDocuments().stream().map(postDocument -> postDocument.getUrl()).collect(Collectors.toList()))
                 .createdDate(post.getCreatedDate())
                 .modifiedDate(post.getModifiedDate())
-                .postCommentsCount(commentsCount)
                 .build();
     }
 }

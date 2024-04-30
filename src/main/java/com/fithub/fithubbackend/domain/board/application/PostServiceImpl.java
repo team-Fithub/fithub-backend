@@ -21,13 +21,18 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
+    private final CommentService commentService;
 
     @Override
     @Transactional(readOnly = true)
     public Page<PostInfoDto> getAllPosts(Pageable pageable) {
         Page<Post> posts = postRepository.findAll(pageable);
-        Page<PostInfoDto> postInfoDtos = posts.map(PostInfoDto::toDto);
-        return postInfoDtos;
+
+        return posts.map(post -> {
+            PostInfoDto postInfoDto = PostInfoDto.toDto(post);
+            postInfoDto.updatePostCommentCount((int) commentService.countCommentByPostId(postInfoDto.getPostId()));
+            return postInfoDto;
+        });
     }
 
     @Override
@@ -66,7 +71,12 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public Page<PostInfoDto> searchPostsByKeyword(PostSearchFilterDto filter, Pageable pageable) {
         Page<Post> posts = postRepository.searchPostsByKeyword(filter, pageable);
-        return posts.map(PostInfoDto::toDto);
+
+        return posts.map(post -> {
+            PostInfoDto postInfoDto = PostInfoDto.toDto(post);
+            postInfoDto.updatePostCommentCount((int) commentService.countCommentByPostId(postInfoDto.getPostId()));
+            return postInfoDto;
+        });
     }
 
     @Transactional

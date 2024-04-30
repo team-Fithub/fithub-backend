@@ -13,5 +13,7 @@ public interface CommentService {
 
     long countComment(Post post);
 
+    long countCommentByPostId(long postId);
+
     List<CommentInfoDto> getDetailComments(long commentId);
 }
