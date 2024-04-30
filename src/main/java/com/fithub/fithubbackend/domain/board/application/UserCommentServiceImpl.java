@@ -9,7 +9,10 @@ import com.fithub.fithubbackend.domain.board.repository.CommentRepository;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.global.exception.CustomException;
 import com.fithub.fithubbackend.global.exception.ErrorCode;
+import com.fithub.fithubbackend.global.notify.NotificationType;
+import com.fithub.fithubbackend.global.notify.dto.NotifyRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,10 +22,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserCommentServiceImpl implements UserCommentService {
+    private final ApplicationEventPublisher eventPublisher;
     private final CommentRepository commentRepository;
     private final PostService postService;
 
-    // TODO 댓글 작성 시, 게시글 작성자(+부모 댓글 작성자)에게 알림 전송
     @Override
     @Transactional
     public void createComment(CommentCreateDto commentCreateDto, User user) {
@@ -34,6 +37,50 @@ public class UserCommentServiceImpl implements UserCommentService {
                 .parent(commentCreateDto.getParentCommentId() == null ? null : getComment(commentCreateDto.getParentCommentId()))
                 .build();
         commentRepository.save(comment);
+        sendNotify(comment);
+
+    }
+
+    private void sendNotify(Comment comment) {
+
+        Long postWriter = comment.getPost().getUser().getId();
+        Long commentWriter = comment.getUser().getId();
+        Long parentCommentWriter = comment.getParent() == null ? null : comment.getParent().getUser().getId();
+
+        if (parentCommentWriter != null) {
+            if (postWriter != commentWriter && parentCommentWriter != commentWriter && postWriter != parentCommentWriter) {
+                eventPublisher.publishEvent(createCommentNotifyRequestForPostWriter(comment));
+                eventPublisher.publishEvent(createCommentNotifyRequestForParentCommentWriter(comment));
+            }
+            else if(postWriter != commentWriter && postWriter == parentCommentWriter)
+                eventPublisher.publishEvent(createCommentNotifyRequestForPostWriter(comment));
+            else if(postWriter != commentWriter && commentWriter == parentCommentWriter)
+                eventPublisher.publishEvent(createCommentNotifyRequestForPostWriter(comment));
+            else if(postWriter == commentWriter && commentWriter != parentCommentWriter)
+                eventPublisher.publishEvent(createCommentNotifyRequestForParentCommentWriter(comment));
+
+        } else {
+            if (commentWriter != postWriter)
+                eventPublisher.publishEvent(createCommentNotifyRequestForPostWriter(comment));
+        }
+    }
+
+    private NotifyRequestDto createCommentNotifyRequestForPostWriter(Comment comment) {
+        return NotifyRequestDto.builder()
+                .receiver(comment.getPost().getUser())
+                .content(comment.getUser().getNickname() + "님이 회원님의 게시글에 댓글을 남겼습니다.")
+                .urlId(comment.getPost().getId())
+                .type(NotificationType.COMMENT)
+                .build();
+    }
+
+    private NotifyRequestDto createCommentNotifyRequestForParentCommentWriter(Comment comment) {
+        return NotifyRequestDto.builder()
+                .receiver(comment.getParent().getUser())
+                .content(comment.getUser().getNickname() + "님이 회원님의 댓글에 답글을 남겼습니다. ")
+                .urlId(comment.getPost().getId())
+                .type(NotificationType.COMMENT)
+                .build();
     }
 
     @Override

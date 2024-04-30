@@ -35,7 +35,15 @@ https://github.com/team-Fithub/fithub-front
 </div>
 <br>
 
-### 
+## 화면 구성
+| 메인 페이지  |  트레이너 페이지   |
+| :-------------------------------------------: | :------------: |
+|  <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/28b960d3-7a89-48ab-84e3-c52d57d76ceb"/> |  <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/f18aa8aa-f82e-4caa-b536-3a454408ca5e"/>|  
+| **게시글**  |  **트레이닝 조회** |  
+| <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/3109ca9f-a21d-47f7-bd4d-7b9ba0326574"/>   |  <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/e45bacfb-5381-40a4-8c10-7828bd968908"/>     |
+
+<br>
+
 ## 📄 주요 기능
 ### 사용자
 > - 조회    
