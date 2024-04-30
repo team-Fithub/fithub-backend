@@ -25,7 +25,7 @@ public class NotifyRequestDto {
     @Builder
     public NotifyRequestDto(User receiver, Long urlId, String content, NotificationType type) {
         String url = switch (type) {
-            case COMMENT, LIKE_POST -> "/posts/" + urlId;
+            case COMMENT, LIKE_POST -> "/post/" + urlId;
             case RESERVATION -> "/trainer/home";
             case REVIEW -> "/detail/" + urlId;
             case NOSHOW -> "/user/cancellations";
