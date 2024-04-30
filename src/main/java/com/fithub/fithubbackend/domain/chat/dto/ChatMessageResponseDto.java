@@ -5,9 +5,11 @@ import com.fithub.fithubbackend.domain.chat.domain.ChatMessage;
 import com.fithub.fithubbackend.global.domain.Document;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 @Getter
+@Setter
 public class ChatMessageResponseDto {
 
     @Schema(description = "메세지 id")
@@ -18,6 +20,9 @@ public class ChatMessageResponseDto {
 
     @Schema(description = "발신자 구분")
     private boolean isMe;
+
+    @Schema(description = "발신자 이메일")
+    private String senderEmail;
 
     @Schema(description = "발신자 닉네임")
     private String senderNickname;
