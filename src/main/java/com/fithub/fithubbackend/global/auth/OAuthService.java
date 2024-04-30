@@ -3,6 +3,7 @@ package com.fithub.fithubbackend.global.auth;
 import com.fithub.fithubbackend.domain.user.domain.User;
 import com.fithub.fithubbackend.domain.user.repository.DocumentRepository;
 import com.fithub.fithubbackend.domain.user.repository.UserRepository;
+import com.fithub.fithubbackend.global.domain.Document;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -82,6 +84,8 @@ public class OAuthService implements OAuth2UserService<OAuth2UserRequest, OAuth2
                         return ofNaver(user);
                     });
         }
+        Optional<Document> defaultDocument = documentRepository.findById(1L);
+        defaultDocument.ifPresent(newUser::updateProfileImg);
         return userRepository.save(newUser);
     }
 
