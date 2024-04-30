@@ -45,7 +45,11 @@ public class ChatMessageServiceImpl implements ChatMessageService{
         String receiverEmail = users.get(0).getEmail();
         simpMessagingTemplate.convertAndSend("/topic/alarm/" + receiverEmail, "새로운 채팅!");
 
-        return new ChatMessageResponseDto(message, sender.getId());
+        // ws 발행 위한 발신자 email 데이터 추가
+        ChatMessageResponseDto responseDto = new ChatMessageResponseDto(message, sender.getId());
+        responseDto.setSenderEmail(sender.getEmail());
+
+        return responseDto;
     }
 
     @Transactional
