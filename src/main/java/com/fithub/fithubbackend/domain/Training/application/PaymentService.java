@@ -10,6 +10,8 @@ import java.io.IOException;
 
 public interface PaymentService {
     Long saveOrder(ReserveReqDto dto, User user);
+    void updateAvailableDate(Long availableDateId);
+    void updateTrainingStatus(Long trainingId);
 
     Long validate(PaymentReqDto dto) throws IamportResponseException, IOException;
 

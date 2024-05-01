@@ -42,7 +42,10 @@ public class PaymentController {
     @PostMapping("/order")
     public ResponseEntity<Long> saveOrder(@RequestBody @Valid ReserveReqDto dto, @AuthUser User user) {
         if(user == null) throw new CustomException(ErrorCode.AUTHENTICATION_ERROR, "로그인한 사용자만 가능합니다.");
-        return ResponseEntity.ok(paymentService.saveOrder(dto, user));
+        Long orderId = paymentService.saveOrder(dto, user);
+        paymentService.updateAvailableDate(dto.getReservationDateId());
+        paymentService.updateTrainingStatus(dto.getTrainingId());
+        return ResponseEntity.ok(orderId);
     }
 
     @Operation(summary = "결제 금액 검증 api", description = "결제가 진행된 후에 결제한 금액과 트레이닝에 등록된 금액이 다른지 검증", responses = {

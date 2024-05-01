@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface AvailableDateRepository extends JpaRepository<AvailableDate, Long> {
     Optional<AvailableDate> findByTrainingIdAndDate(Long trainingId, LocalDate date);
 
-    boolean existsByEnabledTrueAndTrainingIdAndIdNot(Long trainingId, Long id);
+    boolean existsByEnabledTrueAndTrainingId(Long trainingId);
 }
