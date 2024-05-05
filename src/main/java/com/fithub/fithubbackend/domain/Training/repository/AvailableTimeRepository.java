@@ -1,5 +1,6 @@
 package com.fithub.fithubbackend.domain.Training.repository;
 
+import com.fithub.fithubbackend.domain.Training.domain.AvailableDate;
 import com.fithub.fithubbackend.domain.Training.domain.AvailableTime;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
@@ -9,7 +10,6 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.QueryHints;
 
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 
 public interface AvailableTimeRepository extends JpaRepository<AvailableTime, Long> {
@@ -20,7 +20,6 @@ public interface AvailableTimeRepository extends JpaRepository<AvailableTime, Lo
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     Optional<AvailableTime> findById(@NotNull Long id);
 
-    boolean existsByEnabledTrueAndAvailableDateIdAndIdNot(Long availableDateId, Long id);
-    boolean existsByEnabledTrueAndAvailableDateId(Long availableDateId);
+    boolean existsByEnabledTrueAndAvailableDate(AvailableDate date);
     Optional<AvailableTime> findByEnabledTrueAndAvailableDateIdAndTime(Long availableDateId, LocalTime time);
 }

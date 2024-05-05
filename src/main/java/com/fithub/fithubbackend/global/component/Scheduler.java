@@ -70,7 +70,7 @@ public class Scheduler {
     }
 
     private void closeDateIfTimeAllClosed(AvailableDate date) {
-        if (!availableTimeRepository.existsByEnabledTrueAndAvailableDateId(date.getId())) {
+        if (!availableTimeRepository.existsByEnabledTrueAndAvailableDate(date)) {
             date.closeDate();
         }
     }

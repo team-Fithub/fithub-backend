@@ -80,30 +80,12 @@ public class PaymentServiceImpl implements PaymentService {
         if (!availableTime.getAvailableDate().equals(availableDate)) {
             throw new CustomException(ErrorCode.DATE_OR_TIME_ERROR, "예약 하려는 날짜에 해당하는 시간이 아닙니다.");
         }
-
-        closeReservationDateTime(availableTime, availableDate);
-        availableDateRepository.saveAndFlush(availableDate);
-        availableTimeRepository.saveAndFlush(availableTime);
-
-        updateTrainingStatus(training, availableDate.getId());
+        availableTime.closeTime();
 
         ReserveInfo reserveInfo = reserveInfoRepository.save(createReserveInfo(user, training, availableDate, availableTime));
 
         eventPublisher.publishEvent(createReservationNotifyRequest(training));
         return reserveInfo.getId();
-    }
-
-    private void closeReservationDateTime(AvailableTime availableTime, AvailableDate availableDate) {
-        availableTime.closeTime();
-        if (!availableTimeRepository.existsByEnabledTrueAndAvailableDateIdAndIdNot(availableDate.getId(), availableTime.getId())) {
-            availableDate.closeDate();
-        }
-    }
-
-    private void updateTrainingStatus(Training training, Long availableDateId) {
-        if (!availableDateRepository.existsByEnabledTrueAndTrainingIdAndIdNot(training.getId(), availableDateId)) {
-            training.updateClosed(true);
-        }
     }
 
     private ReserveInfo createReserveInfo(User user, Training training, AvailableDate availableDate, AvailableTime availableTime) {
@@ -122,6 +104,28 @@ public class PaymentServiceImpl implements PaymentService {
                 .urlId(null)
                 .type(NotificationType.RESERVATION)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void updateAvailableDate(Long availableDateId) {
+        AvailableDate availableDate = availableDateRepository.findById(availableDateId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "해당 예약 날짜는 존재하지 않습니다."));
+        if (availableDate.isEnabled()) {
+            if (!availableTimeRepository.existsByEnabledTrueAndAvailableDate(availableDate)) {
+                availableDate.closeDate();
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateTrainingStatus(Long trainingId) {
+        Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND, "존재하지 않는 트레이닝입니다."));
+        if (!training.isClosed()){
+            if (!availableDateRepository.existsByEnabledTrueAndTrainingId(trainingId)) {
+                training.updateClosed(true);
+            }
+        }
     }
 
     @Override
