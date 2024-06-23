@@ -41,6 +41,8 @@ https://github.com/team-Fithub/fithub-front
 |  <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/28b960d3-7a89-48ab-84e3-c52d57d76ceb"/> |  <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/f18aa8aa-f82e-4caa-b536-3a454408ca5e"/>|  
 | **게시글**  |  **트레이닝 조회** |  
 | <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/3109ca9f-a21d-47f7-bd4d-7b9ba0326574"/>   |  <img src="https://github.com/team-Fithub/fithub-backend/assets/68698007/e45bacfb-5381-40a4-8c10-7828bd968908"/>     |
+| **프로필-트레이닝 예약/종료 내역** ||
+| <img src="https://github.com/team-Fithub/fithub-front/assets/68698007/d3a0eed5-ddb5-4eec-b58d-86361c3cbac9"/> ||
 
 <br>
 
